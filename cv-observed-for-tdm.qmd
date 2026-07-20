@@ -827,3 +827,38 @@ plot_impact_chart(build_impact_table("Heavy Truck %"), "Heavy Truck % by Functio
 ```
 
 The result is not a simple Medium-to-Heavy reshuffle. Region-wide (All Roadways), Medium Truck % runs **12.1% (Current) → 9.3% (2003) → 2.0% (2024) → 6.0% (2025)**, while Heavy Truck % runs **5.5% (Current) → 6.3% (2003) → 5.1% (2024) → 5.2% (2025)**. The 2003 column — contemporaneous with the current factors — lands close to Current on both, as expected. The bigger break shows up in 2024: Medium drops sharply while Heavy holds roughly steady, meaning total truck share (Medium + Heavy combined) falls overall rather than shifting between the two categories. That's because `L20-30`, the single highest-volume length bin, swings from "half truck" (50% MD) under the current factors to "almost entirely light vehicle" (94–79% LT, only 6–21% MD, near-zero HV) under the newer data — so a large share of volume that used to count toward Medium Truck % now doesn't count as a truck at all. The much smaller `L50-79` bin's shift toward Heavy (10%→0% MD, 90%→100% HV) works in the *other* direction but isn't large enough in volume to offset it. 2025 partially reverses the 2024 Medium drop (2.0% → 6.0%) while Heavy stays flat. The overall direction (lower combined truck share than Current/2003) is consistent across both 2024 and 2025 and is worth validating against the raw UDOT Statistics source data before treating it as a basis for changing the page's methodology.
+
+### CCS-Derived 2025/2003 Reclassification Ratio
+
+The table below expresses the CCS reclassification impact (from [Impact on CCS Truck Percentages](#impact-on-ccs-truck-percentages)) as a ratio rather than side-by-side percentages: for each functional class, the CCS-derived Medium (or Heavy) Truck % under the **2025** UDOT Statistics split factors divided by the same under the **2003** split factors (the vintage roughly contemporaneous with HPMS's current truck factors).
+
+```{python}
+# | label: reclass-ratio
+
+def ftclass_series(table, col):
+    return table.assign(**{"Functional Class": table["Functional Class"].astype(str)}).set_index("Functional Class")[col]
+
+reclass_ratio = pd.DataFrame(
+    {
+        "MD Ratio (2025/2003)": ftclass_series(ccs_table_2025, "Medium Truck %") / ftclass_series(ccs_table_2003, "Medium Truck %"),
+        "HV Ratio (2025/2003)": ftclass_series(ccs_table_2025, "Heavy Truck %") / ftclass_series(ccs_table_2003, "Heavy Truck %"),
+    }
+).reset_index()
+
+order = FT_ORDER + ["All Roadways"]
+reclass_ratio = reclass_ratio.set_index("Functional Class").reindex(order).reset_index()
+reclass_ratio["Functional Class"] = pd.Categorical(reclass_ratio["Functional Class"], categories=order, ordered=True)
+
+styler = reclass_ratio.style.format(
+    {"MD Ratio (2025/2003)": "{:.2f}x", "HV Ratio (2025/2003)": "{:.2f}x"},
+    na_rep="—",
+).hide(axis="index")
+right_align(styler)
+```
+
+A "—" means CCS had no matched stations for that functional class (e.g. Local), so no ratio could be computed.
+
+```{python}
+# | label: reclass-ratio-export
+reclass_ratio.to_csv("data_processed/CCS_Reclass_Ratio_2025_2003.csv", index=False)
+```
