@@ -1,0 +1,8 @@
+pandas==1.4.4
+numpy==1.26.4
+geopandas==0.13.0
+matplotlib==3.4.3
+fiona==1.9.6
+pyogrio==0.10.0
+ipykernel
+jupyter

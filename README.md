@@ -54,15 +54,11 @@ scripts only when refreshing that data (e.g. a newer HPMS year).
 
 ## Setup
 
-Requires [Quarto](https://quarto.org) and a Python environment with:
+Requires [Quarto](https://quarto.org) and a Python environment with the packages in
+`requirements.txt`:
 
 ```
-pandas
-numpy
-geopandas
-matplotlib
-pyogrio        # or fiona -- geopandas' shapefile/gpkg reader
-ipykernel
+pip install -r requirements.txt
 ```
 
 Register a Jupyter kernel matching the `jupyter:` field in the qmd's frontmatter
@@ -75,8 +71,29 @@ python -m ipykernel install --user --name wftdm-docs
 Then render:
 
 ```
-quarto render 4t-truckvalidation.qmd
+quarto render cv-observed-for-tdm.qmd
 ```
 
 All paths in the qmd are relative to this folder, so it can be moved/copied anywhere
 without further changes.
+
+## Publishing to GitHub Pages
+
+`.github/workflows/publish.yml` renders the qmd and pushes it to the `gh-pages` branch
+on every push to `main` (or on manual trigger via the Actions tab). It needs two
+one-time repo settings, both under **Settings**:
+
+- **Actions → General → Workflow permissions**: set to "Read and write permissions" (the
+  built-in `GITHUB_TOKEN` needs write access to push to `gh-pages`).
+- **Pages → Build and deployment → Source**: "Deploy from a branch", branch `gh-pages`,
+  folder `/ (root)`.
+
+The live site is at https://WFRCAnalytics.github.io/DATA-Commercial-Vehicle-Observed-for-TDM/.
+The `gh-pages` branch is deploy output only -- don't edit it directly, it's overwritten
+on every publish.
+
+To publish manually instead (e.g. to test a change before pushing to `main`):
+
+```
+quarto publish gh-pages cv-observed-for-tdm.qmd
+```
