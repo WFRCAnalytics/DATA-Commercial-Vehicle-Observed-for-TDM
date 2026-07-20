@@ -1,0 +1,829 @@
+---
+title: Truck Validation
+jupyter: wftdm-docs
+echo: false
+warning: false
+message: false
+---
+
+This page compares Medium (Single Unit, "MD") and Heavy (Combination Unit, "HV") truck percentages and VMT by functional class from three independent sources, so the model's truck mix can be checked against observed data:
+
+1. **CCS Station Data** — truck percentages measured directly at UDOT Continuous/Classification Count Station (CCS) locations, matched to their nearest model segment.
+2. **HPMS VMT Data** — UDOT's AADT and truck-factor estimates (`AADT2023`, `SUTRUCKS`, `CUTRUCKS`) applied to the full network and rolled up to an effective, distance-weighted truck percentage.
+3. **Model VMT Data** — the model's own segment volumes by vehicle class, rolled up the same way.
+
+A fourth, external check against FHWA's statewide VM-4 data is discussed in [Regional Context](#regional-context-fhwa-vm-4-state-comparison) below.
+
+**Methodology note:** The CCS truck percentage is a *volume-weighted* average — for each functional class, total medium/heavy truck volume across all matching stations is divided by total volume across those stations (so higher-volume stations count more, rather than every station counting equally). The HPMS and Model truck percentages are *VMT-weighted* — each segment's truck/total volume is multiplied by its length (`DISTANCE`) before summing, so longer segments contribute proportionally more, consistent with how the existing VMT validation figures on the Highway Assignment page are built. A small number of non-highway/connector segments have UDOT truck factors that aren't considered reliable; those segments are still counted toward total HPMS volume but excluded from the Medium/Heavy truck volume in the HPMS table.
+
+**VMT comparison basis:** CCS and HPMS stations/segments don't cover the whole network the way the model does, so the Medium/Heavy Truck VMT tables below express all three sources as an **Effective VMT** — each source's own truck percentage for a functional class, applied to the *model's* full-network total VMT for that class. This puts CCS, HPMS, and Model on the same complete-network basis so they're directly comparable; the Model VMT column is simply the model's own actual VMT (it needs no extrapolation, since it already covers every segment). Note this means "Model VMT" here is the full network total and will differ from the Highway Assignment page's "2b. Total Daily VMT by Roadway Class" table, whose "Model" column is restricted to only the segments that also have valid HPMS data (via an inner join) — a narrower, HPMS-matched comparison basis.
+
+```{python}
+# ==============================================================================
+# CONFIGURATION
+# ==============================================================================
+import numpy as np
+import pandas as pd
+import geopandas as gpd
+import matplotlib.pyplot as plt
+```
+
+```{python}
+config_paths = {
+    "mod_path": r"data/Summary_SEGID.csv",
+    "path_in_segments": r"data/seg_shp/WFv1000_Segments.shp",
+    "path_in_region": r"data/RegionalBoundary.gpkg",
+    "path_in_ccs_counts": r"data/UDOT_VehicleClassificationCounts/JKLP_Length_WFRC_2023_Sept_Nov.csv",
+    "path_in_ccs_locations": r"data/UDOT_VehicleClassificationCounts/SiteData.csv",
+    "path_in_vm4": r"data/FHWA_VM4_2023_UrbanTruckPct.csv",
+}
+
+CRS_UTM = 26912  # NAD83 / UTM zone 12N
+FT_ORDER = ["Freeway", "Expressway", "Principal Arterial", "Minor Arterial", "Collector", "Local"]
+```
+
+```{python}
+# | label: shared-helper
+
+def build_ftclass_table(df, id_col, id_label):
+    """Sum MD/HV/Total volume (or VMT) by FTCLASS, add an All Roadways total
+    row, and compute the resulting Medium/Heavy truck percentages."""
+    cols = ["MD", "HV", "Total"]
+    grouped = df.groupby("FTCLASS")[cols].sum()
+    grouped[id_label] = df.groupby("FTCLASS")[id_col].nunique()
+
+    total = df[cols].sum()
+    total[id_label] = df[id_col].nunique()
+    total.name = "All Roadways"
+    grouped = pd.concat([grouped, total.to_frame().T])
+    grouped.index.name = "FTCLASS"
+
+    grouped["Medium Truck %"] = grouped["MD"] / grouped["Total"] * 100
+    grouped["Heavy Truck %"] = grouped["HV"] / grouped["Total"] * 100
+
+    grouped = grouped.reset_index().rename(columns={"FTCLASS": "Functional Class"})
+    order = FT_ORDER + ["All Roadways"]
+    grouped["Functional Class"] = pd.Categorical(
+        grouped["Functional Class"], categories=order, ordered=True
+    )
+    grouped = grouped.sort_values("Functional Class").reset_index(drop=True)
+
+    # MD/HV/Total are kept (not just the percentages) so callers can reuse the
+    # underlying volume/VMT sums, e.g. to build a VMT comparison table.
+    return grouped[
+        ["Functional Class", id_label, "MD", "HV", "Total", "Medium Truck %", "Heavy Truck %"]
+    ]
+
+
+def right_align(styler):
+    """Right-justify every numeric column's header and data cells."""
+    numeric_cols = [c for c in styler.data.columns if pd.api.types.is_numeric_dtype(styler.data[c])]
+    table_styles = [
+        {"selector": f"th.col_heading.col{i}", "props": [("text-align", "right")]}
+        for i, c in enumerate(styler.data.columns)
+        if c in numeric_cols
+    ]
+    return styler.set_properties(subset=numeric_cols, **{"text-align": "right"}).set_table_styles(
+        table_styles, overwrite=False
+    )
+
+
+def style_table(df, id_label):
+    display_cols = ["Functional Class", id_label, "Medium Truck %", "Heavy Truck %"]
+    styler = df[display_cols].style.format(
+        {id_label: "{:,.0f}", "Medium Truck %": "{:.1f}%", "Heavy Truck %": "{:.1f}%"}
+    ).hide(axis="index")
+    return right_align(styler)
+
+
+def build_comparison_table(metric_col):
+    """Merge the three sources' truck-percent tables side-by-side by functional class."""
+    frames = []
+    for label, table in [("CCS", ccs_table), ("HPMS", hpms_table), ("Model", model_table)]:
+        frames.append(
+            table[["Functional Class", metric_col]]
+            .assign(**{"Functional Class": lambda d: d["Functional Class"].astype(str)})
+            .rename(columns={metric_col: label})
+        )
+
+    merged = frames[0]
+    for f in frames[1:]:
+        merged = merged.merge(f, on="Functional Class", how="outer")
+
+    order = FT_ORDER + ["All Roadways"]
+    merged["Functional Class"] = pd.Categorical(
+        merged["Functional Class"], categories=order, ordered=True
+    )
+    return merged.sort_values("Functional Class").reset_index(drop=True)
+
+
+def style_comparison(df):
+    styler = df.style.format(
+        {"CCS": "{:.1f}%", "HPMS": "{:.1f}%", "Model": "{:.1f}%"}, na_rep="—"
+    ).hide(axis="index")
+    return right_align(styler)
+
+
+def build_vmt_table(rate_col, vmt_col):
+    """Apply each source's own truck rate (rate_col) to the model's full
+    network Total VMT for that functional class, so CCS, HPMS, and Model are
+    all expressed on the same complete-network VMT basis. Model VMT is left
+    as the model's own actual VMT -- it already covers the full network, so
+    "its own rate applied to its own total" is just its own value."""
+    network_total = model_table[["Functional Class", "Total"]].assign(
+        **{"Functional Class": lambda d: d["Functional Class"].astype(str)}
+    )
+    ccs_rate = (
+        ccs_table[["Functional Class", rate_col]]
+        .assign(**{"Functional Class": lambda d: d["Functional Class"].astype(str)})
+        .rename(columns={rate_col: "CCS Rate"})
+    )
+    hpms_rate = (
+        hpms_table[["Functional Class", rate_col]]
+        .assign(**{"Functional Class": lambda d: d["Functional Class"].astype(str)})
+        .rename(columns={rate_col: "HPMS Rate"})
+    )
+    model_vmt = (
+        model_table[["Functional Class", vmt_col]]
+        .assign(**{"Functional Class": lambda d: d["Functional Class"].astype(str)})
+        .rename(columns={vmt_col: "Model VMT"})
+    )
+
+    merged = (
+        network_total.merge(ccs_rate, on="Functional Class", how="left")
+        .merge(hpms_rate, on="Functional Class", how="left")
+        .merge(model_vmt, on="Functional Class", how="left")
+    )
+    merged["CCS Effective VMT"] = merged["CCS Rate"] / 100 * merged["Total"]
+    merged["HPMS Effective VMT"] = merged["HPMS Rate"] / 100 * merged["Total"]
+    merged = merged[["Functional Class", "CCS Effective VMT", "HPMS Effective VMT", "Model VMT"]]
+
+    order = FT_ORDER + ["All Roadways"]
+    merged["Functional Class"] = pd.Categorical(
+        merged["Functional Class"], categories=order, ordered=True
+    )
+    return merged.sort_values("Functional Class").reset_index(drop=True)
+
+
+def style_vmt(df):
+    styler = df.style.format(
+        {
+            "CCS Effective VMT": "{:,.0f}",
+            "HPMS Effective VMT": "{:,.0f}",
+            "Model VMT": "{:,.0f}",
+        },
+        na_rep="—",
+    ).hide(axis="index")
+    return right_align(styler)
+```
+
+```{python}
+# | label: network-load
+
+# Full segment shapefile read: supplies route/milepost fields for the CCS
+# spatial match, and DISTANCE/AADT2023/FAC_WDAVG/SUTRUCKS/CUTRUCKS for the
+# HPMS table. Note: the shapefile does NOT carry the model's FTCLASS
+# taxonomy (it has FNCLASS/FC_GROUP instead) -- FTCLASS is sourced from the
+# model's Summary_SEGID.csv output instead, same as the Highway Assignment
+# validation page.
+gdf_segments = gpd.read_file(config_paths["path_in_segments"]).to_crs(CRS_UTM)
+gdf_segments["SEGID"] = gdf_segments["SEGID"].astype(str)
+
+temp_route = gdf_segments["SEGID"].str.split("_").str[0]
+gdf_segments["MODEL_ROUTE"] = pd.to_numeric(temp_route, errors="coerce")
+gdf_segments["MODEL_MP"] = gdf_segments["SEGID"].str.split("_").str[1].astype(float)
+
+gdf_network_clean = gdf_segments.dropna(subset=["MODEL_ROUTE", "MODEL_MP"]).copy()
+gdf_network_clean["MODEL_ROUTE"] = gdf_network_clean["MODEL_ROUTE"].astype(int)
+
+mod_df_wide = pd.read_csv(
+    config_paths["mod_path"],
+    usecols=["SEGID", "FTCLASS", "DISTANCE", "DY_Vol_PC", "DY_Vol_LT", "DY_Vol_MD", "DY_Vol_HV"],
+)
+mod_df_wide["SEGID"] = mod_df_wide["SEGID"].astype(str)
+ft_lookup = mod_df_wide[["SEGID", "FTCLASS"]].drop_duplicates()
+```
+
+```{python}
+# | label: ccs-region
+
+gdf_region = (
+    gpd.read_file(
+        config_paths["path_in_region"],
+        layer="RegionalBoundaryComponents",
+        where="PlanOrg IN ('MAG MPO', 'WFRC MPO')",
+    )
+    .dissolve()
+    .to_crs(CRS_UTM)
+)
+
+gdf_region["geometry"] = gdf_region.buffer(1).buffer(-1).buffer(16093.4)  # 10 mile buffer
+```
+
+```{python}
+# | label: ccs-locations
+
+df_sites = pd.read_csv(config_paths["path_in_ccs_locations"])
+gdf_ccs_locations = (
+    gpd.GeoDataFrame(
+        df_sites,
+        geometry=gpd.points_from_xy(df_sites.LONGITUDE, df_sites.LATITUDE),
+        crs="EPSG:4326",
+    )
+    .to_crs(CRS_UTM)
+    .clip(gdf_region)
+)
+
+gdf_ccs_locations["SITE"] = gdf_ccs_locations["SITE"].astype(str)
+gdf_ccs_locations["ROUTE"] = (
+    pd.to_numeric(gdf_ccs_locations["ROUTE"], errors="coerce").fillna(0).astype(int)
+)
+gdf_ccs_locations["MILEPOST"] = pd.to_numeric(
+    gdf_ccs_locations["MILEPOST"], errors="coerce"
+)
+```
+
+```{python}
+# | label: ccs-spatial-join
+
+gdf_net_join = gdf_network_clean.copy()
+gdf_net_join["MODEL_ROUTE"] = (
+    pd.to_numeric(gdf_net_join["MODEL_ROUTE"], errors="coerce").fillna(0).astype(int)
+)
+gdf_net_join["BMP"] = pd.to_numeric(gdf_net_join["BMP"], errors="coerce")
+gdf_net_join["EMP"] = pd.to_numeric(gdf_net_join["EMP"], errors="coerce")
+
+match_results = []
+
+for idx, row in gdf_ccs_locations.iterrows():
+    site_id = row["SITE"]
+    route = row["ROUTE"]
+    mp = row["MILEPOST"]
+    geom = row["geometry"]
+
+    matched_segid = None
+
+    if route > 0:
+        route_segs = gdf_net_join[gdf_net_join["MODEL_ROUTE"] == route]
+    else:
+        route_segs = pd.DataFrame()
+
+    if not route_segs.empty:
+        mp_match = route_segs[
+            (route_segs["BMP"] <= mp + 0.001) & (route_segs["EMP"] >= mp - 0.001)
+        ]
+        if not mp_match.empty:
+            matched_segid = mp_match.loc[mp_match.distance(geom).idxmin(), "SEGID"]
+        elif matched_segid is None:
+            matched_segid = gdf_net_join.loc[gdf_net_join.distance(geom).idxmin(), "SEGID"]
+    elif matched_segid is None:
+        matched_segid = route_segs.loc[route_segs.distance(geom).idxmin(), "SEGID"]
+
+    match_results.append({"SITE": site_id, "MATCHED_SEGID": matched_segid})
+
+df_bridge = pd.DataFrame(match_results)
+
+df_bridge = df_bridge.merge(
+    ft_lookup,
+    left_on="MATCHED_SEGID",
+    right_on="SEGID",
+    how="left",
+).drop(columns=["SEGID"])
+
+# Same manual overrides used on the Highway Assignment validation page
+df_bridge = df_bridge[~df_bridge["SITE"].isin(["-680", "-816", "-302", "-664"])]
+```
+
+```{python}
+# | label: ccs-process-observed
+
+df_obs_clean = (
+    pd.read_csv(config_paths["path_in_ccs_counts"])
+    .assign(
+        SITE=lambda x: x["SITE"].astype(str),
+        DATE_ONLY=lambda x: pd.to_datetime(x["DATE_ONLY"]),
+    )
+    .loc[lambda x: x["DATE_ONLY"].dt.dayofweek.isin([1, 2, 3])]  # Tue/Wed/Thu
+    .assign(
+        PERIOD=lambda x: np.select(
+            [
+                (x.HOUR >= 6) & (x.HOUR < 9),
+                (x.HOUR >= 9) & (x.HOUR < 15),
+                (x.HOUR >= 15) & (x.HOUR < 18),
+            ],
+            ["AM", "MD", "PM"],
+            default="EV",
+        )
+    )
+)
+
+splits = pd.DataFrame(
+    {
+        "LT": {"L0-8": 1.0, "L8-20": 1.0, "L20-30": 0.5, "L30-50": 0.3},
+        "MD": {"L20-30": 0.5, "L30-50": 0.5, "L50-79": 0.1},
+        "HV": {"L30-50": 0.2, "L50-79": 0.9, "L79-120": 1.0},
+    }
+).fillna(0)
+
+df_obs_split = df_obs_clean.merge(splits, left_on="LENGTH_DEF", right_index=True, how="left")
+for col in ["LT", "MD", "HV"]:
+    df_obs_split[col] = df_obs_split["COUNT"] * df_obs_split[col]
+
+df_obs_tidy = (
+    df_obs_split.groupby(["SITE", "DATE_ONLY", "PERIOD"])[["LT", "MD", "HV"]]
+    .sum()
+    .reset_index()
+    .groupby(["SITE", "PERIOD"])[["LT", "MD", "HV"]]
+    .mean()
+    .reset_index()
+)
+
+# Sum the four time periods (AM+MD+PM+EV) to get an average full-day volume per site
+df_obs_daily = df_obs_tidy.groupby("SITE")[["LT", "MD", "HV"]].sum().reset_index()
+df_obs_daily["Total"] = df_obs_daily[["LT", "MD", "HV"]].sum(axis=1)
+```
+
+```{python}
+# | label: ccs-summary
+
+ccs_wide = df_obs_daily.merge(df_bridge.drop_duplicates("SITE"), on="SITE", how="inner")
+ccs_wide = ccs_wide[ccs_wide["FTCLASS"].notna() & (ccs_wide["Total"] > 0)]
+
+ccs_table = build_ftclass_table(ccs_wide, id_col="SITE", id_label="Stations")
+```
+
+```{python}
+# | label: ccs-length-class-summary
+
+LENGTH_CLASS_LABELS = {
+    "L0-8": "Class 6 (0-8 ft)",
+    "L8-20": "Class 8 (8-20 ft)",
+    "L20-30": "Class 9 (20-30 ft)",
+    "L30-50": "Class 2 (30-50 ft)",
+    "L50-79": "Class 3 (50-79 ft)",
+    "L79-120": "Class 5 (>79 ft)",
+}
+LENGTH_CLASS_ORDER = list(LENGTH_CLASS_LABELS.keys())
+
+# Average daily (Tue/Wed/Thu) raw count volume by length bin, summed across all CCS stations
+df_length_daily = (
+    df_obs_clean.groupby(["SITE", "DATE_ONLY", "LENGTH_DEF"])["COUNT"]
+    .sum()
+    .reset_index()
+    .groupby(["SITE", "LENGTH_DEF"])["COUNT"]
+    .mean()
+    .reset_index()
+)
+
+df_length_total = df_length_daily.groupby("LENGTH_DEF")["COUNT"].sum().reset_index()
+df_length_total = df_length_total.merge(
+    splits.reset_index().rename(columns={"index": "LENGTH_DEF"}), on="LENGTH_DEF", how="left"
+)
+
+df_length_total["MD Volume"] = df_length_total["COUNT"] * df_length_total["MD"]
+df_length_total["HV Volume"] = df_length_total["COUNT"] * df_length_total["HV"]
+df_length_total = df_length_total.rename(columns={"COUNT": "Total Volume"})
+
+length_table = df_length_total[["LENGTH_DEF", "Total Volume", "MD Volume", "HV Volume"]].copy()
+length_table["Vehicle Length Class"] = length_table["LENGTH_DEF"].map(LENGTH_CLASS_LABELS)
+
+total_row = pd.DataFrame(
+    [{
+        "Vehicle Length Class": "Total",
+        "Total Volume": length_table["Total Volume"].sum(),
+        "MD Volume": length_table["MD Volume"].sum(),
+        "HV Volume": length_table["HV Volume"].sum(),
+    }]
+)
+
+length_table["LENGTH_DEF"] = pd.Categorical(
+    length_table["LENGTH_DEF"], categories=LENGTH_CLASS_ORDER, ordered=True
+)
+length_table = length_table.sort_values("LENGTH_DEF")[
+    ["Vehicle Length Class", "Total Volume", "MD Volume", "HV Volume"]
+]
+length_table = pd.concat([length_table, total_row], ignore_index=True)
+```
+
+```{python}
+# | label: hpms-summary
+
+obs_df = gdf_segments[
+    ["SEGID", "DISTANCE", "AADT2023", "FAC_WDAVG", "SUTRUCKS", "CUTRUCKS"]
+].copy()
+obs_df = obs_df[obs_df["AADT2023"] > 0]
+obs_df = obs_df.merge(ft_lookup, on="SEGID", how="left")
+obs_df = obs_df[obs_df["FTCLASS"].notna()]
+
+obs_df["Total"] = obs_df["AADT2023"] * obs_df["FAC_WDAVG"]
+obs_df["MD"] = obs_df["Total"] * obs_df["SUTRUCKS"]
+obs_df["HV"] = obs_df["Total"] * obs_df["CUTRUCKS"]
+
+# Same segment-range exclusion used on the Highway Assignment validation page:
+# non-highway/connector segments keep their total volume but are excluded
+# from the medium/heavy truck split (unreliable UDOT truck factors).
+seg4 = obs_df["SEGID"].astype(str).str[:4]
+seg4_num = pd.to_numeric(seg4, errors="coerce")
+valid_truck_seg = seg4_num.notna() & ~seg4_num.between(1000, 9999)
+obs_df.loc[~valid_truck_seg, ["MD", "HV"]] = 0
+
+obs_df["MD"] = obs_df["MD"] * obs_df["DISTANCE"]
+obs_df["HV"] = obs_df["HV"] * obs_df["DISTANCE"]
+obs_df["Total"] = obs_df["Total"] * obs_df["DISTANCE"]
+
+hpms_table = build_ftclass_table(obs_df, id_col="SEGID", id_label="Segments")
+```
+
+```{python}
+# | label: model-summary
+
+mod_df_wide["Total"] = (
+    mod_df_wide["DY_Vol_PC"]
+    + mod_df_wide["DY_Vol_LT"]
+    + mod_df_wide["DY_Vol_MD"]
+    + mod_df_wide["DY_Vol_HV"]
+)
+mod_df_wide = mod_df_wide[mod_df_wide["Total"] > 0]
+
+mod_df_wide["MD"] = mod_df_wide["DY_Vol_MD"] * mod_df_wide["DISTANCE"]
+mod_df_wide["HV"] = mod_df_wide["DY_Vol_HV"] * mod_df_wide["DISTANCE"]
+mod_df_wide["Total"] = mod_df_wide["Total"] * mod_df_wide["DISTANCE"]
+
+model_table = build_ftclass_table(mod_df_wide, id_col="SEGID", id_label="Segments")
+```
+
+```{python}
+# | label: comparison-tables
+
+md_compare = build_comparison_table("Medium Truck %")
+hv_compare = build_comparison_table("Heavy Truck %")
+md_vmt_compare = build_vmt_table("Medium Truck %", "MD")
+hv_vmt_compare = build_vmt_table("Heavy Truck %", "HV")
+```
+
+## Detailed Source Data
+
+The tables below show each source's own functional-class breakdown in full detail, including sample size (Stations/Segments) and the underlying methodology for each source.
+
+### CCS Station Truck Percentages
+
+```{python}
+# | label: ccs-summary-table
+style_table(ccs_table, "Stations")
+```
+
+#### CCS Truck Volume by Vehicle Length Class
+
+The table below shows the average daily (Tue/Wed/Thu) raw CCS count volume, split into Medium and Heavy truck volume using the Wavetronix/UDOT length-bin factors below, summed across all CCS stations. This is a region-wide cross-check on the Medium/Heavy split feeding the functional-class table above — the Total row's MD/HV volumes should match the "All Roadways" MD/HV totals used there.
+
+| Wavetronix Class | Length Bin | LT | MD | HV |
+|---|---|---|---|---|
+| Class 6: 0-8ft | L0-8 | 100% | 0% | 0% |
+| Class 8: 8-20ft | L8-20 | 100% | 0% | 0% |
+| Class 9: 20-30ft | L20-30 | 50% | 50% | 0% |
+| Class 2: 30-50ft | L30-50 | 30% | 50% | 20% |
+| Class 3: 50-79ft | L50-79 | 0% | 10% | 90% |
+| Class 5: >79ft | L79-120 | 0% | 0% | 100% |
+
+```{python}
+# | label: length-class-table
+styler = length_table.style.format(
+    {"Total Volume": "{:,.0f}", "MD Volume": "{:,.0f}", "HV Volume": "{:,.0f}"}
+).hide(axis="index")
+right_align(styler)
+```
+
+### HPMS Truck Percentages (VMT-Weighted)
+
+```{python}
+# | label: hpms-summary-table
+style_table(hpms_table, "Segments")
+```
+
+### Model Truck Percentages (VMT-Weighted)
+
+```{python}
+# | label: model-summary-table
+style_table(model_table, "Segments")
+```
+
+## Regional Context: FHWA VM-4 State Comparison
+
+The tables above validate the model against three sources that are all local to the WFRC/MAG region. As an outside sanity check, FHWA's Highway Statistics 2023 [Table VM-4](https://www.fhwa.dot.gov/policyinformation/statistics/2023/vm4.cfm) ("Distribution of Annual Vehicle Distance Traveled") reports each state's own truck share of urban VMT, split into single-unit ("SU", roughly comparable to Medium/"MD") and combination ("Comb", roughly comparable to Heavy/"HV") trucks, for the Interstate System and for Other Arterials. Comparing Utah's statewide figures to neighboring states shows whether Utah's reported truck mix -- which UDOT's HPMS submission (and therefore this page's HPMS table) is itself built from -- is broadly in line with the region, or an outlier.
+
+**Important caveats:** these are *statewide* Utah figures, not WFRC/MAG-area-specific, so they will not match the HPMS/Model tables above exactly. FHWA's road categories (Interstate System / Other Arterials) are also coarser than the model's six-class FTCLASS taxonomy -- Interstate roughly maps to Freeway, Other Arterials roughly spans Principal + Minor Arterial. And because VM-4 is itself compiled from each state's HPMS submission, it is not an independent ground truth -- it's a plausibility check on Utah's reported truck factors against its peers, not a validation of the model.
+
+```{python}
+# | label: vm4-load
+
+vm4_df = pd.read_csv(config_paths["path_in_vm4"])
+vm4_display = vm4_df.rename(
+    columns={
+        "Interstate_SU_Pct": "Interstate SU %",
+        "Interstate_Comb_Pct": "Interstate Comb %",
+        "OtherArterial_SU_Pct": "Other Arterial SU %",
+        "OtherArterial_Comb_Pct": "Other Arterial Comb %",
+    }
+)
+
+
+def style_vm4(df):
+    pct_cols = [c for c in df.columns if c != "State"]
+    styler = df.style.format({c: "{:.1f}%" for c in pct_cols}).hide(axis="index")
+    styler = styler.apply(
+        lambda row: [
+            "background-color: #fff3cd" if row["State"] == "Utah" else "" for _ in row
+        ],
+        axis=1,
+    )
+    return right_align(styler)
+
+
+style_vm4(vm4_display)
+```
+
+```{python}
+# | label: vm4-context-values
+
+freeway_hpms_hv = hpms_table.loc[hpms_table["Functional Class"] == "Freeway", "Heavy Truck %"].iloc[0]
+freeway_model_hv = model_table.loc[model_table["Functional Class"] == "Freeway", "Heavy Truck %"].iloc[0]
+ut_vm4_interstate_comb = vm4_df.loc[vm4_df["State"] == "Utah", "Interstate_Comb_Pct"].iloc[0]
+neighbor_comb_range = vm4_df.loc[vm4_df["State"] != "Utah", "Interstate_Comb_Pct"]
+neighbor_comb_min = neighbor_comb_range.min()
+neighbor_comb_max = neighbor_comb_range.max()
+```
+
+For context, on Freeway segments this page's HPMS table shows a Heavy Truck % of `{python} f"{freeway_hpms_hv:.1f}"`% and the Model shows `{python} f"{freeway_model_hv:.1f}"`%, versus Utah's statewide urban Interstate combination-truck share of `{python} f"{ut_vm4_interstate_comb:.1f}"`% reported to FHWA -- compared to a `{python} f"{neighbor_comb_min:.1f}"`% to `{python} f"{neighbor_comb_max:.1f}"`% range across Idaho, Wyoming, Colorado, Arizona, and Nevada. Wyoming's high combination-truck share reflects its heavy long-haul freight volumes on a thin urban VMT base, not a comparable population/land-use mix to the Wasatch Front -- it's included as a regional bookend rather than a close peer.
+
+## Summary Comparison
+
+**Quick summary:** the four tables below place CCS, HPMS, and Model side-by-side by functional class — the first two compare truck *percentages*, the second two compare truck *VMT*. Use the "All Roadways" row for the region-wide figure, and scan down each column to see which functional classes the model over- or under-represents relative to the observed sources. A "—" means that source has no data for that functional class (e.g. no CCS stations were matched to Local roads).
+
+### Medium Truck %
+
+```{python}
+# | label: md-comparison
+style_comparison(md_compare)
+```
+
+### Heavy Truck %
+
+```{python}
+# | label: hv-comparison
+style_comparison(hv_compare)
+```
+
+### Medium Truck VMT
+
+```{python}
+# | label: md-vmt-comparison
+style_vmt(md_vmt_compare)
+```
+
+### Heavy Truck VMT
+
+```{python}
+# | label: hv-vmt-comparison
+style_vmt(hv_vmt_compare)
+```
+
+## Proposed Changes to Truck Classification
+
+The `LT`/`MD`/`HV` length-bin split factors used throughout this page (100%/100%/50%/30%/0%/0% LT for the six bins, etc. — see the classification table in [CCS Truck Volume by Vehicle Length Class](#ccs-truck-volume-by-vehicle-length-class)) came from **UDOT Planning**. Separately, **UDOT's Statistics Department** has published its own FHWA 13-class vehicle-length distributions — a 2003-vintage dataset (roughly contemporaneous with the current factors), a finalized 2024 dataset, and a **preliminary, not-yet-finalized** 2025 dataset.
+
+Rolling the 13 FHWA classes into the same three groups used elsewhere on this page — Classes 1–4 (motorcycles, passenger cars, pickups/vans, buses) → **LT**, Classes 5–7 (single-unit trucks) → **MD**, Classes 8–13 (combination trucks) → **HV** — and summing each vintage's class shares within each length bin produces the split factors below. This section documents where the UDOT Statistics data diverges from the UDOT Planning factors currently in use, and what adopting the newer data would do to this page's CCS results. **It is a discussion starting point, not an implemented change** — nothing elsewhere on this page uses these alternate factors.
+
+### Recomputed LT/MD/HV Split Factors
+
+```{python}
+# | label: proposed-splits
+
+splits_2003 = pd.DataFrame(
+    {
+        "LT": {"L0-8": 1.0000, "L8-20": 1.0000, "L20-30": 0.5164, "L30-50": 0.6729, "L50-79": 0.0008, "L79-120": 0.0000},
+        "MD": {"L0-8": 0.0000, "L8-20": 0.0000, "L20-30": 0.4492, "L30-50": 0.1674, "L50-79": 0.0000, "L79-120": 0.0000},
+        "HV": {"L0-8": 0.0000, "L8-20": 0.0000, "L20-30": 0.0344, "L30-50": 0.1597, "L50-79": 0.9992, "L79-120": 1.0000},
+    }
+)
+
+splits_2024 = pd.DataFrame(
+    {
+        "LT": {"L0-8": 1.0000, "L8-20": 0.9986, "L20-30": 0.9406, "L30-50": 0.7816, "L50-79": 0.0000, "L79-120": 0.0000},
+        "MD": {"L0-8": 0.0000, "L8-20": 0.0014, "L20-30": 0.0582, "L30-50": 0.1852, "L50-79": 0.0000, "L79-120": 0.0000},
+        "HV": {"L0-8": 0.0000, "L8-20": 0.0000, "L20-30": 0.0011, "L30-50": 0.0332, "L50-79": 1.0000, "L79-120": 1.0000},
+    }
+)
+
+# 2025 is preliminary/not finalized; raw class shares for L30-50 and L79-120 summed to
+# ~99.6%-100.0% (source rounding) and are renormalized to 1.0 here.
+splits_2025 = pd.DataFrame(
+    {
+        "LT": {"L0-8": 1.0000, "L8-20": 0.9882, "L20-30": 0.7912, "L30-50": 0.6709, "L50-79": 0.0171, "L79-120": 0.0093},
+        "MD": {"L0-8": 0.0000, "L8-20": 0.0118, "L20-30": 0.2081, "L30-50": 0.2496, "L50-79": 0.0229, "L79-120": 0.0020},
+        "HV": {"L0-8": 0.0000, "L8-20": 0.0000, "L20-30": 0.0007, "L30-50": 0.0795, "L50-79": 0.9600, "L79-120": 0.9887},
+    }
+)
+
+BIN_ORDER = ["L0-8", "L8-20", "L20-30", "L30-50", "L50-79", "L79-120"]
+VINTAGES = [("Current", splits), ("2003", splits_2003), ("2024", splits_2024), ("2025 (Prelim)", splits_2025)]
+
+def splits_pct_table(splits_df, label):
+    t = (splits_df * 100).reindex(BIN_ORDER)
+    t.columns = [f"{label} {c}" for c in t.columns]
+    return t
+
+splits_compare = pd.concat(
+    [splits_pct_table(df, label) for label, df in VINTAGES],
+    axis=1,
+).reset_index().rename(columns={"index": "Length Bin"})
+
+# Group columns by LT/MD/HV first, then by vintage within each group
+category_order = [f"{label} {cat}" for cat in ["LT", "MD", "HV"] for label, _ in VINTAGES]
+splits_compare = splits_compare[["Length Bin"] + category_order]
+
+fmt = {c: "{:.0f}%" for c in splits_compare.columns if c != "Length Bin"}
+styler = splits_compare.style.format(fmt).hide(axis="index")
+right_align(styler)
+```
+
+```{python}
+# | label: chart-helpers
+
+CATEGORY_COLORS = {"LT": "#2a78d6", "MD": "#008300", "HV": "#e87ba4"}
+VINTAGE_COLORS = {"Current": "#2a78d6", "2003": "#008300", "2024": "#e87ba4", "2025 (Prelim)": "#eda100"}
+IMPACT_COLORS = {
+    "Current": "#2a78d6",
+    "2003 Data": "#008300",
+    "2024 Data": "#e87ba4",
+    "2025 Data (Prelim)": "#eda100",
+}
+
+def style_chart_axes(ax):
+    ax.set_facecolor("#fcfcfb")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_color("#c3c2b7")
+    ax.spines["bottom"].set_color("#c3c2b7")
+    ax.tick_params(colors="#52514e", labelsize=9)
+    ax.yaxis.grid(True, color="#e1e0d9", linewidth=1, zorder=0)
+    ax.set_axisbelow(True)
+```
+
+```{python}
+# | label: chart-split-composition
+# | fig-cap: "LT / MD / HV composition by length bin and data vintage"
+
+fig, axes = plt.subplots(2, 3, figsize=(11, 6.5), dpi=75, sharey=True)
+fig.patch.set_facecolor("#fcfcfb")
+
+vintage_labels = [label for label, _ in VINTAGES]
+bar_x = list(range(len(VINTAGES)))
+
+for ax, bin_name in zip(axes.flat, BIN_ORDER):
+    bottoms = [0.0] * len(VINTAGES)
+    for cat in ["LT", "MD", "HV"]:
+        vals = [df.loc[bin_name, cat] * 100 for _, df in VINTAGES]
+        ax.bar(
+            bar_x, vals, bottom=bottoms, width=0.6,
+            color=CATEGORY_COLORS[cat], edgecolor="#fcfcfb", linewidth=1,
+        )
+        bottoms = [b + v for b, v in zip(bottoms, vals)]
+    ax.set_title(bin_name, fontsize=10, color="#0b0b0b")
+    ax.set_xticks(bar_x)
+    ax.set_xticklabels(vintage_labels, rotation=35, ha="right", fontsize=8)
+    ax.set_ylim(0, 100)
+    style_chart_axes(ax)
+
+for ax in axes[:, 0]:
+    ax.set_ylabel("Share of Volume", fontsize=9, color="#52514e")
+
+handles = [plt.Rectangle((0, 0), 1, 1, color=CATEGORY_COLORS[cat]) for cat in ["LT", "MD", "HV"]]
+fig.legend(handles, ["LT", "MD", "HV"], loc="upper center", ncol=3, bbox_to_anchor=(0.5, 1.04), frameon=False)
+plt.tight_layout()
+plt.close(fig)
+fig
+```
+
+The current UDOT Planning factors and the UDOT Statistics data agree closely on the two shortest and the longest bins (`L0-8`, `L8-20`, `L79-120` — effectively 100% LT, LT, and HV respectively in both sources). They diverge substantially in the middle:
+
+- **`L20-30`**: this is the highest-volume length bin by far (see [CCS Truck Volume by Vehicle Length Class](#ccs-truck-volume-by-vehicle-length-class) — 1.19M of ~6.27M total daily volume, roughly 19%), and it shows the largest practical impact. The current factors assume a 50/50 LT/MD split here; the UDOT Statistics data shows LT increasingly dominant over time (52% in 2003, rising to 79–94% by 2024/2025). Because this bin carries so much volume, reclassifying most of it from "half truck" to "almost all light vehicle" drives a large net *reduction* in total truck percentage below, not just a reshuffling between Medium and Heavy.
+- **`L30-50`**: the current factors assume only 30% LT (70% MD/HV combined). The UDOT Statistics data — consistently across 2003, 2024, and preliminary 2025 — puts this bin at 67–78% LT. Same direction as `L20-30`, smaller volume.
+- **`L50-79`**: the current factors assume a 10%/90% MD/HV split. All three UDOT Statistics vintages instead show this bin as ~100% HV, with MD near zero — a shift *within* the truck categories (Medium → Heavy) rather than a change in total truck volume, but this bin's volume is small enough that it doesn't offset the `L20-30`/`L30-50` reduction.
+
+### Impact on CCS Truck Percentages
+
+The table below reruns the CCS Station Truck Percentages calculation (same spatial matching, same functional-class grouping) substituting the 2003, 2024, and preliminary 2025 UDOT Statistics split factors for the current UDOT Planning factors, to show how much the CCS-derived truck percentages would shift.
+
+```{python}
+# | label: proposed-impact
+
+def compute_ccs_table(splits_df):
+    df_split = df_obs_clean.merge(splits_df, left_on="LENGTH_DEF", right_index=True, how="left")
+    for col in ["LT", "MD", "HV"]:
+        df_split[col] = df_split["COUNT"] * df_split[col]
+
+    df_tidy = (
+        df_split.groupby(["SITE", "DATE_ONLY", "PERIOD"])[["LT", "MD", "HV"]]
+        .sum()
+        .reset_index()
+        .groupby(["SITE", "PERIOD"])[["LT", "MD", "HV"]]
+        .mean()
+        .reset_index()
+    )
+    df_daily = df_tidy.groupby("SITE")[["LT", "MD", "HV"]].sum().reset_index()
+    df_daily["Total"] = df_daily[["LT", "MD", "HV"]].sum(axis=1)
+
+    wide = df_daily.merge(df_bridge.drop_duplicates("SITE"), on="SITE", how="inner")
+    wide = wide[wide["FTCLASS"].notna() & (wide["Total"] > 0)]
+
+    return build_ftclass_table(wide, id_col="SITE", id_label="Stations")
+
+
+ccs_table_2003 = compute_ccs_table(splits_2003)
+ccs_table_2024 = compute_ccs_table(splits_2024)
+ccs_table_2025 = compute_ccs_table(splits_2025)
+
+
+def build_impact_table(rate_col):
+    frames = []
+    for label, table in [
+        ("Current", ccs_table),
+        ("2003 Data", ccs_table_2003),
+        ("2024 Data", ccs_table_2024),
+        ("2025 Data (Prelim)", ccs_table_2025),
+    ]:
+        frames.append(
+            table[["Functional Class", rate_col]]
+            .assign(**{"Functional Class": lambda d: d["Functional Class"].astype(str)})
+            .rename(columns={rate_col: label})
+        )
+    merged = frames[0]
+    for f in frames[1:]:
+        merged = merged.merge(f, on="Functional Class", how="outer")
+
+    order = FT_ORDER + ["All Roadways"]
+    merged["Functional Class"] = pd.Categorical(merged["Functional Class"], categories=order, ordered=True)
+    return merged.sort_values("Functional Class").reset_index(drop=True)
+
+
+def style_impact(df):
+    pct_cols = [c for c in df.columns if c != "Functional Class"]
+    fmt = {c: "{:.1f}%" for c in pct_cols}
+    styler = df.style.format(fmt, na_rep="—").hide(axis="index")
+    return right_align(styler)
+
+
+def plot_impact_chart(df, title):
+    classes = df["Functional Class"].astype(str).tolist()
+    series = [c for c in df.columns if c != "Functional Class"]
+    x = np.arange(len(classes))
+    bar_width = 0.8 / len(series)
+
+    fig, ax = plt.subplots(figsize=(9, 5), dpi=75)
+    fig.patch.set_facecolor("#fcfcfb")
+
+    for i, label in enumerate(series):
+        offset = (i - (len(series) - 1) / 2) * bar_width
+        ax.bar(x + offset, df[label], width=bar_width * 0.9, color=IMPACT_COLORS[label], label=label)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(classes, rotation=20, ha="right", fontsize=9)
+    ax.set_ylabel("Percent", fontsize=9, color="#52514e")
+    ax.set_title(title, fontsize=12, color="#0b0b0b", pad=36)
+    style_chart_axes(ax)
+    ax.legend(
+        frameon=False, fontsize=9, loc="upper center", ncol=len(series),
+        bbox_to_anchor=(0.5, 1.14), columnspacing=1.2,
+    )
+    plt.tight_layout()
+    plt.close(fig)
+    return fig
+```
+
+#### Medium Truck %
+
+```{python}
+# | label: md-impact
+style_impact(build_impact_table("Medium Truck %"))
+```
+
+```{python}
+# | label: chart-md-impact
+# | fig-cap: "Medium Truck % by functional class and data vintage"
+plot_impact_chart(build_impact_table("Medium Truck %"), "Medium Truck % by Functional Class and Data Vintage")
+```
+
+#### Heavy Truck %
+
+```{python}
+# | label: hv-impact
+style_impact(build_impact_table("Heavy Truck %"))
+```
+
+```{python}
+# | label: chart-hv-impact
+# | fig-cap: "Heavy Truck % by functional class and data vintage"
+plot_impact_chart(build_impact_table("Heavy Truck %"), "Heavy Truck % by Functional Class and Data Vintage")
+```
+
+The result is not a simple Medium-to-Heavy reshuffle. Region-wide (All Roadways), Medium Truck % runs **12.1% (Current) → 9.3% (2003) → 2.0% (2024) → 6.0% (2025 Prelim)**, while Heavy Truck % runs **5.5% (Current) → 6.3% (2003) → 5.1% (2024) → 5.2% (2025 Prelim)**. The 2003 column — contemporaneous with the current factors — lands close to Current on both, as expected. The bigger break shows up in 2024: Medium drops sharply while Heavy holds roughly steady, meaning total truck share (Medium + Heavy combined) falls overall rather than shifting between the two categories. That's because `L20-30`, the single highest-volume length bin, swings from "half truck" (50% MD) under the current factors to "almost entirely light vehicle" (94–79% LT, only 6–21% MD, near-zero HV) under the newer data — so a large share of volume that used to count toward Medium Truck % now doesn't count as a truck at all. The much smaller `L50-79` bin's shift toward Heavy (10%→0% MD, 90%→100% HV) works in the *other* direction but isn't large enough in volume to offset it. Preliminary 2025 partially reverses the 2024 Medium drop (2.0% → 6.0%) while Heavy stays flat — since 2025 is not finalized, treat that partial reversal as tentative, but the overall direction (lower combined truck share than Current/2003) is consistent across both 2024 and 2025 and is worth validating against the raw UDOT Statistics source data before treating it as a basis for changing the page's methodology.

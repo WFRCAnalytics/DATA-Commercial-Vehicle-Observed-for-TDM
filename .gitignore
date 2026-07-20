@@ -1,0 +1,3 @@
+# Large FHWA HPMS extract -- exceeds GitHub's 100MB file limit.
+# Regenerate locally with: python scripts/fetch_hpms_full_ut_2023.py
+data/HPMS_FULL_UT_2023.gpkg

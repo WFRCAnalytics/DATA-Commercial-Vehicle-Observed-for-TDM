@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Truck Validation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="cv-observed-for-tdm_files/libs/clipboard/clipboard.min.js"></script>
+<script src="cv-observed-for-tdm_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="cv-observed-for-tdm_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="cv-observed-for-tdm_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="cv-observed-for-tdm_files/libs/quarto-html/popper.min.js"></script>
+<script src="cv-observed-for-tdm_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="cv-observed-for-tdm_files/libs/quarto-html/anchor.min.js"></script>
+<link href="cv-observed-for-tdm_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="cv-observed-for-tdm_files/libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="cv-observed-for-tdm_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="cv-observed-for-tdm_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="cv-observed-for-tdm_files/libs/bootstrap/bootstrap-9e3ffae467580fdb927a41352e75a2e0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Truck Validation</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This page compares Medium (Single Unit, “MD”) and Heavy (Combination Unit, “HV”) truck percentages and VMT by functional class from three independent sources, so the model’s truck mix can be checked against observed data:</p>
+<ol type="1">
+<li><strong>CCS Station Data</strong> — truck percentages measured directly at UDOT Continuous/Classification Count Station (CCS) locations, matched to their nearest model segment.</li>
+<li><strong>HPMS VMT Data</strong> — UDOT’s AADT and truck-factor estimates (<code>AADT2023</code>, <code>SUTRUCKS</code>, <code>CUTRUCKS</code>) applied to the full network and rolled up to an effective, distance-weighted truck percentage.</li>
+<li><strong>Model VMT Data</strong> — the model’s own segment volumes by vehicle class, rolled up the same way.</li>
+</ol>
+<p>A fourth, external check against FHWA’s statewide VM-4 data is discussed in <a href="#regional-context-fhwa-vm-4-state-comparison">Regional Context</a> below.</p>
+<p><strong>Methodology note:</strong> The CCS truck percentage is a <em>volume-weighted</em> average — for each functional class, total medium/heavy truck volume across all matching stations is divided by total volume across those stations (so higher-volume stations count more, rather than every station counting equally). The HPMS and Model truck percentages are <em>VMT-weighted</em> — each segment’s truck/total volume is multiplied by its length (<code>DISTANCE</code>) before summing, so longer segments contribute proportionally more, consistent with how the existing VMT validation figures on the Highway Assignment page are built. A small number of non-highway/connector segments have UDOT truck factors that aren’t considered reliable; those segments are still counted toward total HPMS volume but excluded from the Medium/Heavy truck volume in the HPMS table.</p>
+<p><strong>VMT comparison basis:</strong> CCS and HPMS stations/segments don’t cover the whole network the way the model does, so the Medium/Heavy Truck VMT tables below express all three sources as an <strong>Effective VMT</strong> — each source’s own truck percentage for a functional class, applied to the <em>model’s</em> full-network total VMT for that class. This puts CCS, HPMS, and Model on the same complete-network basis so they’re directly comparable; the Model VMT column is simply the model’s own actual VMT (it needs no extrapolation, since it already covers every segment). Note this means “Model VMT” here is the full network total and will differ from the Highway Assignment page’s “2b. Total Daily VMT by Roadway Class” table, whose “Model” column is restricted to only the segments that also have valid HPMS data (via an inner join) — a narrower, HPMS-matched comparison basis.</p>
+<section id="detailed-source-data" class="level2">
+<h2 class="anchored" data-anchor-id="detailed-source-data">Detailed Source Data</h2>
+<p>The tables below show each source’s own functional-class breakdown in full detail, including sample size (Stations/Segments) and the underlying methodology for each source.</p>
+<section id="ccs-station-truck-percentages" class="level3">
+<h3 class="anchored" data-anchor-id="ccs-station-truck-percentages">CCS Station Truck Percentages</h3>
+<div id="cell-ccs-summary-table" class="cell" data-execution_count="14">
+<div id="ccs-summary-table" class="cell-output cell-output-display" data-execution_count="14">
+<style type="text/css">
+#T_8ebae th.col_heading.col1 {
+  text-align: right;
+}
+#T_8ebae th.col_heading.col2 {
+  text-align: right;
+}
+#T_8ebae th.col_heading.col3 {
+  text-align: right;
+}
+#T_8ebae_row0_col1, #T_8ebae_row0_col2, #T_8ebae_row0_col3, #T_8ebae_row1_col1, #T_8ebae_row1_col2, #T_8ebae_row1_col3, #T_8ebae_row2_col1, #T_8ebae_row2_col2, #T_8ebae_row2_col3, #T_8ebae_row3_col1, #T_8ebae_row3_col2, #T_8ebae_row3_col3, #T_8ebae_row4_col1, #T_8ebae_row4_col2, #T_8ebae_row4_col3, #T_8ebae_row5_col1, #T_8ebae_row5_col2, #T_8ebae_row5_col3 {
+  text-align: right;
+}
+</style>
+
+<table id="T_8ebae" class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th id="T_8ebae_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_8ebae_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Stations</th>
+<th id="T_8ebae_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Medium Truck %</th>
+<th id="T_8ebae_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Heavy Truck %</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_8ebae_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_8ebae_row0_col1" class="data row0 col1">36</td>
+<td id="T_8ebae_row0_col2" class="data row0 col2">12.4%</td>
+<td id="T_8ebae_row0_col3" class="data row0 col3">6.5%</td>
+</tr>
+<tr class="even">
+<td id="T_8ebae_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_8ebae_row1_col1" class="data row1 col1">12</td>
+<td id="T_8ebae_row1_col2" class="data row1 col2">11.0%</td>
+<td id="T_8ebae_row1_col3" class="data row1 col3">2.7%</td>
+</tr>
+<tr class="odd">
+<td id="T_8ebae_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_8ebae_row2_col1" class="data row2 col1">23</td>
+<td id="T_8ebae_row2_col2" class="data row2 col2">11.5%</td>
+<td id="T_8ebae_row2_col3" class="data row2 col3">2.0%</td>
+</tr>
+<tr class="even">
+<td id="T_8ebae_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_8ebae_row3_col1" class="data row3 col1">5</td>
+<td id="T_8ebae_row3_col2" class="data row3 col2">10.2%</td>
+<td id="T_8ebae_row3_col3" class="data row3 col3">1.2%</td>
+</tr>
+<tr class="odd">
+<td id="T_8ebae_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_8ebae_row4_col1" class="data row4 col1">4</td>
+<td id="T_8ebae_row4_col2" class="data row4 col2">9.5%</td>
+<td id="T_8ebae_row4_col3" class="data row4 col3">0.9%</td>
+</tr>
+<tr class="even">
+<td id="T_8ebae_row5_col0" class="data row5 col0">All Roadways</td>
+<td id="T_8ebae_row5_col1" class="data row5 col1">80</td>
+<td id="T_8ebae_row5_col2" class="data row5 col2">12.1%</td>
+<td id="T_8ebae_row5_col3" class="data row5 col3">5.5%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<section id="ccs-truck-volume-by-vehicle-length-class" class="level4">
+<h4 class="anchored" data-anchor-id="ccs-truck-volume-by-vehicle-length-class">CCS Truck Volume by Vehicle Length Class</h4>
+<p>The table below shows the average daily (Tue/Wed/Thu) raw CCS count volume, split into Medium and Heavy truck volume using the Wavetronix/UDOT length-bin factors below, summed across all CCS stations. This is a region-wide cross-check on the Medium/Heavy split feeding the functional-class table above — the Total row’s MD/HV volumes should match the “All Roadways” MD/HV totals used there.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Wavetronix Class</th>
+<th>Length Bin</th>
+<th>LT</th>
+<th>MD</th>
+<th>HV</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Class 6: 0-8ft</td>
+<td>L0-8</td>
+<td>100%</td>
+<td>0%</td>
+<td>0%</td>
+</tr>
+<tr class="even">
+<td>Class 8: 8-20ft</td>
+<td>L8-20</td>
+<td>100%</td>
+<td>0%</td>
+<td>0%</td>
+</tr>
+<tr class="odd">
+<td>Class 9: 20-30ft</td>
+<td>L20-30</td>
+<td>50%</td>
+<td>50%</td>
+<td>0%</td>
+</tr>
+<tr class="even">
+<td>Class 2: 30-50ft</td>
+<td>L30-50</td>
+<td>30%</td>
+<td>50%</td>
+<td>20%</td>
+</tr>
+<tr class="odd">
+<td>Class 3: 50-79ft</td>
+<td>L50-79</td>
+<td>0%</td>
+<td>10%</td>
+<td>90%</td>
+</tr>
+<tr class="even">
+<td>Class 5: &gt;79ft</td>
+<td>L79-120</td>
+<td>0%</td>
+<td>0%</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+<div id="cell-length-class-table" class="cell" data-execution_count="15">
+<div id="length-class-table" class="cell-output cell-output-display" data-execution_count="15">
+<style type="text/css">
+#T_400c5 th.col_heading.col1 {
+  text-align: right;
+}
+#T_400c5 th.col_heading.col2 {
+  text-align: right;
+}
+#T_400c5 th.col_heading.col3 {
+  text-align: right;
+}
+#T_400c5_row0_col1, #T_400c5_row0_col2, #T_400c5_row0_col3, #T_400c5_row1_col1, #T_400c5_row1_col2, #T_400c5_row1_col3, #T_400c5_row2_col1, #T_400c5_row2_col2, #T_400c5_row2_col3, #T_400c5_row3_col1, #T_400c5_row3_col2, #T_400c5_row3_col3, #T_400c5_row4_col1, #T_400c5_row4_col2, #T_400c5_row4_col3, #T_400c5_row5_col1, #T_400c5_row5_col2, #T_400c5_row5_col3, #T_400c5_row6_col1, #T_400c5_row6_col2, #T_400c5_row6_col3 {
+  text-align: right;
+}
+</style>
+
+<table id="T_400c5" class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th id="T_400c5_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Vehicle Length Class</th>
+<th id="T_400c5_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Total Volume</th>
+<th id="T_400c5_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">MD Volume</th>
+<th id="T_400c5_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">HV Volume</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_400c5_row0_col0" class="data row0 col0">Class 6 (0-8 ft)</td>
+<td id="T_400c5_row0_col1" class="data row0 col1">139,505</td>
+<td id="T_400c5_row0_col2" class="data row0 col2">0</td>
+<td id="T_400c5_row0_col3" class="data row0 col3">0</td>
+</tr>
+<tr class="even">
+<td id="T_400c5_row1_col0" class="data row1 col0">Class 8 (8-20 ft)</td>
+<td id="T_400c5_row1_col1" class="data row1 col1">4,349,519</td>
+<td id="T_400c5_row1_col2" class="data row1 col2">0</td>
+<td id="T_400c5_row1_col3" class="data row1 col3">0</td>
+</tr>
+<tr class="odd">
+<td id="T_400c5_row2_col0" class="data row2 col0">Class 9 (20-30 ft)</td>
+<td id="T_400c5_row2_col1" class="data row2 col1">1,190,001</td>
+<td id="T_400c5_row2_col2" class="data row2 col2">595,001</td>
+<td id="T_400c5_row2_col3" class="data row2 col3">0</td>
+</tr>
+<tr class="even">
+<td id="T_400c5_row3_col0" class="data row3 col0">Class 2 (30-50 ft)</td>
+<td id="T_400c5_row3_col1" class="data row3 col1">272,357</td>
+<td id="T_400c5_row3_col2" class="data row3 col2">136,178</td>
+<td id="T_400c5_row3_col3" class="data row3 col3">54,471</td>
+</tr>
+<tr class="odd">
+<td id="T_400c5_row4_col0" class="data row4 col0">Class 3 (50-79 ft)</td>
+<td id="T_400c5_row4_col1" class="data row4 col1">217,323</td>
+<td id="T_400c5_row4_col2" class="data row4 col2">21,732</td>
+<td id="T_400c5_row4_col3" class="data row4 col3">195,591</td>
+</tr>
+<tr class="even">
+<td id="T_400c5_row5_col0" class="data row5 col0">Class 5 (&gt;79 ft)</td>
+<td id="T_400c5_row5_col1" class="data row5 col1">99,551</td>
+<td id="T_400c5_row5_col2" class="data row5 col2">0</td>
+<td id="T_400c5_row5_col3" class="data row5 col3">99,551</td>
+</tr>
+<tr class="odd">
+<td id="T_400c5_row6_col0" class="data row6 col0">Total</td>
+<td id="T_400c5_row6_col1" class="data row6 col1">6,268,256</td>
+<td id="T_400c5_row6_col2" class="data row6 col2">752,911</td>
+<td id="T_400c5_row6_col3" class="data row6 col3">349,613</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="hpms-truck-percentages-vmt-weighted" class="level3">
+<h3 class="anchored" data-anchor-id="hpms-truck-percentages-vmt-weighted">HPMS Truck Percentages (VMT-Weighted)</h3>
+<div id="cell-hpms-summary-table" class="cell" data-execution_count="16">
+<div id="hpms-summary-table" class="cell-output cell-output-display" data-execution_count="16">
+<style type="text/css">
+#T_dd7f9 th.col_heading.col1 {
+  text-align: right;
+}
+#T_dd7f9 th.col_heading.col2 {
+  text-align: right;
+}
+#T_dd7f9 th.col_heading.col3 {
+  text-align: right;
+}
+#T_dd7f9_row0_col1, #T_dd7f9_row0_col2, #T_dd7f9_row0_col3, #T_dd7f9_row1_col1, #T_dd7f9_row1_col2, #T_dd7f9_row1_col3, #T_dd7f9_row2_col1, #T_dd7f9_row2_col2, #T_dd7f9_row2_col3, #T_dd7f9_row3_col1, #T_dd7f9_row3_col2, #T_dd7f9_row3_col3, #T_dd7f9_row4_col1, #T_dd7f9_row4_col2, #T_dd7f9_row4_col3, #T_dd7f9_row5_col1, #T_dd7f9_row5_col2, #T_dd7f9_row5_col3, #T_dd7f9_row6_col1, #T_dd7f9_row6_col2, #T_dd7f9_row6_col3 {
+  text-align: right;
+}
+</style>
+
+<table id="T_dd7f9" class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th id="T_dd7f9_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_dd7f9_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Segments</th>
+<th id="T_dd7f9_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Medium Truck %</th>
+<th id="T_dd7f9_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Heavy Truck %</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_dd7f9_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_dd7f9_row0_col1" class="data row0 col1">170</td>
+<td id="T_dd7f9_row0_col2" class="data row0 col2">8.9%</td>
+<td id="T_dd7f9_row0_col3" class="data row0 col3">6.8%</td>
+</tr>
+<tr class="even">
+<td id="T_dd7f9_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_dd7f9_row1_col1" class="data row1 col1">93</td>
+<td id="T_dd7f9_row1_col2" class="data row1 col2">11.6%</td>
+<td id="T_dd7f9_row1_col3" class="data row1 col3">7.8%</td>
+</tr>
+<tr class="odd">
+<td id="T_dd7f9_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_dd7f9_row2_col1" class="data row2 col1">834</td>
+<td id="T_dd7f9_row2_col2" class="data row2 col2">10.3%</td>
+<td id="T_dd7f9_row2_col3" class="data row2 col3">4.3%</td>
+</tr>
+<tr class="even">
+<td id="T_dd7f9_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_dd7f9_row3_col1" class="data row3 col1">1,092</td>
+<td id="T_dd7f9_row3_col2" class="data row3 col2">3.6%</td>
+<td id="T_dd7f9_row3_col3" class="data row3 col3">2.2%</td>
+</tr>
+<tr class="odd">
+<td id="T_dd7f9_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_dd7f9_row4_col1" class="data row4 col1">1,681</td>
+<td id="T_dd7f9_row4_col2" class="data row4 col2">0.3%</td>
+<td id="T_dd7f9_row4_col3" class="data row4 col3">0.2%</td>
+</tr>
+<tr class="even">
+<td id="T_dd7f9_row5_col0" class="data row5 col0">Local</td>
+<td id="T_dd7f9_row5_col1" class="data row5 col1">1</td>
+<td id="T_dd7f9_row5_col2" class="data row5 col2">12.4%</td>
+<td id="T_dd7f9_row5_col3" class="data row5 col3">4.2%</td>
+</tr>
+<tr class="odd">
+<td id="T_dd7f9_row6_col0" class="data row6 col0">All Roadways</td>
+<td id="T_dd7f9_row6_col1" class="data row6 col1">3,871</td>
+<td id="T_dd7f9_row6_col2" class="data row6 col2">7.7%</td>
+<td id="T_dd7f9_row6_col3" class="data row6 col3">5.0%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="model-truck-percentages-vmt-weighted" class="level3">
+<h3 class="anchored" data-anchor-id="model-truck-percentages-vmt-weighted">Model Truck Percentages (VMT-Weighted)</h3>
+<div id="cell-model-summary-table" class="cell" data-execution_count="17">
+<div id="model-summary-table" class="cell-output cell-output-display" data-execution_count="17">
+<style type="text/css">
+#T_ec674 th.col_heading.col1 {
+  text-align: right;
+}
+#T_ec674 th.col_heading.col2 {
+  text-align: right;
+}
+#T_ec674 th.col_heading.col3 {
+  text-align: right;
+}
+#T_ec674_row0_col1, #T_ec674_row0_col2, #T_ec674_row0_col3, #T_ec674_row1_col1, #T_ec674_row1_col2, #T_ec674_row1_col3, #T_ec674_row2_col1, #T_ec674_row2_col2, #T_ec674_row2_col3, #T_ec674_row3_col1, #T_ec674_row3_col2, #T_ec674_row3_col3, #T_ec674_row4_col1, #T_ec674_row4_col2, #T_ec674_row4_col3, #T_ec674_row5_col1, #T_ec674_row5_col2, #T_ec674_row5_col3, #T_ec674_row6_col1, #T_ec674_row6_col2, #T_ec674_row6_col3 {
+  text-align: right;
+}
+</style>
+
+<table id="T_ec674" class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th id="T_ec674_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_ec674_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Segments</th>
+<th id="T_ec674_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Medium Truck %</th>
+<th id="T_ec674_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Heavy Truck %</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_ec674_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_ec674_row0_col1" class="data row0 col1">175</td>
+<td id="T_ec674_row0_col2" class="data row0 col2">8.8%</td>
+<td id="T_ec674_row0_col3" class="data row0 col3">8.4%</td>
+</tr>
+<tr class="even">
+<td id="T_ec674_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_ec674_row1_col1" class="data row1 col1">98</td>
+<td id="T_ec674_row1_col2" class="data row1 col2">9.5%</td>
+<td id="T_ec674_row1_col3" class="data row1 col3">7.3%</td>
+</tr>
+<tr class="odd">
+<td id="T_ec674_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_ec674_row2_col1" class="data row2 col1">845</td>
+<td id="T_ec674_row2_col2" class="data row2 col2">10.5%</td>
+<td id="T_ec674_row2_col3" class="data row2 col3">4.1%</td>
+</tr>
+<tr class="even">
+<td id="T_ec674_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_ec674_row3_col1" class="data row3 col1">1,159</td>
+<td id="T_ec674_row3_col2" class="data row3 col2">10.2%</td>
+<td id="T_ec674_row3_col3" class="data row3 col3">3.4%</td>
+</tr>
+<tr class="odd">
+<td id="T_ec674_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_ec674_row4_col1" class="data row4 col1">2,080</td>
+<td id="T_ec674_row4_col2" class="data row4 col2">10.0%</td>
+<td id="T_ec674_row4_col3" class="data row4 col3">3.1%</td>
+</tr>
+<tr class="even">
+<td id="T_ec674_row5_col0" class="data row5 col0">Local</td>
+<td id="T_ec674_row5_col1" class="data row5 col1">22</td>
+<td id="T_ec674_row5_col2" class="data row5 col2">10.9%</td>
+<td id="T_ec674_row5_col3" class="data row5 col3">6.7%</td>
+</tr>
+<tr class="odd">
+<td id="T_ec674_row6_col0" class="data row6 col0">All Roadways</td>
+<td id="T_ec674_row6_col1" class="data row6 col1">4,379</td>
+<td id="T_ec674_row6_col2" class="data row6 col2">9.5%</td>
+<td id="T_ec674_row6_col3" class="data row6 col3">6.2%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="regional-context-fhwa-vm-4-state-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="regional-context-fhwa-vm-4-state-comparison">Regional Context: FHWA VM-4 State Comparison</h2>
+<p>The tables above validate the model against three sources that are all local to the WFRC/MAG region. As an outside sanity check, FHWA’s Highway Statistics 2023 <a href="https://www.fhwa.dot.gov/policyinformation/statistics/2023/vm4.cfm">Table VM-4</a> (“Distribution of Annual Vehicle Distance Traveled”) reports each state’s own truck share of urban VMT, split into single-unit (“SU”, roughly comparable to Medium/“MD”) and combination (“Comb”, roughly comparable to Heavy/“HV”) trucks, for the Interstate System and for Other Arterials. Comparing Utah’s statewide figures to neighboring states shows whether Utah’s reported truck mix – which UDOT’s HPMS submission (and therefore this page’s HPMS table) is itself built from – is broadly in line with the region, or an outlier.</p>
+<p><strong>Important caveats:</strong> these are <em>statewide</em> Utah figures, not WFRC/MAG-area-specific, so they will not match the HPMS/Model tables above exactly. FHWA’s road categories (Interstate System / Other Arterials) are also coarser than the model’s six-class FTCLASS taxonomy – Interstate roughly maps to Freeway, Other Arterials roughly spans Principal + Minor Arterial. And because VM-4 is itself compiled from each state’s HPMS submission, it is not an independent ground truth – it’s a plausibility check on Utah’s reported truck factors against its peers, not a validation of the model.</p>
+<div id="cell-vm4-load" class="cell" data-execution_count="18">
+<div id="vm4-load" class="cell-output cell-output-display" data-execution_count="18">
+<style type="text/css">
+#T_6ba2f th.col_heading.col1 {
+  text-align: right;
+}
+#T_6ba2f th.col_heading.col2 {
+  text-align: right;
+}
+#T_6ba2f th.col_heading.col3 {
+  text-align: right;
+}
+#T_6ba2f th.col_heading.col4 {
+  text-align: right;
+}
+#T_6ba2f_row0_col0 {
+  background-color: #fff3cd;
+}
+#T_6ba2f_row0_col1, #T_6ba2f_row0_col2, #T_6ba2f_row0_col3, #T_6ba2f_row0_col4 {
+  background-color: #fff3cd;
+  text-align: right;
+}
+#T_6ba2f_row1_col1, #T_6ba2f_row1_col2, #T_6ba2f_row1_col3, #T_6ba2f_row1_col4, #T_6ba2f_row2_col1, #T_6ba2f_row2_col2, #T_6ba2f_row2_col3, #T_6ba2f_row2_col4, #T_6ba2f_row3_col1, #T_6ba2f_row3_col2, #T_6ba2f_row3_col3, #T_6ba2f_row3_col4, #T_6ba2f_row4_col1, #T_6ba2f_row4_col2, #T_6ba2f_row4_col3, #T_6ba2f_row4_col4, #T_6ba2f_row5_col1, #T_6ba2f_row5_col2, #T_6ba2f_row5_col3, #T_6ba2f_row5_col4 {
+  text-align: right;
+}
+</style>
+
+<table id="T_6ba2f" class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th id="T_6ba2f_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">State</th>
+<th id="T_6ba2f_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Interstate SU %</th>
+<th id="T_6ba2f_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Interstate Comb %</th>
+<th id="T_6ba2f_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Other Arterial SU %</th>
+<th id="T_6ba2f_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">Other Arterial Comb %</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_6ba2f_row0_col0" class="data row0 col0">Utah</td>
+<td id="T_6ba2f_row0_col1" class="data row0 col1">9.2%</td>
+<td id="T_6ba2f_row0_col2" class="data row0 col2">8.3%</td>
+<td id="T_6ba2f_row0_col3" class="data row0 col3">11.2%</td>
+<td id="T_6ba2f_row0_col4" class="data row0 col4">5.1%</td>
+</tr>
+<tr class="even">
+<td id="T_6ba2f_row1_col0" class="data row1 col0">Idaho</td>
+<td id="T_6ba2f_row1_col1" class="data row1 col1">3.5%</td>
+<td id="T_6ba2f_row1_col2" class="data row1 col2">9.4%</td>
+<td id="T_6ba2f_row1_col3" class="data row1 col3">2.4%</td>
+<td id="T_6ba2f_row1_col4" class="data row1 col4">1.5%</td>
+</tr>
+<tr class="odd">
+<td id="T_6ba2f_row2_col0" class="data row2 col0">Wyoming</td>
+<td id="T_6ba2f_row2_col1" class="data row2 col1">2.7%</td>
+<td id="T_6ba2f_row2_col2" class="data row2 col2">30.2%</td>
+<td id="T_6ba2f_row2_col3" class="data row2 col3">3.2%</td>
+<td id="T_6ba2f_row2_col4" class="data row2 col4">2.6%</td>
+</tr>
+<tr class="even">
+<td id="T_6ba2f_row3_col0" class="data row3 col0">Colorado</td>
+<td id="T_6ba2f_row3_col1" class="data row3 col1">3.1%</td>
+<td id="T_6ba2f_row3_col2" class="data row3 col2">5.1%</td>
+<td id="T_6ba2f_row3_col3" class="data row3 col3">2.0%</td>
+<td id="T_6ba2f_row3_col4" class="data row3 col4">1.5%</td>
+</tr>
+<tr class="odd">
+<td id="T_6ba2f_row4_col0" class="data row4 col0">Arizona</td>
+<td id="T_6ba2f_row4_col1" class="data row4 col1">4.5%</td>
+<td id="T_6ba2f_row4_col2" class="data row4 col2">8.3%</td>
+<td id="T_6ba2f_row4_col3" class="data row4 col3">4.0%</td>
+<td id="T_6ba2f_row4_col4" class="data row4 col4">1.7%</td>
+</tr>
+<tr class="even">
+<td id="T_6ba2f_row5_col0" class="data row5 col0">Nevada</td>
+<td id="T_6ba2f_row5_col1" class="data row5 col1">6.7%</td>
+<td id="T_6ba2f_row5_col2" class="data row5 col2">16.6%</td>
+<td id="T_6ba2f_row5_col3" class="data row5 col3">1.6%</td>
+<td id="T_6ba2f_row5_col4" class="data row5 col4">2.2%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>For context, on Freeway segments this page’s HPMS table shows a Heavy Truck % of 6.8% and the Model shows 8.4%, versus Utah’s statewide urban Interstate combination-truck share of 8.3% reported to FHWA – compared to a 5.1% to 30.2% range across Idaho, Wyoming, Colorado, Arizona, and Nevada. Wyoming’s high combination-truck share reflects its heavy long-haul freight volumes on a thin urban VMT base, not a comparable population/land-use mix to the Wasatch Front – it’s included as a regional bookend rather than a close peer.</p>
+</section>
+<section id="summary-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="summary-comparison">Summary Comparison</h2>
+<p><strong>Quick summary:</strong> the four tables below place CCS, HPMS, and Model side-by-side by functional class — the first two compare truck <em>percentages</em>, the second two compare truck <em>VMT</em>. Use the “All Roadways” row for the region-wide figure, and scan down each column to see which functional classes the model over- or under-represents relative to the observed sources. A “—” means that source has no data for that functional class (e.g.&nbsp;no CCS stations were matched to Local roads).</p>
+<section id="medium-truck" class="level3">
+<h3 class="anchored" data-anchor-id="medium-truck">Medium Truck %</h3>
+<div id="cell-md-comparison" class="cell" data-execution_count="20">
+<div id="md-comparison" class="cell-output cell-output-display" data-execution_count="20">
+<style type="text/css">
+#T_0d4a7 th.col_heading.col1 {
+  text-align: right;
+}
+#T_0d4a7 th.col_heading.col2 {
+  text-align: right;
+}
+#T_0d4a7 th.col_heading.col3 {
+  text-align: right;
+}
+#T_0d4a7_row0_col1, #T_0d4a7_row0_col2, #T_0d4a7_row0_col3, #T_0d4a7_row1_col1, #T_0d4a7_row1_col2, #T_0d4a7_row1_col3, #T_0d4a7_row2_col1, #T_0d4a7_row2_col2, #T_0d4a7_row2_col3, #T_0d4a7_row3_col1, #T_0d4a7_row3_col2, #T_0d4a7_row3_col3, #T_0d4a7_row4_col1, #T_0d4a7_row4_col2, #T_0d4a7_row4_col3, #T_0d4a7_row5_col1, #T_0d4a7_row5_col2, #T_0d4a7_row5_col3, #T_0d4a7_row6_col1, #T_0d4a7_row6_col2, #T_0d4a7_row6_col3 {
+  text-align: right;
+}
+</style>
+
+<table id="T_0d4a7" class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th id="T_0d4a7_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_0d4a7_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">CCS</th>
+<th id="T_0d4a7_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">HPMS</th>
+<th id="T_0d4a7_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_0d4a7_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_0d4a7_row0_col1" class="data row0 col1">12.4%</td>
+<td id="T_0d4a7_row0_col2" class="data row0 col2">8.9%</td>
+<td id="T_0d4a7_row0_col3" class="data row0 col3">8.8%</td>
+</tr>
+<tr class="even">
+<td id="T_0d4a7_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_0d4a7_row1_col1" class="data row1 col1">11.0%</td>
+<td id="T_0d4a7_row1_col2" class="data row1 col2">11.6%</td>
+<td id="T_0d4a7_row1_col3" class="data row1 col3">9.5%</td>
+</tr>
+<tr class="odd">
+<td id="T_0d4a7_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_0d4a7_row2_col1" class="data row2 col1">11.5%</td>
+<td id="T_0d4a7_row2_col2" class="data row2 col2">10.3%</td>
+<td id="T_0d4a7_row2_col3" class="data row2 col3">10.5%</td>
+</tr>
+<tr class="even">
+<td id="T_0d4a7_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_0d4a7_row3_col1" class="data row3 col1">10.2%</td>
+<td id="T_0d4a7_row3_col2" class="data row3 col2">3.6%</td>
+<td id="T_0d4a7_row3_col3" class="data row3 col3">10.2%</td>
+</tr>
+<tr class="odd">
+<td id="T_0d4a7_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_0d4a7_row4_col1" class="data row4 col1">9.5%</td>
+<td id="T_0d4a7_row4_col2" class="data row4 col2">0.3%</td>
+<td id="T_0d4a7_row4_col3" class="data row4 col3">10.0%</td>
+</tr>
+<tr class="even">
+<td id="T_0d4a7_row5_col0" class="data row5 col0">Local</td>
+<td id="T_0d4a7_row5_col1" class="data row5 col1">—</td>
+<td id="T_0d4a7_row5_col2" class="data row5 col2">12.4%</td>
+<td id="T_0d4a7_row5_col3" class="data row5 col3">10.9%</td>
+</tr>
+<tr class="odd">
+<td id="T_0d4a7_row6_col0" class="data row6 col0">All Roadways</td>
+<td id="T_0d4a7_row6_col1" class="data row6 col1">12.1%</td>
+<td id="T_0d4a7_row6_col2" class="data row6 col2">7.7%</td>
+<td id="T_0d4a7_row6_col3" class="data row6 col3">9.5%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="heavy-truck" class="level3">
+<h3 class="anchored" data-anchor-id="heavy-truck">Heavy Truck %</h3>
+<div id="cell-hv-comparison" class="cell" data-execution_count="21">
+<div id="hv-comparison" class="cell-output cell-output-display" data-execution_count="21">
+<style type="text/css">
+#T_b46b3 th.col_heading.col1 {
+  text-align: right;
+}
+#T_b46b3 th.col_heading.col2 {
+  text-align: right;
+}
+#T_b46b3 th.col_heading.col3 {
+  text-align: right;
+}
+#T_b46b3_row0_col1, #T_b46b3_row0_col2, #T_b46b3_row0_col3, #T_b46b3_row1_col1, #T_b46b3_row1_col2, #T_b46b3_row1_col3, #T_b46b3_row2_col1, #T_b46b3_row2_col2, #T_b46b3_row2_col3, #T_b46b3_row3_col1, #T_b46b3_row3_col2, #T_b46b3_row3_col3, #T_b46b3_row4_col1, #T_b46b3_row4_col2, #T_b46b3_row4_col3, #T_b46b3_row5_col1, #T_b46b3_row5_col2, #T_b46b3_row5_col3, #T_b46b3_row6_col1, #T_b46b3_row6_col2, #T_b46b3_row6_col3 {
+  text-align: right;
+}
+</style>
+
+<table id="T_b46b3" class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th id="T_b46b3_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_b46b3_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">CCS</th>
+<th id="T_b46b3_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">HPMS</th>
+<th id="T_b46b3_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_b46b3_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_b46b3_row0_col1" class="data row0 col1">6.5%</td>
+<td id="T_b46b3_row0_col2" class="data row0 col2">6.8%</td>
+<td id="T_b46b3_row0_col3" class="data row0 col3">8.4%</td>
+</tr>
+<tr class="even">
+<td id="T_b46b3_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_b46b3_row1_col1" class="data row1 col1">2.7%</td>
+<td id="T_b46b3_row1_col2" class="data row1 col2">7.8%</td>
+<td id="T_b46b3_row1_col3" class="data row1 col3">7.3%</td>
+</tr>
+<tr class="odd">
+<td id="T_b46b3_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_b46b3_row2_col1" class="data row2 col1">2.0%</td>
+<td id="T_b46b3_row2_col2" class="data row2 col2">4.3%</td>
+<td id="T_b46b3_row2_col3" class="data row2 col3">4.1%</td>
+</tr>
+<tr class="even">
+<td id="T_b46b3_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_b46b3_row3_col1" class="data row3 col1">1.2%</td>
+<td id="T_b46b3_row3_col2" class="data row3 col2">2.2%</td>
+<td id="T_b46b3_row3_col3" class="data row3 col3">3.4%</td>
+</tr>
+<tr class="odd">
+<td id="T_b46b3_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_b46b3_row4_col1" class="data row4 col1">0.9%</td>
+<td id="T_b46b3_row4_col2" class="data row4 col2">0.2%</td>
+<td id="T_b46b3_row4_col3" class="data row4 col3">3.1%</td>
+</tr>
+<tr class="even">
+<td id="T_b46b3_row5_col0" class="data row5 col0">Local</td>
+<td id="T_b46b3_row5_col1" class="data row5 col1">—</td>
+<td id="T_b46b3_row5_col2" class="data row5 col2">4.2%</td>
+<td id="T_b46b3_row5_col3" class="data row5 col3">6.7%</td>
+</tr>
+<tr class="odd">
+<td id="T_b46b3_row6_col0" class="data row6 col0">All Roadways</td>
+<td id="T_b46b3_row6_col1" class="data row6 col1">5.5%</td>
+<td id="T_b46b3_row6_col2" class="data row6 col2">5.0%</td>
+<td id="T_b46b3_row6_col3" class="data row6 col3">6.2%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="medium-truck-vmt" class="level3">
+<h3 class="anchored" data-anchor-id="medium-truck-vmt">Medium Truck VMT</h3>
+<div id="cell-md-vmt-comparison" class="cell" data-execution_count="22">
+<div id="md-vmt-comparison" class="cell-output cell-output-display" data-execution_count="22">
+<style type="text/css">
+#T_fe2df th.col_heading.col1 {
+  text-align: right;
+}
+#T_fe2df th.col_heading.col2 {
+  text-align: right;
+}
+#T_fe2df th.col_heading.col3 {
+  text-align: right;
+}
+#T_fe2df_row0_col1, #T_fe2df_row0_col2, #T_fe2df_row0_col3, #T_fe2df_row1_col1, #T_fe2df_row1_col2, #T_fe2df_row1_col3, #T_fe2df_row2_col1, #T_fe2df_row2_col2, #T_fe2df_row2_col3, #T_fe2df_row3_col1, #T_fe2df_row3_col2, #T_fe2df_row3_col3, #T_fe2df_row4_col1, #T_fe2df_row4_col2, #T_fe2df_row4_col3, #T_fe2df_row5_col1, #T_fe2df_row5_col2, #T_fe2df_row5_col3, #T_fe2df_row6_col1, #T_fe2df_row6_col2, #T_fe2df_row6_col3 {
+  text-align: right;
+}
+</style>
+
+<table id="T_fe2df" class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th id="T_fe2df_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_fe2df_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">CCS Effective VMT</th>
+<th id="T_fe2df_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">HPMS Effective VMT</th>
+<th id="T_fe2df_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Model VMT</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_fe2df_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_fe2df_row0_col1" class="data row0 col1">3,156,520</td>
+<td id="T_fe2df_row0_col2" class="data row0 col2">2,278,717</td>
+<td id="T_fe2df_row0_col3" class="data row0 col3">2,244,866</td>
+</tr>
+<tr class="even">
+<td id="T_fe2df_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_fe2df_row1_col1" class="data row1 col1">450,174</td>
+<td id="T_fe2df_row1_col2" class="data row1 col2">476,406</td>
+<td id="T_fe2df_row1_col3" class="data row1 col3">388,359</td>
+</tr>
+<tr class="odd">
+<td id="T_fe2df_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_fe2df_row2_col1" class="data row2 col1">1,297,188</td>
+<td id="T_fe2df_row2_col2" class="data row2 col2">1,159,459</td>
+<td id="T_fe2df_row2_col3" class="data row2 col3">1,188,568</td>
+</tr>
+<tr class="even">
+<td id="T_fe2df_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_fe2df_row3_col1" class="data row3 col1">784,707</td>
+<td id="T_fe2df_row3_col2" class="data row3 col2">278,587</td>
+<td id="T_fe2df_row3_col3" class="data row3 col3">780,231</td>
+</tr>
+<tr class="odd">
+<td id="T_fe2df_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_fe2df_row4_col1" class="data row4 col1">529,064</td>
+<td id="T_fe2df_row4_col2" class="data row4 col2">17,295</td>
+<td id="T_fe2df_row4_col3" class="data row4 col3">559,867</td>
+</tr>
+<tr class="even">
+<td id="T_fe2df_row5_col0" class="data row5 col0">Local</td>
+<td id="T_fe2df_row5_col1" class="data row5 col1">—</td>
+<td id="T_fe2df_row5_col2" class="data row5 col2">2,202</td>
+<td id="T_fe2df_row5_col3" class="data row5 col3">1,937</td>
+</tr>
+<tr class="odd">
+<td id="T_fe2df_row6_col0" class="data row6 col0">All Roadways</td>
+<td id="T_fe2df_row6_col1" class="data row6 col1">6,549,925</td>
+<td id="T_fe2df_row6_col2" class="data row6 col2">4,184,175</td>
+<td id="T_fe2df_row6_col3" class="data row6 col3">5,163,828</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="heavy-truck-vmt" class="level3">
+<h3 class="anchored" data-anchor-id="heavy-truck-vmt">Heavy Truck VMT</h3>
+<div id="cell-hv-vmt-comparison" class="cell" data-execution_count="23">
+<div id="hv-vmt-comparison" class="cell-output cell-output-display" data-execution_count="23">
+<style type="text/css">
+#T_4d0a9 th.col_heading.col1 {
+  text-align: right;
+}
+#T_4d0a9 th.col_heading.col2 {
+  text-align: right;
+}
+#T_4d0a9 th.col_heading.col3 {
+  text-align: right;
+}
+#T_4d0a9_row0_col1, #T_4d0a9_row0_col2, #T_4d0a9_row0_col3, #T_4d0a9_row1_col1, #T_4d0a9_row1_col2, #T_4d0a9_row1_col3, #T_4d0a9_row2_col1, #T_4d0a9_row2_col2, #T_4d0a9_row2_col3, #T_4d0a9_row3_col1, #T_4d0a9_row3_col2, #T_4d0a9_row3_col3, #T_4d0a9_row4_col1, #T_4d0a9_row4_col2, #T_4d0a9_row4_col3, #T_4d0a9_row5_col1, #T_4d0a9_row5_col2, #T_4d0a9_row5_col3, #T_4d0a9_row6_col1, #T_4d0a9_row6_col2, #T_4d0a9_row6_col3 {
+  text-align: right;
+}
+</style>
+
+<table id="T_4d0a9" class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th id="T_4d0a9_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_4d0a9_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">CCS Effective VMT</th>
+<th id="T_4d0a9_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">HPMS Effective VMT</th>
+<th id="T_4d0a9_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Model VMT</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_4d0a9_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_4d0a9_row0_col1" class="data row0 col1">1,661,334</td>
+<td id="T_4d0a9_row0_col2" class="data row0 col2">1,745,596</td>
+<td id="T_4d0a9_row0_col3" class="data row0 col3">2,136,560</td>
+</tr>
+<tr class="even">
+<td id="T_4d0a9_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_4d0a9_row1_col1" class="data row1 col1">112,801</td>
+<td id="T_4d0a9_row1_col2" class="data row1 col2">318,935</td>
+<td id="T_4d0a9_row1_col3" class="data row1 col3">299,085</td>
+</tr>
+<tr class="odd">
+<td id="T_4d0a9_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_4d0a9_row2_col1" class="data row2 col1">228,351</td>
+<td id="T_4d0a9_row2_col2" class="data row2 col2">481,440</td>
+<td id="T_4d0a9_row2_col3" class="data row2 col3">468,476</td>
+</tr>
+<tr class="even">
+<td id="T_4d0a9_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_4d0a9_row3_col1" class="data row3 col1">92,971</td>
+<td id="T_4d0a9_row3_col2" class="data row3 col2">169,830</td>
+<td id="T_4d0a9_row3_col3" class="data row3 col3">261,107</td>
+</tr>
+<tr class="odd">
+<td id="T_4d0a9_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_4d0a9_row4_col1" class="data row4 col1">49,734</td>
+<td id="T_4d0a9_row4_col2" class="data row4 col2">12,326</td>
+<td id="T_4d0a9_row4_col3" class="data row4 col3">172,339</td>
+</tr>
+<tr class="even">
+<td id="T_4d0a9_row5_col0" class="data row5 col0">Local</td>
+<td id="T_4d0a9_row5_col1" class="data row5 col1">—</td>
+<td id="T_4d0a9_row5_col2" class="data row5 col2">745</td>
+<td id="T_4d0a9_row5_col3" class="data row5 col3">1,190</td>
+</tr>
+<tr class="odd">
+<td id="T_4d0a9_row6_col0" class="data row6 col0">All Roadways</td>
+<td id="T_4d0a9_row6_col1" class="data row6 col1">2,983,365</td>
+<td id="T_4d0a9_row6_col2" class="data row6 col2">2,727,545</td>
+<td id="T_4d0a9_row6_col3" class="data row6 col3">3,338,758</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="proposed-changes-to-truck-classification" class="level2">
+<h2 class="anchored" data-anchor-id="proposed-changes-to-truck-classification">Proposed Changes to Truck Classification</h2>
+<p>The <code>LT</code>/<code>MD</code>/<code>HV</code> length-bin split factors used throughout this page (100%/100%/50%/30%/0%/0% LT for the six bins, etc. — see the classification table in <a href="#ccs-truck-volume-by-vehicle-length-class">CCS Truck Volume by Vehicle Length Class</a>) came from <strong>UDOT Planning</strong>. Separately, <strong>UDOT’s Statistics Department</strong> has published its own FHWA 13-class vehicle-length distributions — a 2003-vintage dataset (roughly contemporaneous with the current factors), a finalized 2024 dataset, and a <strong>preliminary, not-yet-finalized</strong> 2025 dataset.</p>
+<p>Rolling the 13 FHWA classes into the same three groups used elsewhere on this page — Classes 1–4 (motorcycles, passenger cars, pickups/vans, buses) → <strong>LT</strong>, Classes 5–7 (single-unit trucks) → <strong>MD</strong>, Classes 8–13 (combination trucks) → <strong>HV</strong> — and summing each vintage’s class shares within each length bin produces the split factors below. This section documents where the UDOT Statistics data diverges from the UDOT Planning factors currently in use, and what adopting the newer data would do to this page’s CCS results. <strong>It is a discussion starting point, not an implemented change</strong> — nothing elsewhere on this page uses these alternate factors.</p>
+<section id="recomputed-ltmdhv-split-factors" class="level3">
+<h3 class="anchored" data-anchor-id="recomputed-ltmdhv-split-factors">Recomputed LT/MD/HV Split Factors</h3>
+<div id="cell-proposed-splits" class="cell" data-execution_count="24">
+<div id="proposed-splits" class="cell-output cell-output-display" data-execution_count="24">
+<style type="text/css">
+#T_d616a th.col_heading.col1 {
+  text-align: right;
+}
+#T_d616a th.col_heading.col2 {
+  text-align: right;
+}
+#T_d616a th.col_heading.col3 {
+  text-align: right;
+}
+#T_d616a th.col_heading.col4 {
+  text-align: right;
+}
+#T_d616a th.col_heading.col5 {
+  text-align: right;
+}
+#T_d616a th.col_heading.col6 {
+  text-align: right;
+}
+#T_d616a th.col_heading.col7 {
+  text-align: right;
+}
+#T_d616a th.col_heading.col8 {
+  text-align: right;
+}
+#T_d616a th.col_heading.col9 {
+  text-align: right;
+}
+#T_d616a th.col_heading.col10 {
+  text-align: right;
+}
+#T_d616a th.col_heading.col11 {
+  text-align: right;
+}
+#T_d616a th.col_heading.col12 {
+  text-align: right;
+}
+#T_d616a_row0_col1, #T_d616a_row0_col2, #T_d616a_row0_col3, #T_d616a_row0_col4, #T_d616a_row0_col5, #T_d616a_row0_col6, #T_d616a_row0_col7, #T_d616a_row0_col8, #T_d616a_row0_col9, #T_d616a_row0_col10, #T_d616a_row0_col11, #T_d616a_row0_col12, #T_d616a_row1_col1, #T_d616a_row1_col2, #T_d616a_row1_col3, #T_d616a_row1_col4, #T_d616a_row1_col5, #T_d616a_row1_col6, #T_d616a_row1_col7, #T_d616a_row1_col8, #T_d616a_row1_col9, #T_d616a_row1_col10, #T_d616a_row1_col11, #T_d616a_row1_col12, #T_d616a_row2_col1, #T_d616a_row2_col2, #T_d616a_row2_col3, #T_d616a_row2_col4, #T_d616a_row2_col5, #T_d616a_row2_col6, #T_d616a_row2_col7, #T_d616a_row2_col8, #T_d616a_row2_col9, #T_d616a_row2_col10, #T_d616a_row2_col11, #T_d616a_row2_col12, #T_d616a_row3_col1, #T_d616a_row3_col2, #T_d616a_row3_col3, #T_d616a_row3_col4, #T_d616a_row3_col5, #T_d616a_row3_col6, #T_d616a_row3_col7, #T_d616a_row3_col8, #T_d616a_row3_col9, #T_d616a_row3_col10, #T_d616a_row3_col11, #T_d616a_row3_col12, #T_d616a_row4_col1, #T_d616a_row4_col2, #T_d616a_row4_col3, #T_d616a_row4_col4, #T_d616a_row4_col5, #T_d616a_row4_col6, #T_d616a_row4_col7, #T_d616a_row4_col8, #T_d616a_row4_col9, #T_d616a_row4_col10, #T_d616a_row4_col11, #T_d616a_row4_col12, #T_d616a_row5_col1, #T_d616a_row5_col2, #T_d616a_row5_col3, #T_d616a_row5_col4, #T_d616a_row5_col5, #T_d616a_row5_col6, #T_d616a_row5_col7, #T_d616a_row5_col8, #T_d616a_row5_col9, #T_d616a_row5_col10, #T_d616a_row5_col11, #T_d616a_row5_col12 {
+  text-align: right;
+}
+</style>
+
+<table id="T_d616a" class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th id="T_d616a_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Length Bin</th>
+<th id="T_d616a_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Current LT</th>
+<th id="T_d616a_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">2003 LT</th>
+<th id="T_d616a_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">2024 LT</th>
+<th id="T_d616a_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">2025 (Prelim) LT</th>
+<th id="T_d616a_level0_col5" class="col_heading level0 col5" data-quarto-table-cell-role="th">Current MD</th>
+<th id="T_d616a_level0_col6" class="col_heading level0 col6" data-quarto-table-cell-role="th">2003 MD</th>
+<th id="T_d616a_level0_col7" class="col_heading level0 col7" data-quarto-table-cell-role="th">2024 MD</th>
+<th id="T_d616a_level0_col8" class="col_heading level0 col8" data-quarto-table-cell-role="th">2025 (Prelim) MD</th>
+<th id="T_d616a_level0_col9" class="col_heading level0 col9" data-quarto-table-cell-role="th">Current HV</th>
+<th id="T_d616a_level0_col10" class="col_heading level0 col10" data-quarto-table-cell-role="th">2003 HV</th>
+<th id="T_d616a_level0_col11" class="col_heading level0 col11" data-quarto-table-cell-role="th">2024 HV</th>
+<th id="T_d616a_level0_col12" class="col_heading level0 col12" data-quarto-table-cell-role="th">2025 (Prelim) HV</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_d616a_row0_col0" class="data row0 col0">L0-8</td>
+<td id="T_d616a_row0_col1" class="data row0 col1">100%</td>
+<td id="T_d616a_row0_col2" class="data row0 col2">100%</td>
+<td id="T_d616a_row0_col3" class="data row0 col3">100%</td>
+<td id="T_d616a_row0_col4" class="data row0 col4">100%</td>
+<td id="T_d616a_row0_col5" class="data row0 col5">0%</td>
+<td id="T_d616a_row0_col6" class="data row0 col6">0%</td>
+<td id="T_d616a_row0_col7" class="data row0 col7">0%</td>
+<td id="T_d616a_row0_col8" class="data row0 col8">0%</td>
+<td id="T_d616a_row0_col9" class="data row0 col9">0%</td>
+<td id="T_d616a_row0_col10" class="data row0 col10">0%</td>
+<td id="T_d616a_row0_col11" class="data row0 col11">0%</td>
+<td id="T_d616a_row0_col12" class="data row0 col12">0%</td>
+</tr>
+<tr class="even">
+<td id="T_d616a_row1_col0" class="data row1 col0">L8-20</td>
+<td id="T_d616a_row1_col1" class="data row1 col1">100%</td>
+<td id="T_d616a_row1_col2" class="data row1 col2">100%</td>
+<td id="T_d616a_row1_col3" class="data row1 col3">100%</td>
+<td id="T_d616a_row1_col4" class="data row1 col4">99%</td>
+<td id="T_d616a_row1_col5" class="data row1 col5">0%</td>
+<td id="T_d616a_row1_col6" class="data row1 col6">0%</td>
+<td id="T_d616a_row1_col7" class="data row1 col7">0%</td>
+<td id="T_d616a_row1_col8" class="data row1 col8">1%</td>
+<td id="T_d616a_row1_col9" class="data row1 col9">0%</td>
+<td id="T_d616a_row1_col10" class="data row1 col10">0%</td>
+<td id="T_d616a_row1_col11" class="data row1 col11">0%</td>
+<td id="T_d616a_row1_col12" class="data row1 col12">0%</td>
+</tr>
+<tr class="odd">
+<td id="T_d616a_row2_col0" class="data row2 col0">L20-30</td>
+<td id="T_d616a_row2_col1" class="data row2 col1">50%</td>
+<td id="T_d616a_row2_col2" class="data row2 col2">52%</td>
+<td id="T_d616a_row2_col3" class="data row2 col3">94%</td>
+<td id="T_d616a_row2_col4" class="data row2 col4">79%</td>
+<td id="T_d616a_row2_col5" class="data row2 col5">50%</td>
+<td id="T_d616a_row2_col6" class="data row2 col6">45%</td>
+<td id="T_d616a_row2_col7" class="data row2 col7">6%</td>
+<td id="T_d616a_row2_col8" class="data row2 col8">21%</td>
+<td id="T_d616a_row2_col9" class="data row2 col9">0%</td>
+<td id="T_d616a_row2_col10" class="data row2 col10">3%</td>
+<td id="T_d616a_row2_col11" class="data row2 col11">0%</td>
+<td id="T_d616a_row2_col12" class="data row2 col12">0%</td>
+</tr>
+<tr class="even">
+<td id="T_d616a_row3_col0" class="data row3 col0">L30-50</td>
+<td id="T_d616a_row3_col1" class="data row3 col1">30%</td>
+<td id="T_d616a_row3_col2" class="data row3 col2">67%</td>
+<td id="T_d616a_row3_col3" class="data row3 col3">78%</td>
+<td id="T_d616a_row3_col4" class="data row3 col4">67%</td>
+<td id="T_d616a_row3_col5" class="data row3 col5">50%</td>
+<td id="T_d616a_row3_col6" class="data row3 col6">17%</td>
+<td id="T_d616a_row3_col7" class="data row3 col7">19%</td>
+<td id="T_d616a_row3_col8" class="data row3 col8">25%</td>
+<td id="T_d616a_row3_col9" class="data row3 col9">20%</td>
+<td id="T_d616a_row3_col10" class="data row3 col10">16%</td>
+<td id="T_d616a_row3_col11" class="data row3 col11">3%</td>
+<td id="T_d616a_row3_col12" class="data row3 col12">8%</td>
+</tr>
+<tr class="odd">
+<td id="T_d616a_row4_col0" class="data row4 col0">L50-79</td>
+<td id="T_d616a_row4_col1" class="data row4 col1">0%</td>
+<td id="T_d616a_row4_col2" class="data row4 col2">0%</td>
+<td id="T_d616a_row4_col3" class="data row4 col3">0%</td>
+<td id="T_d616a_row4_col4" class="data row4 col4">2%</td>
+<td id="T_d616a_row4_col5" class="data row4 col5">10%</td>
+<td id="T_d616a_row4_col6" class="data row4 col6">0%</td>
+<td id="T_d616a_row4_col7" class="data row4 col7">0%</td>
+<td id="T_d616a_row4_col8" class="data row4 col8">2%</td>
+<td id="T_d616a_row4_col9" class="data row4 col9">90%</td>
+<td id="T_d616a_row4_col10" class="data row4 col10">100%</td>
+<td id="T_d616a_row4_col11" class="data row4 col11">100%</td>
+<td id="T_d616a_row4_col12" class="data row4 col12">96%</td>
+</tr>
+<tr class="even">
+<td id="T_d616a_row5_col0" class="data row5 col0">L79-120</td>
+<td id="T_d616a_row5_col1" class="data row5 col1">0%</td>
+<td id="T_d616a_row5_col2" class="data row5 col2">0%</td>
+<td id="T_d616a_row5_col3" class="data row5 col3">0%</td>
+<td id="T_d616a_row5_col4" class="data row5 col4">1%</td>
+<td id="T_d616a_row5_col5" class="data row5 col5">0%</td>
+<td id="T_d616a_row5_col6" class="data row5 col6">0%</td>
+<td id="T_d616a_row5_col7" class="data row5 col7">0%</td>
+<td id="T_d616a_row5_col8" class="data row5 col8">0%</td>
+<td id="T_d616a_row5_col9" class="data row5 col9">100%</td>
+<td id="T_d616a_row5_col10" class="data row5 col10">100%</td>
+<td id="T_d616a_row5_col11" class="data row5 col11">100%</td>
+<td id="T_d616a_row5_col12" class="data row5 col12">99%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="cell-chart-split-composition" class="cell" data-execution_count="26">
+<div class="cell-output cell-output-display" data-execution_count="26">
+<div id="chart-split-composition" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="cv-observed-for-tdm_files/figure-html/chart-split-composition-output-1.png" width="817" height="505" class="figure-img"></p>
+<figcaption>LT / MD / HV composition by length bin and data vintage</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The current UDOT Planning factors and the UDOT Statistics data agree closely on the two shortest and the longest bins (<code>L0-8</code>, <code>L8-20</code>, <code>L79-120</code> — effectively 100% LT, LT, and HV respectively in both sources). They diverge substantially in the middle:</p>
+<ul>
+<li><strong><code>L20-30</code></strong>: this is the highest-volume length bin by far (see <a href="#ccs-truck-volume-by-vehicle-length-class">CCS Truck Volume by Vehicle Length Class</a> — 1.19M of ~6.27M total daily volume, roughly 19%), and it shows the largest practical impact. The current factors assume a 50/50 LT/MD split here; the UDOT Statistics data shows LT increasingly dominant over time (52% in 2003, rising to 79–94% by 2024/2025). Because this bin carries so much volume, reclassifying most of it from “half truck” to “almost all light vehicle” drives a large net <em>reduction</em> in total truck percentage below, not just a reshuffling between Medium and Heavy.</li>
+<li><strong><code>L30-50</code></strong>: the current factors assume only 30% LT (70% MD/HV combined). The UDOT Statistics data — consistently across 2003, 2024, and preliminary 2025 — puts this bin at 67–78% LT. Same direction as <code>L20-30</code>, smaller volume.</li>
+<li><strong><code>L50-79</code></strong>: the current factors assume a 10%/90% MD/HV split. All three UDOT Statistics vintages instead show this bin as ~100% HV, with MD near zero — a shift <em>within</em> the truck categories (Medium → Heavy) rather than a change in total truck volume, but this bin’s volume is small enough that it doesn’t offset the <code>L20-30</code>/<code>L30-50</code> reduction.</li>
+</ul>
+</section>
+<section id="impact-on-ccs-truck-percentages" class="level3">
+<h3 class="anchored" data-anchor-id="impact-on-ccs-truck-percentages">Impact on CCS Truck Percentages</h3>
+<p>The table below reruns the CCS Station Truck Percentages calculation (same spatial matching, same functional-class grouping) substituting the 2003, 2024, and preliminary 2025 UDOT Statistics split factors for the current UDOT Planning factors, to show how much the CCS-derived truck percentages would shift.</p>
+<section id="medium-truck-1" class="level4">
+<h4 class="anchored" data-anchor-id="medium-truck-1">Medium Truck %</h4>
+<div id="cell-md-impact" class="cell" data-execution_count="28">
+<div id="md-impact" class="cell-output cell-output-display" data-execution_count="28">
+<style type="text/css">
+#T_a9f93 th.col_heading.col1 {
+  text-align: right;
+}
+#T_a9f93 th.col_heading.col2 {
+  text-align: right;
+}
+#T_a9f93 th.col_heading.col3 {
+  text-align: right;
+}
+#T_a9f93 th.col_heading.col4 {
+  text-align: right;
+}
+#T_a9f93_row0_col1, #T_a9f93_row0_col2, #T_a9f93_row0_col3, #T_a9f93_row0_col4, #T_a9f93_row1_col1, #T_a9f93_row1_col2, #T_a9f93_row1_col3, #T_a9f93_row1_col4, #T_a9f93_row2_col1, #T_a9f93_row2_col2, #T_a9f93_row2_col3, #T_a9f93_row2_col4, #T_a9f93_row3_col1, #T_a9f93_row3_col2, #T_a9f93_row3_col3, #T_a9f93_row3_col4, #T_a9f93_row4_col1, #T_a9f93_row4_col2, #T_a9f93_row4_col3, #T_a9f93_row4_col4, #T_a9f93_row5_col1, #T_a9f93_row5_col2, #T_a9f93_row5_col3, #T_a9f93_row5_col4 {
+  text-align: right;
+}
+</style>
+
+<table id="T_a9f93" class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th id="T_a9f93_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_a9f93_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Current</th>
+<th id="T_a9f93_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">2003 Data</th>
+<th id="T_a9f93_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">2024 Data</th>
+<th id="T_a9f93_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">2025 Data (Prelim)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_a9f93_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_a9f93_row0_col1" class="data row0 col1">12.4%</td>
+<td id="T_a9f93_row0_col2" class="data row0 col2">9.5%</td>
+<td id="T_a9f93_row0_col3" class="data row0 col3">2.1%</td>
+<td id="T_a9f93_row0_col4" class="data row0 col4">6.1%</td>
+</tr>
+<tr class="even">
+<td id="T_a9f93_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_a9f93_row1_col1" class="data row1 col1">11.0%</td>
+<td id="T_a9f93_row1_col2" class="data row1 col2">8.6%</td>
+<td id="T_a9f93_row1_col3" class="data row1 col3">1.9%</td>
+<td id="T_a9f93_row1_col4" class="data row1 col4">5.6%</td>
+</tr>
+<tr class="odd">
+<td id="T_a9f93_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_a9f93_row2_col1" class="data row2 col1">11.5%</td>
+<td id="T_a9f93_row2_col2" class="data row2 col2">9.2%</td>
+<td id="T_a9f93_row2_col3" class="data row2 col3">1.9%</td>
+<td id="T_a9f93_row2_col4" class="data row2 col4">5.8%</td>
+</tr>
+<tr class="even">
+<td id="T_a9f93_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_a9f93_row3_col1" class="data row3 col1">10.2%</td>
+<td id="T_a9f93_row3_col2" class="data row3 col2">8.3%</td>
+<td id="T_a9f93_row3_col3" class="data row3 col3">1.7%</td>
+<td id="T_a9f93_row3_col4" class="data row3 col4">5.3%</td>
+</tr>
+<tr class="odd">
+<td id="T_a9f93_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_a9f93_row4_col1" class="data row4 col1">9.5%</td>
+<td id="T_a9f93_row4_col2" class="data row4 col2">7.9%</td>
+<td id="T_a9f93_row4_col3" class="data row4 col3">1.4%</td>
+<td id="T_a9f93_row4_col4" class="data row4 col4">5.0%</td>
+</tr>
+<tr class="even">
+<td id="T_a9f93_row5_col0" class="data row5 col0">All Roadways</td>
+<td id="T_a9f93_row5_col1" class="data row5 col1">12.1%</td>
+<td id="T_a9f93_row5_col2" class="data row5 col2">9.3%</td>
+<td id="T_a9f93_row5_col3" class="data row5 col3">2.0%</td>
+<td id="T_a9f93_row5_col4" class="data row5 col4">6.0%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="cell-chart-md-impact" class="cell" data-execution_count="29">
+<div class="cell-output cell-output-display" data-execution_count="29">
+<div id="chart-md-impact" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="cv-observed-for-tdm_files/figure-html/chart-md-impact-output-1.png" width="667" height="367" class="figure-img"></p>
+<figcaption>Medium Truck % by functional class and data vintage</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="heavy-truck-1" class="level4">
+<h4 class="anchored" data-anchor-id="heavy-truck-1">Heavy Truck %</h4>
+<div id="cell-hv-impact" class="cell" data-execution_count="30">
+<div id="hv-impact" class="cell-output cell-output-display" data-execution_count="30">
+<style type="text/css">
+#T_2ebf0 th.col_heading.col1 {
+  text-align: right;
+}
+#T_2ebf0 th.col_heading.col2 {
+  text-align: right;
+}
+#T_2ebf0 th.col_heading.col3 {
+  text-align: right;
+}
+#T_2ebf0 th.col_heading.col4 {
+  text-align: right;
+}
+#T_2ebf0_row0_col1, #T_2ebf0_row0_col2, #T_2ebf0_row0_col3, #T_2ebf0_row0_col4, #T_2ebf0_row1_col1, #T_2ebf0_row1_col2, #T_2ebf0_row1_col3, #T_2ebf0_row1_col4, #T_2ebf0_row2_col1, #T_2ebf0_row2_col2, #T_2ebf0_row2_col3, #T_2ebf0_row2_col4, #T_2ebf0_row3_col1, #T_2ebf0_row3_col2, #T_2ebf0_row3_col3, #T_2ebf0_row3_col4, #T_2ebf0_row4_col1, #T_2ebf0_row4_col2, #T_2ebf0_row4_col3, #T_2ebf0_row4_col4, #T_2ebf0_row5_col1, #T_2ebf0_row5_col2, #T_2ebf0_row5_col3, #T_2ebf0_row5_col4 {
+  text-align: right;
+}
+</style>
+
+<table id="T_2ebf0" class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th id="T_2ebf0_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_2ebf0_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Current</th>
+<th id="T_2ebf0_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">2003 Data</th>
+<th id="T_2ebf0_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">2024 Data</th>
+<th id="T_2ebf0_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">2025 Data (Prelim)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_2ebf0_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_2ebf0_row0_col1" class="data row0 col1">6.5%</td>
+<td id="T_2ebf0_row0_col2" class="data row0 col2">7.4%</td>
+<td id="T_2ebf0_row0_col3" class="data row0 col3">6.2%</td>
+<td id="T_2ebf0_row0_col4" class="data row0 col4">6.2%</td>
+</tr>
+<tr class="even">
+<td id="T_2ebf0_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_2ebf0_row1_col1" class="data row1 col1">2.7%</td>
+<td id="T_2ebf0_row1_col2" class="data row1 col2">3.4%</td>
+<td id="T_2ebf0_row1_col3" class="data row1 col3">2.3%</td>
+<td id="T_2ebf0_row1_col4" class="data row1 col4">2.4%</td>
+</tr>
+<tr class="odd">
+<td id="T_2ebf0_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_2ebf0_row2_col1" class="data row2 col1">2.0%</td>
+<td id="T_2ebf0_row2_col2" class="data row2 col2">2.6%</td>
+<td id="T_2ebf0_row2_col3" class="data row2 col3">1.6%</td>
+<td id="T_2ebf0_row2_col4" class="data row2 col4">1.7%</td>
+</tr>
+<tr class="even">
+<td id="T_2ebf0_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_2ebf0_row3_col1" class="data row3 col1">1.2%</td>
+<td id="T_2ebf0_row3_col2" class="data row3 col2">1.7%</td>
+<td id="T_2ebf0_row3_col3" class="data row3 col3">0.8%</td>
+<td id="T_2ebf0_row3_col4" class="data row3 col4">0.9%</td>
+</tr>
+<tr class="odd">
+<td id="T_2ebf0_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_2ebf0_row4_col1" class="data row4 col1">0.9%</td>
+<td id="T_2ebf0_row4_col2" class="data row4 col2">1.4%</td>
+<td id="T_2ebf0_row4_col3" class="data row4 col3">0.6%</td>
+<td id="T_2ebf0_row4_col4" class="data row4 col4">0.7%</td>
+</tr>
+<tr class="even">
+<td id="T_2ebf0_row5_col0" class="data row5 col0">All Roadways</td>
+<td id="T_2ebf0_row5_col1" class="data row5 col1">5.5%</td>
+<td id="T_2ebf0_row5_col2" class="data row5 col2">6.3%</td>
+<td id="T_2ebf0_row5_col3" class="data row5 col3">5.1%</td>
+<td id="T_2ebf0_row5_col4" class="data row5 col4">5.2%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="cell-chart-hv-impact" class="cell" data-execution_count="31">
+<div class="cell-output cell-output-display" data-execution_count="31">
+<div id="chart-hv-impact" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="cv-observed-for-tdm_files/figure-html/chart-hv-impact-output-1.png" width="667" height="367" class="figure-img"></p>
+<figcaption>Heavy Truck % by functional class and data vintage</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The result is not a simple Medium-to-Heavy reshuffle. Region-wide (All Roadways), Medium Truck % runs <strong>12.1% (Current) → 9.3% (2003) → 2.0% (2024) → 6.0% (2025 Prelim)</strong>, while Heavy Truck % runs <strong>5.5% (Current) → 6.3% (2003) → 5.1% (2024) → 5.2% (2025 Prelim)</strong>. The 2003 column — contemporaneous with the current factors — lands close to Current on both, as expected. The bigger break shows up in 2024: Medium drops sharply while Heavy holds roughly steady, meaning total truck share (Medium + Heavy combined) falls overall rather than shifting between the two categories. That’s because <code>L20-30</code>, the single highest-volume length bin, swings from “half truck” (50% MD) under the current factors to “almost entirely light vehicle” (94–79% LT, only 6–21% MD, near-zero HV) under the newer data — so a large share of volume that used to count toward Medium Truck % now doesn’t count as a truck at all. The much smaller <code>L50-79</code> bin’s shift toward Heavy (10%→0% MD, 90%→100% HV) works in the <em>other</em> direction but isn’t large enough in volume to offset it. Preliminary 2025 partially reverses the 2024 Medium drop (2.0% → 6.0%) while Heavy stays flat — since 2025 is not finalized, treat that partial reversal as tentative, but the overall direction (lower combined truck share than Current/2003) is consistent across both 2024 and 2025 and is worth validating against the raw UDOT Statistics source data before treating it as a basis for changing the page’s methodology.</p>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
