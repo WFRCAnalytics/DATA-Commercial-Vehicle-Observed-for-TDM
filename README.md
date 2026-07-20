@@ -30,7 +30,27 @@ data/
     SiteData.csv                             # CCS station locations/metadata
     Length_to_Class.xlsx                     # UDOT length-bin reference (not read by the qmd; kept for context)
   FHWA_VM4_2023_UrbanTruckPct.csv            # FHWA VM-4 statewide truck-share comparison data
+  WFv1000_TAZ__DSUP.geojson                  # model super-districts (whole counties, or the model-area
+                                              # slice of a county) -- Box Elder/Weber/Davis/Salt Lake/Utah
+  HPMS_FULL_UT_2023.gpkg                     # FHWA's full statewide HPMS extract for Utah, 2023 (large;
+                                              # gitignored -- fetched by scripts/fetch_hpms_full_ut_2023.py)
+data_processed/
+  CCS_Reclass_Ratio_2025_2003.csv                        # written by the qmd itself (reclass-ratio-export cell)
+  HPMS_2023_VMT_by_SuperDistrict_FunctionalClass.csv     # written by scripts/build_hpms_vmt_by_county_facility.py
+  HPMS_2023_VMT_by_County_FacilityType.png               # written by scripts/plot_hpms_vmt_by_county_facility.py
+scripts/
+  fetch_hpms_full_ut_2023.py                 # downloads data/HPMS_FULL_UT_2023.gpkg from geo.dot.gov (run manually)
+  build_hpms_vmt_by_county_facility.py       # joins the HPMS extract to the super-districts, writes the
+                                              # data_processed VMT-by-county-and-facility-type CSV (run manually)
+  plot_hpms_vmt_by_county_facility.py        # charts that CSV (run manually)
 ```
+
+The three `scripts/` are data-prep steps, not part of `quarto render` -- they hit an
+external API and take a few minutes, so their output is cached as checked-in CSVs/
+GeoPackages under `data/` and `data_processed/` and just read by the qmd.
+`data/HPMS_FULL_UT_2023.gpkg` itself is gitignored (118MB, over GitHub's 100MB limit) --
+re-run `scripts/fetch_hpms_full_ut_2023.py` after cloning to regenerate it. Re-run the
+scripts only when refreshing that data (e.g. a newer HPMS year).
 
 ## Setup
 
