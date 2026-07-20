@@ -589,7 +589,7 @@ style_vmt(hv_vmt_compare)
 
 ## Proposed Changes to Truck Classification
 
-The `LT`/`MD`/`HV` length-bin split factors used throughout this page (100%/100%/50%/30%/0%/0% LT for the six bins, etc. — see the classification table in [CCS Truck Volume by Vehicle Length Class](#ccs-truck-volume-by-vehicle-length-class)) came from **UDOT Planning**. Separately, **UDOT's Statistics Department** has published its own FHWA 13-class vehicle-length distributions — a 2003-vintage dataset (roughly contemporaneous with the current factors), a finalized 2024 dataset, and a **preliminary, not-yet-finalized** 2025 dataset.
+The `LT`/`MD`/`HV` length-bin split factors used throughout this page (100%/100%/50%/30%/0%/0% LT for the six bins, etc. — see the classification table in [CCS Truck Volume by Vehicle Length Class](#ccs-truck-volume-by-vehicle-length-class)) came from **UDOT Planning**. Separately, **UDOT's Statistics Department** has published its own FHWA 13-class vehicle-length distributions — a 2003-vintage dataset (roughly contemporaneous with the current factors), a finalized 2024 dataset, and a finalized 2025 dataset.
 
 Rolling the 13 FHWA classes into the same three groups used elsewhere on this page — Classes 1–4 (motorcycles, passenger cars, pickups/vans, buses) → **LT**, Classes 5–7 (single-unit trucks) → **MD**, Classes 8–13 (combination trucks) → **HV** — and summing each vintage's class shares within each length bin produces the split factors below. This section documents where the UDOT Statistics data diverges from the UDOT Planning factors currently in use, and what adopting the newer data would do to this page's CCS results. **It is a discussion starting point, not an implemented change** — nothing elsewhere on this page uses these alternate factors.
 
@@ -614,8 +614,8 @@ splits_2024 = pd.DataFrame(
     }
 )
 
-# 2025 is preliminary/not finalized; raw class shares for L30-50 and L79-120 summed to
-# ~99.6%-100.0% (source rounding) and are renormalized to 1.0 here.
+# Raw class shares for L30-50 and L79-120 summed to ~99.6%-100.0%
+# (source rounding) and are renormalized to 1.0 here.
 splits_2025 = pd.DataFrame(
     {
         "LT": {"L0-8": 1.0000, "L8-20": 0.9882, "L20-30": 0.7912, "L30-50": 0.6709, "L50-79": 0.0171, "L79-120": 0.0093},
@@ -625,7 +625,7 @@ splits_2025 = pd.DataFrame(
 )
 
 BIN_ORDER = ["L0-8", "L8-20", "L20-30", "L30-50", "L50-79", "L79-120"]
-VINTAGES = [("Current", splits), ("2003", splits_2003), ("2024", splits_2024), ("2025 (Prelim)", splits_2025)]
+VINTAGES = [("Current", splits), ("2003", splits_2003), ("2024", splits_2024), ("2025", splits_2025)]
 
 def splits_pct_table(splits_df, label):
     t = (splits_df * 100).reindex(BIN_ORDER)
@@ -650,12 +650,12 @@ right_align(styler)
 # | label: chart-helpers
 
 CATEGORY_COLORS = {"LT": "#2a78d6", "MD": "#008300", "HV": "#e87ba4"}
-VINTAGE_COLORS = {"Current": "#2a78d6", "2003": "#008300", "2024": "#e87ba4", "2025 (Prelim)": "#eda100"}
+VINTAGE_COLORS = {"Current": "#2a78d6", "2003": "#008300", "2024": "#e87ba4", "2025": "#eda100"}
 IMPACT_COLORS = {
     "Current": "#2a78d6",
     "2003 Data": "#008300",
     "2024 Data": "#e87ba4",
-    "2025 Data (Prelim)": "#eda100",
+    "2025 Data": "#eda100",
 }
 
 def style_chart_axes(ax):
@@ -707,12 +707,12 @@ fig
 The current UDOT Planning factors and the UDOT Statistics data agree closely on the two shortest and the longest bins (`L0-8`, `L8-20`, `L79-120` — effectively 100% LT, LT, and HV respectively in both sources). They diverge substantially in the middle:
 
 - **`L20-30`**: this is the highest-volume length bin by far (see [CCS Truck Volume by Vehicle Length Class](#ccs-truck-volume-by-vehicle-length-class) — 1.19M of ~6.27M total daily volume, roughly 19%), and it shows the largest practical impact. The current factors assume a 50/50 LT/MD split here; the UDOT Statistics data shows LT increasingly dominant over time (52% in 2003, rising to 79–94% by 2024/2025). Because this bin carries so much volume, reclassifying most of it from "half truck" to "almost all light vehicle" drives a large net *reduction* in total truck percentage below, not just a reshuffling between Medium and Heavy.
-- **`L30-50`**: the current factors assume only 30% LT (70% MD/HV combined). The UDOT Statistics data — consistently across 2003, 2024, and preliminary 2025 — puts this bin at 67–78% LT. Same direction as `L20-30`, smaller volume.
+- **`L30-50`**: the current factors assume only 30% LT (70% MD/HV combined). The UDOT Statistics data — consistently across 2003, 2024, and 2025 — puts this bin at 67–78% LT. Same direction as `L20-30`, smaller volume.
 - **`L50-79`**: the current factors assume a 10%/90% MD/HV split. All three UDOT Statistics vintages instead show this bin as ~100% HV, with MD near zero — a shift *within* the truck categories (Medium → Heavy) rather than a change in total truck volume, but this bin's volume is small enough that it doesn't offset the `L20-30`/`L30-50` reduction.
 
 ### Impact on CCS Truck Percentages
 
-The table below reruns the CCS Station Truck Percentages calculation (same spatial matching, same functional-class grouping) substituting the 2003, 2024, and preliminary 2025 UDOT Statistics split factors for the current UDOT Planning factors, to show how much the CCS-derived truck percentages would shift.
+The table below reruns the CCS Station Truck Percentages calculation (same spatial matching, same functional-class grouping) substituting the 2003, 2024, and 2025 UDOT Statistics split factors for the current UDOT Planning factors, to show how much the CCS-derived truck percentages would shift.
 
 ```{python}
 # | label: proposed-impact
@@ -750,7 +750,7 @@ def build_impact_table(rate_col):
         ("Current", ccs_table),
         ("2003 Data", ccs_table_2003),
         ("2024 Data", ccs_table_2024),
-        ("2025 Data (Prelim)", ccs_table_2025),
+        ("2025 Data", ccs_table_2025),
     ]:
         frames.append(
             table[["Functional Class", rate_col]]
@@ -826,4 +826,4 @@ style_impact(build_impact_table("Heavy Truck %"))
 plot_impact_chart(build_impact_table("Heavy Truck %"), "Heavy Truck % by Functional Class and Data Vintage")
 ```
 
-The result is not a simple Medium-to-Heavy reshuffle. Region-wide (All Roadways), Medium Truck % runs **12.1% (Current) → 9.3% (2003) → 2.0% (2024) → 6.0% (2025 Prelim)**, while Heavy Truck % runs **5.5% (Current) → 6.3% (2003) → 5.1% (2024) → 5.2% (2025 Prelim)**. The 2003 column — contemporaneous with the current factors — lands close to Current on both, as expected. The bigger break shows up in 2024: Medium drops sharply while Heavy holds roughly steady, meaning total truck share (Medium + Heavy combined) falls overall rather than shifting between the two categories. That's because `L20-30`, the single highest-volume length bin, swings from "half truck" (50% MD) under the current factors to "almost entirely light vehicle" (94–79% LT, only 6–21% MD, near-zero HV) under the newer data — so a large share of volume that used to count toward Medium Truck % now doesn't count as a truck at all. The much smaller `L50-79` bin's shift toward Heavy (10%→0% MD, 90%→100% HV) works in the *other* direction but isn't large enough in volume to offset it. Preliminary 2025 partially reverses the 2024 Medium drop (2.0% → 6.0%) while Heavy stays flat — since 2025 is not finalized, treat that partial reversal as tentative, but the overall direction (lower combined truck share than Current/2003) is consistent across both 2024 and 2025 and is worth validating against the raw UDOT Statistics source data before treating it as a basis for changing the page's methodology.
+The result is not a simple Medium-to-Heavy reshuffle. Region-wide (All Roadways), Medium Truck % runs **12.1% (Current) → 9.3% (2003) → 2.0% (2024) → 6.0% (2025)**, while Heavy Truck % runs **5.5% (Current) → 6.3% (2003) → 5.1% (2024) → 5.2% (2025)**. The 2003 column — contemporaneous with the current factors — lands close to Current on both, as expected. The bigger break shows up in 2024: Medium drops sharply while Heavy holds roughly steady, meaning total truck share (Medium + Heavy combined) falls overall rather than shifting between the two categories. That's because `L20-30`, the single highest-volume length bin, swings from "half truck" (50% MD) under the current factors to "almost entirely light vehicle" (94–79% LT, only 6–21% MD, near-zero HV) under the newer data — so a large share of volume that used to count toward Medium Truck % now doesn't count as a truck at all. The much smaller `L50-79` bin's shift toward Heavy (10%→0% MD, 90%→100% HV) works in the *other* direction but isn't large enough in volume to offset it. 2025 partially reverses the 2024 Medium drop (2.0% → 6.0%) while Heavy stays flat. The overall direction (lower combined truck share than Current/2003) is consistent across both 2024 and 2025 and is worth validating against the raw UDOT Statistics source data before treating it as a basis for changing the page's methodology.
