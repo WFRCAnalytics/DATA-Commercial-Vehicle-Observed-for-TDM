@@ -882,7 +882,7 @@ county_adj["Functional Class"] = pd.Categorical(county_adj["Functional Class"], 
 county_adj = county_adj.sort_values(["County", "Functional Class"]).reset_index(drop=True)
 
 display_cols = [
-    "County", "Functional Class", "HPMS MD VMT", "MD Ratio (2025/2003)", "Adjusted MD VMT",
+    "County", "Functional Class", "Total", "HPMS MD VMT", "MD Ratio (2025/2003)", "Adjusted MD VMT",
     "HPMS HV VMT", "HV Ratio (2025/2003)", "Adjusted HV VMT",
 ]
 county_adj = county_adj[display_cols]
@@ -908,6 +908,7 @@ byClass = classOrder.map((cls) => {
   const rows = filtered.filter((d) => d["Functional Class"] === cls);
   return {
     "Functional Class": cls,
+    total: d3.sum(rows, (d) => d["Total"]),
     hpmsMD: d3.sum(rows, (d) => d["HPMS MD VMT"]),
     adjMD: d3.sum(rows, (d) => d["Adjusted MD VMT"]),
     hpmsHV: d3.sum(rows, (d) => d["HPMS HV VMT"]),
@@ -917,6 +918,7 @@ byClass = classOrder.map((cls) => {
 
 totalRow = ({
   "Functional Class": "Total",
+  total: d3.sum(byClass, (d) => d.total),
   hpmsMD: d3.sum(byClass, (d) => d.hpmsMD),
   adjMD: d3.sum(byClass, (d) => d.adjMD),
   hpmsHV: d3.sum(byClass, (d) => d.hpmsHV),
@@ -953,6 +955,34 @@ htl.html`<table class="table table-sm table-striped small caption-top">
         <td style="text-align:right">${fmt(d.adjMD)}</td>
         <td style="text-align:right">${fmt(d.hpmsHV)}</td>
         <td style="text-align:right">${ratioFmt(d.adjHV, d.hpmsHV)}</td>
+        <td style="text-align:right">${fmt(d.adjHV)}</td>
+      </tr>`
+    )}
+  </tbody>
+</table>`
+```
+
+### VMT Targets (Adjusted)
+
+Combines the above into a single set of VMT targets by facility type -- Total VMT, PC/LT VMT (the non-truck remainder, `Total − Adjusted MD − Adjusted HV`), and the two adjusted truck VMTs -- for whichever counties are toggled above.
+
+```{ojs}
+//| label: vmt-targets-table
+htl.html`<table class="table table-sm table-striped small caption-top">
+  <thead><tr>
+    <th>Facility Type</th>
+    <th style="text-align:right">Total VMT</th>
+    <th style="text-align:right">PC/LT VMT</th>
+    <th style="text-align:right">MD VMT (Adjusted)</th>
+    <th style="text-align:right">HV VMT (Adjusted)</th>
+  </tr></thead>
+  <tbody>
+    ${[...byClass, totalRow].map(
+      (d) => htl.html`<tr style=${d["Functional Class"] === "Total" ? "font-weight:bold;border-top:2px solid #52514e;" : ""}>
+        <td>${d["Functional Class"]}</td>
+        <td style="text-align:right">${fmt(d.total)}</td>
+        <td style="text-align:right">${fmt(d.total - d.adjMD - d.adjHV)}</td>
+        <td style="text-align:right">${fmt(d.adjMD)}</td>
         <td style="text-align:right">${fmt(d.adjHV)}</td>
       </tr>`
     )}
