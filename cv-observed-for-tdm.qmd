@@ -916,6 +916,7 @@ county_adj = county_hpms.merge(reclass_ratio, on="Functional Class", how="left")
 county_adj["Adjusted MD VMT"] = county_adj["MD"] * county_adj["MD Ratio (2025/2003)"]
 county_adj["Adjusted HV VMT"] = county_adj["HV"] * county_adj["HV Ratio (2025/2003)"]
 
+county_adj["DSUP_NAME"] = county_adj["DSUP_NAME"].str.replace(" County", " Super District", regex=False)
 county_adj = county_adj.rename(columns={"DSUP_NAME": "County", "MD": "HPMS MD VMT", "HV": "HPMS HV VMT"})
 county_adj["Functional Class"] = pd.Categorical(county_adj["Functional Class"], categories=FT_ORDER, ordered=True)
 county_adj = county_adj.sort_values(["County", "Functional Class"]).reset_index(drop=True)
@@ -931,7 +932,7 @@ county_adj_ojs["Functional Class"] = county_adj_ojs["Functional Class"].astype(s
 ojs_define(county_adj_ojs=county_adj_ojs)
 ```
 
-Toggle counties on/off below; the table sums whichever counties are checked by facility type, with a Total row across all facility types. All counties are checked by default, giving the region-wide sum.
+Toggle super districts on/off below; the table sums whichever ones are checked by facility type, with a Total row across all facility types. All are checked by default, giving the region-wide sum.
 
 ```{ojs}
 //| label: county-toggle-data
@@ -970,7 +971,7 @@ ratioFmt = (num, den) => (den > 0 ? `${(num / den).toFixed(2)}x` : "—")
 
 ```{ojs}
 //| label: county-toggle-input
-viewof selectedCounties = Inputs.checkbox(counties, { value: counties, label: "County:" })
+viewof selectedCounties = Inputs.checkbox(counties, { value: counties, label: "Super District:" })
 ```
 
 ```{ojs}
