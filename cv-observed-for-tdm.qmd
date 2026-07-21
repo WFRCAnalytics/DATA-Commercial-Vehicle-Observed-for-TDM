@@ -867,6 +867,45 @@ reclass_ratio.to_csv("data_processed/CCS_Reclass_Ratio_2025_2003.csv", index=Fal
 
 As a further cross-check, the same 2025/2003 ratio can be applied to actual 2023 HPMS VMT, broken out by county and facility type rather than region-wide. This uses a different, statewide HPMS source than the rest of this page: FHWA's full HPMS extract for Utah (`data/HPMS_FULL_UT_2023.gpkg`, fetched by `scripts/fetch_hpms_full_ut_2023.py`), spatially joined to the model's super-districts (`data/WFv1000_TAZ__DSUP.geojson` -- whole counties for Davis/Salt Lake/Utah, the model-area slice of the county for Box Elder/Weber) by `scripts/build_hpms_vmt_by_county_facility.py`. Those two scripts are run manually (not on every `quarto render`, since the fetch hits an external API); the cell below just reads their cached output and applies the ratio already computed above.
 
+The map below shows exactly which areas each county's VMT figures cover -- note Box Elder and Weber are only their model-area slice, not the full county (see the note above).
+
+```{python}
+# | label: dsup-map
+# | fig-cap: "Model super-districts used for the county-level VMT tables below"
+
+DSUP_COLORS = {
+    "Box Elder County": "#2a78d6",
+    "Weber County": "#7b52ab",
+    "Davis County": "#008300",
+    "Salt Lake County": "#e87ba4",
+    "Utah County": "#eda100",
+}
+
+dsup_map = gpd.read_file("data/WFv1000_TAZ__DSUP.geojson").to_crs(CRS_UTM)
+
+fig, ax = plt.subplots(figsize=(6, 8), dpi=90)
+fig.patch.set_facecolor("#fcfcfb")
+
+for _, row in dsup_map.iterrows():
+    gpd.GeoSeries([row.geometry], crs=dsup_map.crs).plot(
+        ax=ax, color=DSUP_COLORS[row["DSUP_NAME"]], edgecolor="white", linewidth=1.2
+    )
+
+for _, row in dsup_map.iterrows():
+    label_point = row.geometry.representative_point()
+    ax.annotate(
+        row["DSUP_NAME"].replace(" County", ""),
+        xy=(label_point.x, label_point.y),
+        ha="center", va="center", fontsize=10, color="#0b0b0b", fontweight="bold",
+    )
+
+ax.set_axis_off()
+ax.set_title("Model Super-Districts", fontsize=12, color="#0b0b0b")
+plt.tight_layout()
+plt.close(fig)
+fig
+```
+
 ```{python}
 # | label: county-hpms-adjustment
 
