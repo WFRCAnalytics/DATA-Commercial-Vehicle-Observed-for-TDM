@@ -1029,3 +1029,29 @@ htl.html`<table class="table table-sm table-striped small caption-top">
   </tbody>
 </table>`
 ```
+
+### Download
+
+A full, unfiltered long-format version of the targets above -- every Super District × Facility Type combination (Local excluded, same as the tables above, since CCS has no ratio for it) -- with three VMT columns: PC/LT, MD (Adjusted), and HV (Adjusted).
+
+```{python}
+# | label: vmt-targets-csv-export
+
+targets_long = county_adj[["County", "Functional Class", "Total", "Adjusted MD VMT", "Adjusted HV VMT"]].copy()
+targets_long = targets_long[targets_long["Functional Class"] != "Local"].copy()
+targets_long["PC/LT VMT"] = targets_long["Total"] - targets_long["Adjusted MD VMT"] - targets_long["Adjusted HV VMT"]
+targets_long["County"] = targets_long["County"].str.replace(" Super District", "", regex=False)
+
+targets_long = targets_long.rename(
+    columns={
+        "County": "Super District",
+        "Functional Class": "Facility Type",
+        "Adjusted MD VMT": "MD VMT",
+        "Adjusted HV VMT": "HV VMT",
+    }
+)
+targets_long = targets_long[["Super District", "Facility Type", "PC/LT VMT", "MD VMT", "HV VMT"]]
+targets_long.to_csv("data_processed/VMT_Targets_by_SuperDistrict_FacilityType.csv", index=False)
+```
+
+[Download VMT Targets by Super District and Facility Type (CSV)](data_processed/VMT_Targets_by_SuperDistrict_FacilityType.csv)
