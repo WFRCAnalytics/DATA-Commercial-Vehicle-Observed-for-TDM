@@ -710,6 +710,15 @@ The current UDOT Planning factors and the UDOT Statistics data agree closely on 
 - **`L30-50`**: the current factors assume only 30% LT (70% MD/HV combined). The UDOT Statistics data — consistently across 2003, 2024, and 2025 — puts this bin at 67–78% LT. Same direction as `L20-30`, smaller volume.
 - **`L50-79`**: the current factors assume a 10%/90% MD/HV split. All three UDOT Statistics vintages instead show this bin as ~100% HV, with MD near zero — a shift *within* the truck categories (Medium → Heavy) rather than a change in total truck volume, but this bin's volume is small enough that it doesn't offset the `L20-30`/`L30-50` reduction.
 
+```{python}
+# | label: splits-2025-export
+
+splits_2025_export = (splits_2025 * 100).reindex(BIN_ORDER).reset_index().rename(columns={"index": "Length Bin"})
+splits_2025_export.to_csv("data_processed/LT_MD_HV_Split_Factors_2025.csv", index=False)
+```
+
+[Download 2025 Recommended LT/MD/HV Split Factors (CSV)](data_processed/LT_MD_HV_Split_Factors_2025.csv)
+
 ### Impact on CCS Truck Percentages
 
 The table below reruns the CCS Station Truck Percentages calculation (same spatial matching, same functional-class grouping) substituting the 2003, 2024, and 2025 UDOT Statistics split factors for the current UDOT Planning factors, to show how much the CCS-derived truck percentages would shift.
