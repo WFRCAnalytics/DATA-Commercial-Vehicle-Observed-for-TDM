@@ -115,6 +115,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>A fourth, external check against FHWA’s statewide VM-4 data is discussed in <a href="#regional-context-fhwa-vm-4-state-comparison">Regional Context</a> below.</p>
 <p><strong>Methodology note:</strong> The CCS truck percentage is a <em>volume-weighted</em> average — for each functional class, total medium/heavy truck volume across all matching stations is divided by total volume across those stations (so higher-volume stations count more, rather than every station counting equally). The HPMS and Model truck percentages are <em>VMT-weighted</em> — each segment’s truck/total volume is multiplied by its length (<code>DISTANCE</code>) before summing, so longer segments contribute proportionally more, consistent with how the existing VMT validation figures on the Highway Assignment page are built. A small number of non-highway/connector segments have UDOT truck factors that aren’t considered reliable; those segments are still counted toward total HPMS volume but excluded from the Medium/Heavy truck volume in the HPMS table.</p>
 <p><strong>VMT comparison basis:</strong> CCS and HPMS stations/segments don’t cover the whole network the way the model does, so the Medium/Heavy Truck VMT tables below express all three sources as an <strong>Effective VMT</strong> — each source’s own truck percentage for a functional class, applied to the <em>model’s</em> full-network total VMT for that class. This puts CCS, HPMS, and Model on the same complete-network basis so they’re directly comparable; the Model VMT column is simply the model’s own actual VMT (it needs no extrapolation, since it already covers every segment). Note this means “Model VMT” here is the full network total and will differ from the Highway Assignment page’s “2b. Total Daily VMT by Roadway Class” table, whose “Model” column is restricted to only the segments that also have valid HPMS data (via an inner join) — a narrower, HPMS-matched comparison basis.</p>
+<section id="downloads" class="level2">
+<h2 class="anchored" data-anchor-id="downloads">Downloads</h2>
+<p>CSV exports of the data behind the tables and charts below:</p>
+<ul>
+<li><a href="data_processed/HPMS_2023_VMT_by_SuperDistrict_FunctionalClass.csv">2023 HPMS VMT by Super District and Functional Class</a> — from <a href="#county-level-hpms-vmt-with-proposed-adjustment">County-Level HPMS VMT with Proposed Adjustment</a></li>
+<li><a href="data_processed/VMT_Targets_by_SuperDistrict_FacilityType.csv">VMT Targets by Super District and Facility Type</a> — from <a href="#vmt-targets-adjusted">VMT Targets (Adjusted)</a></li>
+<li><a href="data_processed/CCS_Reclass_Ratio_2025_2003.csv">CCS-Derived 2025/2003 Reclassification Ratio</a> — from <a href="#ccs-derived-20252003-reclassification-ratio">CCS-Derived 2025/2003 Reclassification Ratio</a></li>
+<li><a href="data_processed/LT_MD_HV_Split_Factors_2025.csv">2025 Recommended LT/MD/HV Split Factors</a> — from <a href="#recomputed-ltmdhv-split-factors">Recomputed LT/MD/HV Split Factors</a></li>
+</ul>
+</section>
 <section id="detailed-source-data" class="level2">
 <h2 class="anchored" data-anchor-id="detailed-source-data">Detailed Source Data</h2>
 <p>The tables below show each source’s own functional-class breakdown in full detail, including sample size (Stations/Segments) and the underlying methodology for each source.</p>
@@ -123,65 +133,65 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-ccs-summary-table" class="cell" data-execution_count="14">
 <div id="ccs-summary-table" class="cell-output cell-output-display" data-execution_count="14">
 <style type="text/css">
-#T_7cd39 th.col_heading.col1 {
+#T_bb460 th.col_heading.col1 {
   text-align: right;
 }
-#T_7cd39 th.col_heading.col2 {
+#T_bb460 th.col_heading.col2 {
   text-align: right;
 }
-#T_7cd39 th.col_heading.col3 {
+#T_bb460 th.col_heading.col3 {
   text-align: right;
 }
-#T_7cd39_row0_col1, #T_7cd39_row0_col2, #T_7cd39_row0_col3, #T_7cd39_row1_col1, #T_7cd39_row1_col2, #T_7cd39_row1_col3, #T_7cd39_row2_col1, #T_7cd39_row2_col2, #T_7cd39_row2_col3, #T_7cd39_row3_col1, #T_7cd39_row3_col2, #T_7cd39_row3_col3, #T_7cd39_row4_col1, #T_7cd39_row4_col2, #T_7cd39_row4_col3, #T_7cd39_row5_col1, #T_7cd39_row5_col2, #T_7cd39_row5_col3 {
+#T_bb460_row0_col1, #T_bb460_row0_col2, #T_bb460_row0_col3, #T_bb460_row1_col1, #T_bb460_row1_col2, #T_bb460_row1_col3, #T_bb460_row2_col1, #T_bb460_row2_col2, #T_bb460_row2_col3, #T_bb460_row3_col1, #T_bb460_row3_col2, #T_bb460_row3_col3, #T_bb460_row4_col1, #T_bb460_row4_col2, #T_bb460_row4_col3, #T_bb460_row5_col1, #T_bb460_row5_col2, #T_bb460_row5_col3 {
   text-align: right;
 }
 </style>
 
-<table id="T_7cd39" class="caption-top table table-sm table-striped small">
+<table id="T_bb460" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th id="T_7cd39_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
-<th id="T_7cd39_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Stations</th>
-<th id="T_7cd39_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Medium Truck %</th>
-<th id="T_7cd39_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Heavy Truck %</th>
+<th id="T_bb460_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_bb460_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Stations</th>
+<th id="T_bb460_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Medium Truck %</th>
+<th id="T_bb460_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Heavy Truck %</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td id="T_7cd39_row0_col0" class="data row0 col0">Freeway</td>
-<td id="T_7cd39_row0_col1" class="data row0 col1">36</td>
-<td id="T_7cd39_row0_col2" class="data row0 col2">12.4%</td>
-<td id="T_7cd39_row0_col3" class="data row0 col3">6.5%</td>
+<td id="T_bb460_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_bb460_row0_col1" class="data row0 col1">36</td>
+<td id="T_bb460_row0_col2" class="data row0 col2">12.4%</td>
+<td id="T_bb460_row0_col3" class="data row0 col3">6.5%</td>
 </tr>
 <tr class="even">
-<td id="T_7cd39_row1_col0" class="data row1 col0">Expressway</td>
-<td id="T_7cd39_row1_col1" class="data row1 col1">12</td>
-<td id="T_7cd39_row1_col2" class="data row1 col2">11.0%</td>
-<td id="T_7cd39_row1_col3" class="data row1 col3">2.7%</td>
+<td id="T_bb460_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_bb460_row1_col1" class="data row1 col1">12</td>
+<td id="T_bb460_row1_col2" class="data row1 col2">11.0%</td>
+<td id="T_bb460_row1_col3" class="data row1 col3">2.7%</td>
 </tr>
 <tr class="odd">
-<td id="T_7cd39_row2_col0" class="data row2 col0">Principal Arterial</td>
-<td id="T_7cd39_row2_col1" class="data row2 col1">23</td>
-<td id="T_7cd39_row2_col2" class="data row2 col2">11.5%</td>
-<td id="T_7cd39_row2_col3" class="data row2 col3">2.0%</td>
+<td id="T_bb460_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_bb460_row2_col1" class="data row2 col1">23</td>
+<td id="T_bb460_row2_col2" class="data row2 col2">11.5%</td>
+<td id="T_bb460_row2_col3" class="data row2 col3">2.0%</td>
 </tr>
 <tr class="even">
-<td id="T_7cd39_row3_col0" class="data row3 col0">Minor Arterial</td>
-<td id="T_7cd39_row3_col1" class="data row3 col1">5</td>
-<td id="T_7cd39_row3_col2" class="data row3 col2">10.2%</td>
-<td id="T_7cd39_row3_col3" class="data row3 col3">1.2%</td>
+<td id="T_bb460_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_bb460_row3_col1" class="data row3 col1">5</td>
+<td id="T_bb460_row3_col2" class="data row3 col2">10.2%</td>
+<td id="T_bb460_row3_col3" class="data row3 col3">1.2%</td>
 </tr>
 <tr class="odd">
-<td id="T_7cd39_row4_col0" class="data row4 col0">Collector</td>
-<td id="T_7cd39_row4_col1" class="data row4 col1">4</td>
-<td id="T_7cd39_row4_col2" class="data row4 col2">9.5%</td>
-<td id="T_7cd39_row4_col3" class="data row4 col3">0.9%</td>
+<td id="T_bb460_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_bb460_row4_col1" class="data row4 col1">4</td>
+<td id="T_bb460_row4_col2" class="data row4 col2">9.5%</td>
+<td id="T_bb460_row4_col3" class="data row4 col3">0.9%</td>
 </tr>
 <tr class="even">
-<td id="T_7cd39_row5_col0" class="data row5 col0">All Roadways</td>
-<td id="T_7cd39_row5_col1" class="data row5 col1">80</td>
-<td id="T_7cd39_row5_col2" class="data row5 col2">12.1%</td>
-<td id="T_7cd39_row5_col3" class="data row5 col3">5.5%</td>
+<td id="T_bb460_row5_col0" class="data row5 col0">All Stations</td>
+<td id="T_bb460_row5_col1" class="data row5 col1">80</td>
+<td id="T_bb460_row5_col2" class="data row5 col2">12.1%</td>
+<td id="T_bb460_row5_col3" class="data row5 col3">5.5%</td>
 </tr>
 </tbody>
 </table>
@@ -189,7 +199,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="ccs-truck-volume-by-vehicle-length-class" class="level4">
 <h4 class="anchored" data-anchor-id="ccs-truck-volume-by-vehicle-length-class">CCS Truck Volume by Vehicle Length Class</h4>
-<p>The table below shows the average daily (Tue/Wed/Thu) raw CCS count volume, split into Medium and Heavy truck volume using the Wavetronix/UDOT length-bin factors below, summed across all CCS stations. This is a region-wide cross-check on the Medium/Heavy split feeding the functional-class table above — the Total row’s MD/HV volumes should match the “All Roadways” MD/HV totals used there.</p>
+<p>The table below shows the average daily (Tue/Wed/Thu) raw CCS count volume, split into Medium and Heavy truck volume using the Wavetronix/UDOT length-bin factors below, summed across all CCS stations. This is a region-wide cross-check on the Medium/Heavy split feeding the functional-class table above — the Total row’s MD/HV volumes should match the “All Stations” MD/HV totals used there.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -248,71 +258,71 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-length-class-table" class="cell" data-execution_count="15">
 <div id="length-class-table" class="cell-output cell-output-display" data-execution_count="15">
 <style type="text/css">
-#T_b4e62 th.col_heading.col1 {
+#T_cabcf th.col_heading.col1 {
   text-align: right;
 }
-#T_b4e62 th.col_heading.col2 {
+#T_cabcf th.col_heading.col2 {
   text-align: right;
 }
-#T_b4e62 th.col_heading.col3 {
+#T_cabcf th.col_heading.col3 {
   text-align: right;
 }
-#T_b4e62_row0_col1, #T_b4e62_row0_col2, #T_b4e62_row0_col3, #T_b4e62_row1_col1, #T_b4e62_row1_col2, #T_b4e62_row1_col3, #T_b4e62_row2_col1, #T_b4e62_row2_col2, #T_b4e62_row2_col3, #T_b4e62_row3_col1, #T_b4e62_row3_col2, #T_b4e62_row3_col3, #T_b4e62_row4_col1, #T_b4e62_row4_col2, #T_b4e62_row4_col3, #T_b4e62_row5_col1, #T_b4e62_row5_col2, #T_b4e62_row5_col3, #T_b4e62_row6_col1, #T_b4e62_row6_col2, #T_b4e62_row6_col3 {
+#T_cabcf_row0_col1, #T_cabcf_row0_col2, #T_cabcf_row0_col3, #T_cabcf_row1_col1, #T_cabcf_row1_col2, #T_cabcf_row1_col3, #T_cabcf_row2_col1, #T_cabcf_row2_col2, #T_cabcf_row2_col3, #T_cabcf_row3_col1, #T_cabcf_row3_col2, #T_cabcf_row3_col3, #T_cabcf_row4_col1, #T_cabcf_row4_col2, #T_cabcf_row4_col3, #T_cabcf_row5_col1, #T_cabcf_row5_col2, #T_cabcf_row5_col3, #T_cabcf_row6_col1, #T_cabcf_row6_col2, #T_cabcf_row6_col3 {
   text-align: right;
 }
 </style>
 
-<table id="T_b4e62" class="caption-top table table-sm table-striped small">
+<table id="T_cabcf" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th id="T_b4e62_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Vehicle Length Class</th>
-<th id="T_b4e62_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Total Volume</th>
-<th id="T_b4e62_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">MD Volume</th>
-<th id="T_b4e62_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">HV Volume</th>
+<th id="T_cabcf_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Vehicle Length Class</th>
+<th id="T_cabcf_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Total Volume</th>
+<th id="T_cabcf_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">MD Volume</th>
+<th id="T_cabcf_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">HV Volume</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td id="T_b4e62_row0_col0" class="data row0 col0">Class 6 (0-8 ft)</td>
-<td id="T_b4e62_row0_col1" class="data row0 col1">139,505</td>
-<td id="T_b4e62_row0_col2" class="data row0 col2">0</td>
-<td id="T_b4e62_row0_col3" class="data row0 col3">0</td>
+<td id="T_cabcf_row0_col0" class="data row0 col0">Class 6 (0-8 ft)</td>
+<td id="T_cabcf_row0_col1" class="data row0 col1">139,505</td>
+<td id="T_cabcf_row0_col2" class="data row0 col2">0</td>
+<td id="T_cabcf_row0_col3" class="data row0 col3">0</td>
 </tr>
 <tr class="even">
-<td id="T_b4e62_row1_col0" class="data row1 col0">Class 8 (8-20 ft)</td>
-<td id="T_b4e62_row1_col1" class="data row1 col1">4,349,519</td>
-<td id="T_b4e62_row1_col2" class="data row1 col2">0</td>
-<td id="T_b4e62_row1_col3" class="data row1 col3">0</td>
+<td id="T_cabcf_row1_col0" class="data row1 col0">Class 8 (8-20 ft)</td>
+<td id="T_cabcf_row1_col1" class="data row1 col1">4,349,519</td>
+<td id="T_cabcf_row1_col2" class="data row1 col2">0</td>
+<td id="T_cabcf_row1_col3" class="data row1 col3">0</td>
 </tr>
 <tr class="odd">
-<td id="T_b4e62_row2_col0" class="data row2 col0">Class 9 (20-30 ft)</td>
-<td id="T_b4e62_row2_col1" class="data row2 col1">1,190,001</td>
-<td id="T_b4e62_row2_col2" class="data row2 col2">595,001</td>
-<td id="T_b4e62_row2_col3" class="data row2 col3">0</td>
+<td id="T_cabcf_row2_col0" class="data row2 col0">Class 9 (20-30 ft)</td>
+<td id="T_cabcf_row2_col1" class="data row2 col1">1,190,001</td>
+<td id="T_cabcf_row2_col2" class="data row2 col2">595,001</td>
+<td id="T_cabcf_row2_col3" class="data row2 col3">0</td>
 </tr>
 <tr class="even">
-<td id="T_b4e62_row3_col0" class="data row3 col0">Class 2 (30-50 ft)</td>
-<td id="T_b4e62_row3_col1" class="data row3 col1">272,357</td>
-<td id="T_b4e62_row3_col2" class="data row3 col2">136,178</td>
-<td id="T_b4e62_row3_col3" class="data row3 col3">54,471</td>
+<td id="T_cabcf_row3_col0" class="data row3 col0">Class 2 (30-50 ft)</td>
+<td id="T_cabcf_row3_col1" class="data row3 col1">272,357</td>
+<td id="T_cabcf_row3_col2" class="data row3 col2">136,178</td>
+<td id="T_cabcf_row3_col3" class="data row3 col3">54,471</td>
 </tr>
 <tr class="odd">
-<td id="T_b4e62_row4_col0" class="data row4 col0">Class 3 (50-79 ft)</td>
-<td id="T_b4e62_row4_col1" class="data row4 col1">217,323</td>
-<td id="T_b4e62_row4_col2" class="data row4 col2">21,732</td>
-<td id="T_b4e62_row4_col3" class="data row4 col3">195,591</td>
+<td id="T_cabcf_row4_col0" class="data row4 col0">Class 3 (50-79 ft)</td>
+<td id="T_cabcf_row4_col1" class="data row4 col1">217,323</td>
+<td id="T_cabcf_row4_col2" class="data row4 col2">21,732</td>
+<td id="T_cabcf_row4_col3" class="data row4 col3">195,591</td>
 </tr>
 <tr class="even">
-<td id="T_b4e62_row5_col0" class="data row5 col0">Class 5 (&gt;79 ft)</td>
-<td id="T_b4e62_row5_col1" class="data row5 col1">99,551</td>
-<td id="T_b4e62_row5_col2" class="data row5 col2">0</td>
-<td id="T_b4e62_row5_col3" class="data row5 col3">99,551</td>
+<td id="T_cabcf_row5_col0" class="data row5 col0">Class 5 (&gt;79 ft)</td>
+<td id="T_cabcf_row5_col1" class="data row5 col1">99,551</td>
+<td id="T_cabcf_row5_col2" class="data row5 col2">0</td>
+<td id="T_cabcf_row5_col3" class="data row5 col3">99,551</td>
 </tr>
 <tr class="odd">
-<td id="T_b4e62_row6_col0" class="data row6 col0">Total</td>
-<td id="T_b4e62_row6_col1" class="data row6 col1">6,268,256</td>
-<td id="T_b4e62_row6_col2" class="data row6 col2">752,911</td>
-<td id="T_b4e62_row6_col3" class="data row6 col3">349,613</td>
+<td id="T_cabcf_row6_col0" class="data row6 col0">Total</td>
+<td id="T_cabcf_row6_col1" class="data row6 col1">6,268,256</td>
+<td id="T_cabcf_row6_col2" class="data row6 col2">752,911</td>
+<td id="T_cabcf_row6_col3" class="data row6 col3">349,613</td>
 </tr>
 </tbody>
 </table>
@@ -325,71 +335,71 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-hpms-summary-table" class="cell" data-execution_count="16">
 <div id="hpms-summary-table" class="cell-output cell-output-display" data-execution_count="16">
 <style type="text/css">
-#T_be55d th.col_heading.col1 {
+#T_d4794 th.col_heading.col1 {
   text-align: right;
 }
-#T_be55d th.col_heading.col2 {
+#T_d4794 th.col_heading.col2 {
   text-align: right;
 }
-#T_be55d th.col_heading.col3 {
+#T_d4794 th.col_heading.col3 {
   text-align: right;
 }
-#T_be55d_row0_col1, #T_be55d_row0_col2, #T_be55d_row0_col3, #T_be55d_row1_col1, #T_be55d_row1_col2, #T_be55d_row1_col3, #T_be55d_row2_col1, #T_be55d_row2_col2, #T_be55d_row2_col3, #T_be55d_row3_col1, #T_be55d_row3_col2, #T_be55d_row3_col3, #T_be55d_row4_col1, #T_be55d_row4_col2, #T_be55d_row4_col3, #T_be55d_row5_col1, #T_be55d_row5_col2, #T_be55d_row5_col3, #T_be55d_row6_col1, #T_be55d_row6_col2, #T_be55d_row6_col3 {
+#T_d4794_row0_col1, #T_d4794_row0_col2, #T_d4794_row0_col3, #T_d4794_row1_col1, #T_d4794_row1_col2, #T_d4794_row1_col3, #T_d4794_row2_col1, #T_d4794_row2_col2, #T_d4794_row2_col3, #T_d4794_row3_col1, #T_d4794_row3_col2, #T_d4794_row3_col3, #T_d4794_row4_col1, #T_d4794_row4_col2, #T_d4794_row4_col3, #T_d4794_row5_col1, #T_d4794_row5_col2, #T_d4794_row5_col3, #T_d4794_row6_col1, #T_d4794_row6_col2, #T_d4794_row6_col3 {
   text-align: right;
 }
 </style>
 
-<table id="T_be55d" class="caption-top table table-sm table-striped small">
+<table id="T_d4794" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th id="T_be55d_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
-<th id="T_be55d_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Segments</th>
-<th id="T_be55d_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Medium Truck %</th>
-<th id="T_be55d_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Heavy Truck %</th>
+<th id="T_d4794_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_d4794_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Segments</th>
+<th id="T_d4794_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Medium Truck %</th>
+<th id="T_d4794_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Heavy Truck %</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td id="T_be55d_row0_col0" class="data row0 col0">Freeway</td>
-<td id="T_be55d_row0_col1" class="data row0 col1">170</td>
-<td id="T_be55d_row0_col2" class="data row0 col2">8.9%</td>
-<td id="T_be55d_row0_col3" class="data row0 col3">6.8%</td>
+<td id="T_d4794_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_d4794_row0_col1" class="data row0 col1">170</td>
+<td id="T_d4794_row0_col2" class="data row0 col2">8.9%</td>
+<td id="T_d4794_row0_col3" class="data row0 col3">6.8%</td>
 </tr>
 <tr class="even">
-<td id="T_be55d_row1_col0" class="data row1 col0">Expressway</td>
-<td id="T_be55d_row1_col1" class="data row1 col1">93</td>
-<td id="T_be55d_row1_col2" class="data row1 col2">11.6%</td>
-<td id="T_be55d_row1_col3" class="data row1 col3">7.8%</td>
+<td id="T_d4794_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_d4794_row1_col1" class="data row1 col1">93</td>
+<td id="T_d4794_row1_col2" class="data row1 col2">11.6%</td>
+<td id="T_d4794_row1_col3" class="data row1 col3">7.8%</td>
 </tr>
 <tr class="odd">
-<td id="T_be55d_row2_col0" class="data row2 col0">Principal Arterial</td>
-<td id="T_be55d_row2_col1" class="data row2 col1">834</td>
-<td id="T_be55d_row2_col2" class="data row2 col2">10.3%</td>
-<td id="T_be55d_row2_col3" class="data row2 col3">4.3%</td>
+<td id="T_d4794_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_d4794_row2_col1" class="data row2 col1">834</td>
+<td id="T_d4794_row2_col2" class="data row2 col2">10.3%</td>
+<td id="T_d4794_row2_col3" class="data row2 col3">4.3%</td>
 </tr>
 <tr class="even">
-<td id="T_be55d_row3_col0" class="data row3 col0">Minor Arterial</td>
-<td id="T_be55d_row3_col1" class="data row3 col1">1,092</td>
-<td id="T_be55d_row3_col2" class="data row3 col2">3.6%</td>
-<td id="T_be55d_row3_col3" class="data row3 col3">2.2%</td>
+<td id="T_d4794_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_d4794_row3_col1" class="data row3 col1">1,092</td>
+<td id="T_d4794_row3_col2" class="data row3 col2">3.6%</td>
+<td id="T_d4794_row3_col3" class="data row3 col3">2.2%</td>
 </tr>
 <tr class="odd">
-<td id="T_be55d_row4_col0" class="data row4 col0">Collector</td>
-<td id="T_be55d_row4_col1" class="data row4 col1">1,681</td>
-<td id="T_be55d_row4_col2" class="data row4 col2">0.3%</td>
-<td id="T_be55d_row4_col3" class="data row4 col3">0.2%</td>
+<td id="T_d4794_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_d4794_row4_col1" class="data row4 col1">1,681</td>
+<td id="T_d4794_row4_col2" class="data row4 col2">0.3%</td>
+<td id="T_d4794_row4_col3" class="data row4 col3">0.2%</td>
 </tr>
 <tr class="even">
-<td id="T_be55d_row5_col0" class="data row5 col0">Local</td>
-<td id="T_be55d_row5_col1" class="data row5 col1">1</td>
-<td id="T_be55d_row5_col2" class="data row5 col2">12.4%</td>
-<td id="T_be55d_row5_col3" class="data row5 col3">4.2%</td>
+<td id="T_d4794_row5_col0" class="data row5 col0">Local</td>
+<td id="T_d4794_row5_col1" class="data row5 col1">1</td>
+<td id="T_d4794_row5_col2" class="data row5 col2">12.4%</td>
+<td id="T_d4794_row5_col3" class="data row5 col3">4.2%</td>
 </tr>
 <tr class="odd">
-<td id="T_be55d_row6_col0" class="data row6 col0">All Roadways</td>
-<td id="T_be55d_row6_col1" class="data row6 col1">3,871</td>
-<td id="T_be55d_row6_col2" class="data row6 col2">7.7%</td>
-<td id="T_be55d_row6_col3" class="data row6 col3">5.0%</td>
+<td id="T_d4794_row6_col0" class="data row6 col0">All Roadways</td>
+<td id="T_d4794_row6_col1" class="data row6 col1">3,871</td>
+<td id="T_d4794_row6_col2" class="data row6 col2">7.7%</td>
+<td id="T_d4794_row6_col3" class="data row6 col3">5.0%</td>
 </tr>
 </tbody>
 </table>
@@ -401,71 +411,71 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-model-summary-table" class="cell" data-execution_count="17">
 <div id="model-summary-table" class="cell-output cell-output-display" data-execution_count="17">
 <style type="text/css">
-#T_8ab76 th.col_heading.col1 {
+#T_331bd th.col_heading.col1 {
   text-align: right;
 }
-#T_8ab76 th.col_heading.col2 {
+#T_331bd th.col_heading.col2 {
   text-align: right;
 }
-#T_8ab76 th.col_heading.col3 {
+#T_331bd th.col_heading.col3 {
   text-align: right;
 }
-#T_8ab76_row0_col1, #T_8ab76_row0_col2, #T_8ab76_row0_col3, #T_8ab76_row1_col1, #T_8ab76_row1_col2, #T_8ab76_row1_col3, #T_8ab76_row2_col1, #T_8ab76_row2_col2, #T_8ab76_row2_col3, #T_8ab76_row3_col1, #T_8ab76_row3_col2, #T_8ab76_row3_col3, #T_8ab76_row4_col1, #T_8ab76_row4_col2, #T_8ab76_row4_col3, #T_8ab76_row5_col1, #T_8ab76_row5_col2, #T_8ab76_row5_col3, #T_8ab76_row6_col1, #T_8ab76_row6_col2, #T_8ab76_row6_col3 {
+#T_331bd_row0_col1, #T_331bd_row0_col2, #T_331bd_row0_col3, #T_331bd_row1_col1, #T_331bd_row1_col2, #T_331bd_row1_col3, #T_331bd_row2_col1, #T_331bd_row2_col2, #T_331bd_row2_col3, #T_331bd_row3_col1, #T_331bd_row3_col2, #T_331bd_row3_col3, #T_331bd_row4_col1, #T_331bd_row4_col2, #T_331bd_row4_col3, #T_331bd_row5_col1, #T_331bd_row5_col2, #T_331bd_row5_col3, #T_331bd_row6_col1, #T_331bd_row6_col2, #T_331bd_row6_col3 {
   text-align: right;
 }
 </style>
 
-<table id="T_8ab76" class="caption-top table table-sm table-striped small">
+<table id="T_331bd" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th id="T_8ab76_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
-<th id="T_8ab76_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Segments</th>
-<th id="T_8ab76_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Medium Truck %</th>
-<th id="T_8ab76_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Heavy Truck %</th>
+<th id="T_331bd_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_331bd_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Segments</th>
+<th id="T_331bd_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Medium Truck %</th>
+<th id="T_331bd_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Heavy Truck %</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td id="T_8ab76_row0_col0" class="data row0 col0">Freeway</td>
-<td id="T_8ab76_row0_col1" class="data row0 col1">175</td>
-<td id="T_8ab76_row0_col2" class="data row0 col2">8.8%</td>
-<td id="T_8ab76_row0_col3" class="data row0 col3">8.4%</td>
+<td id="T_331bd_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_331bd_row0_col1" class="data row0 col1">175</td>
+<td id="T_331bd_row0_col2" class="data row0 col2">8.8%</td>
+<td id="T_331bd_row0_col3" class="data row0 col3">8.4%</td>
 </tr>
 <tr class="even">
-<td id="T_8ab76_row1_col0" class="data row1 col0">Expressway</td>
-<td id="T_8ab76_row1_col1" class="data row1 col1">98</td>
-<td id="T_8ab76_row1_col2" class="data row1 col2">9.5%</td>
-<td id="T_8ab76_row1_col3" class="data row1 col3">7.3%</td>
+<td id="T_331bd_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_331bd_row1_col1" class="data row1 col1">98</td>
+<td id="T_331bd_row1_col2" class="data row1 col2">9.5%</td>
+<td id="T_331bd_row1_col3" class="data row1 col3">7.3%</td>
 </tr>
 <tr class="odd">
-<td id="T_8ab76_row2_col0" class="data row2 col0">Principal Arterial</td>
-<td id="T_8ab76_row2_col1" class="data row2 col1">845</td>
-<td id="T_8ab76_row2_col2" class="data row2 col2">10.5%</td>
-<td id="T_8ab76_row2_col3" class="data row2 col3">4.1%</td>
+<td id="T_331bd_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_331bd_row2_col1" class="data row2 col1">845</td>
+<td id="T_331bd_row2_col2" class="data row2 col2">10.5%</td>
+<td id="T_331bd_row2_col3" class="data row2 col3">4.1%</td>
 </tr>
 <tr class="even">
-<td id="T_8ab76_row3_col0" class="data row3 col0">Minor Arterial</td>
-<td id="T_8ab76_row3_col1" class="data row3 col1">1,159</td>
-<td id="T_8ab76_row3_col2" class="data row3 col2">10.2%</td>
-<td id="T_8ab76_row3_col3" class="data row3 col3">3.4%</td>
+<td id="T_331bd_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_331bd_row3_col1" class="data row3 col1">1,159</td>
+<td id="T_331bd_row3_col2" class="data row3 col2">10.2%</td>
+<td id="T_331bd_row3_col3" class="data row3 col3">3.4%</td>
 </tr>
 <tr class="odd">
-<td id="T_8ab76_row4_col0" class="data row4 col0">Collector</td>
-<td id="T_8ab76_row4_col1" class="data row4 col1">2,080</td>
-<td id="T_8ab76_row4_col2" class="data row4 col2">10.0%</td>
-<td id="T_8ab76_row4_col3" class="data row4 col3">3.1%</td>
+<td id="T_331bd_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_331bd_row4_col1" class="data row4 col1">2,080</td>
+<td id="T_331bd_row4_col2" class="data row4 col2">10.0%</td>
+<td id="T_331bd_row4_col3" class="data row4 col3">3.1%</td>
 </tr>
 <tr class="even">
-<td id="T_8ab76_row5_col0" class="data row5 col0">Local</td>
-<td id="T_8ab76_row5_col1" class="data row5 col1">22</td>
-<td id="T_8ab76_row5_col2" class="data row5 col2">10.9%</td>
-<td id="T_8ab76_row5_col3" class="data row5 col3">6.7%</td>
+<td id="T_331bd_row5_col0" class="data row5 col0">Local</td>
+<td id="T_331bd_row5_col1" class="data row5 col1">22</td>
+<td id="T_331bd_row5_col2" class="data row5 col2">10.9%</td>
+<td id="T_331bd_row5_col3" class="data row5 col3">6.7%</td>
 </tr>
 <tr class="odd">
-<td id="T_8ab76_row6_col0" class="data row6 col0">All Roadways</td>
-<td id="T_8ab76_row6_col1" class="data row6 col1">4,379</td>
-<td id="T_8ab76_row6_col2" class="data row6 col2">9.5%</td>
-<td id="T_8ab76_row6_col3" class="data row6 col3">6.2%</td>
+<td id="T_331bd_row6_col0" class="data row6 col0">All Roadways</td>
+<td id="T_331bd_row6_col1" class="data row6 col1">4,379</td>
+<td id="T_331bd_row6_col2" class="data row6 col2">9.5%</td>
+<td id="T_331bd_row6_col3" class="data row6 col3">6.2%</td>
 </tr>
 </tbody>
 </table>
@@ -480,82 +490,82 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-vm4-load" class="cell" data-execution_count="18">
 <div id="vm4-load" class="cell-output cell-output-display" data-execution_count="18">
 <style type="text/css">
-#T_19612 th.col_heading.col1 {
+#T_de298 th.col_heading.col1 {
   text-align: right;
 }
-#T_19612 th.col_heading.col2 {
+#T_de298 th.col_heading.col2 {
   text-align: right;
 }
-#T_19612 th.col_heading.col3 {
+#T_de298 th.col_heading.col3 {
   text-align: right;
 }
-#T_19612 th.col_heading.col4 {
+#T_de298 th.col_heading.col4 {
   text-align: right;
 }
-#T_19612_row0_col0 {
+#T_de298_row0_col0 {
   background-color: #fff3cd;
 }
-#T_19612_row0_col1, #T_19612_row0_col2, #T_19612_row0_col3, #T_19612_row0_col4 {
+#T_de298_row0_col1, #T_de298_row0_col2, #T_de298_row0_col3, #T_de298_row0_col4 {
   background-color: #fff3cd;
   text-align: right;
 }
-#T_19612_row1_col1, #T_19612_row1_col2, #T_19612_row1_col3, #T_19612_row1_col4, #T_19612_row2_col1, #T_19612_row2_col2, #T_19612_row2_col3, #T_19612_row2_col4, #T_19612_row3_col1, #T_19612_row3_col2, #T_19612_row3_col3, #T_19612_row3_col4, #T_19612_row4_col1, #T_19612_row4_col2, #T_19612_row4_col3, #T_19612_row4_col4, #T_19612_row5_col1, #T_19612_row5_col2, #T_19612_row5_col3, #T_19612_row5_col4 {
+#T_de298_row1_col1, #T_de298_row1_col2, #T_de298_row1_col3, #T_de298_row1_col4, #T_de298_row2_col1, #T_de298_row2_col2, #T_de298_row2_col3, #T_de298_row2_col4, #T_de298_row3_col1, #T_de298_row3_col2, #T_de298_row3_col3, #T_de298_row3_col4, #T_de298_row4_col1, #T_de298_row4_col2, #T_de298_row4_col3, #T_de298_row4_col4, #T_de298_row5_col1, #T_de298_row5_col2, #T_de298_row5_col3, #T_de298_row5_col4 {
   text-align: right;
 }
 </style>
 
-<table id="T_19612" class="caption-top table table-sm table-striped small">
+<table id="T_de298" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th id="T_19612_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">State</th>
-<th id="T_19612_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Interstate SU %</th>
-<th id="T_19612_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Interstate Comb %</th>
-<th id="T_19612_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Other Arterial SU %</th>
-<th id="T_19612_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">Other Arterial Comb %</th>
+<th id="T_de298_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">State</th>
+<th id="T_de298_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Interstate SU %</th>
+<th id="T_de298_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Interstate Comb %</th>
+<th id="T_de298_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Other Arterial SU %</th>
+<th id="T_de298_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">Other Arterial Comb %</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td id="T_19612_row0_col0" class="data row0 col0">Utah</td>
-<td id="T_19612_row0_col1" class="data row0 col1">9.2%</td>
-<td id="T_19612_row0_col2" class="data row0 col2">8.3%</td>
-<td id="T_19612_row0_col3" class="data row0 col3">11.2%</td>
-<td id="T_19612_row0_col4" class="data row0 col4">5.1%</td>
+<td id="T_de298_row0_col0" class="data row0 col0">Utah</td>
+<td id="T_de298_row0_col1" class="data row0 col1">9.2%</td>
+<td id="T_de298_row0_col2" class="data row0 col2">8.3%</td>
+<td id="T_de298_row0_col3" class="data row0 col3">11.2%</td>
+<td id="T_de298_row0_col4" class="data row0 col4">5.1%</td>
 </tr>
 <tr class="even">
-<td id="T_19612_row1_col0" class="data row1 col0">Idaho</td>
-<td id="T_19612_row1_col1" class="data row1 col1">3.5%</td>
-<td id="T_19612_row1_col2" class="data row1 col2">9.4%</td>
-<td id="T_19612_row1_col3" class="data row1 col3">2.4%</td>
-<td id="T_19612_row1_col4" class="data row1 col4">1.5%</td>
+<td id="T_de298_row1_col0" class="data row1 col0">Idaho</td>
+<td id="T_de298_row1_col1" class="data row1 col1">3.5%</td>
+<td id="T_de298_row1_col2" class="data row1 col2">9.4%</td>
+<td id="T_de298_row1_col3" class="data row1 col3">2.4%</td>
+<td id="T_de298_row1_col4" class="data row1 col4">1.5%</td>
 </tr>
 <tr class="odd">
-<td id="T_19612_row2_col0" class="data row2 col0">Wyoming</td>
-<td id="T_19612_row2_col1" class="data row2 col1">2.7%</td>
-<td id="T_19612_row2_col2" class="data row2 col2">30.2%</td>
-<td id="T_19612_row2_col3" class="data row2 col3">3.2%</td>
-<td id="T_19612_row2_col4" class="data row2 col4">2.6%</td>
+<td id="T_de298_row2_col0" class="data row2 col0">Wyoming</td>
+<td id="T_de298_row2_col1" class="data row2 col1">2.7%</td>
+<td id="T_de298_row2_col2" class="data row2 col2">30.2%</td>
+<td id="T_de298_row2_col3" class="data row2 col3">3.2%</td>
+<td id="T_de298_row2_col4" class="data row2 col4">2.6%</td>
 </tr>
 <tr class="even">
-<td id="T_19612_row3_col0" class="data row3 col0">Colorado</td>
-<td id="T_19612_row3_col1" class="data row3 col1">3.1%</td>
-<td id="T_19612_row3_col2" class="data row3 col2">5.1%</td>
-<td id="T_19612_row3_col3" class="data row3 col3">2.0%</td>
-<td id="T_19612_row3_col4" class="data row3 col4">1.5%</td>
+<td id="T_de298_row3_col0" class="data row3 col0">Colorado</td>
+<td id="T_de298_row3_col1" class="data row3 col1">3.1%</td>
+<td id="T_de298_row3_col2" class="data row3 col2">5.1%</td>
+<td id="T_de298_row3_col3" class="data row3 col3">2.0%</td>
+<td id="T_de298_row3_col4" class="data row3 col4">1.5%</td>
 </tr>
 <tr class="odd">
-<td id="T_19612_row4_col0" class="data row4 col0">Arizona</td>
-<td id="T_19612_row4_col1" class="data row4 col1">4.5%</td>
-<td id="T_19612_row4_col2" class="data row4 col2">8.3%</td>
-<td id="T_19612_row4_col3" class="data row4 col3">4.0%</td>
-<td id="T_19612_row4_col4" class="data row4 col4">1.7%</td>
+<td id="T_de298_row4_col0" class="data row4 col0">Arizona</td>
+<td id="T_de298_row4_col1" class="data row4 col1">4.5%</td>
+<td id="T_de298_row4_col2" class="data row4 col2">8.3%</td>
+<td id="T_de298_row4_col3" class="data row4 col3">4.0%</td>
+<td id="T_de298_row4_col4" class="data row4 col4">1.7%</td>
 </tr>
 <tr class="even">
-<td id="T_19612_row5_col0" class="data row5 col0">Nevada</td>
-<td id="T_19612_row5_col1" class="data row5 col1">6.7%</td>
-<td id="T_19612_row5_col2" class="data row5 col2">16.6%</td>
-<td id="T_19612_row5_col3" class="data row5 col3">1.6%</td>
-<td id="T_19612_row5_col4" class="data row5 col4">2.2%</td>
+<td id="T_de298_row5_col0" class="data row5 col0">Nevada</td>
+<td id="T_de298_row5_col1" class="data row5 col1">6.7%</td>
+<td id="T_de298_row5_col2" class="data row5 col2">16.6%</td>
+<td id="T_de298_row5_col3" class="data row5 col3">1.6%</td>
+<td id="T_de298_row5_col4" class="data row5 col4">2.2%</td>
 </tr>
 </tbody>
 </table>
@@ -571,71 +581,71 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-md-comparison" class="cell" data-execution_count="20">
 <div id="md-comparison" class="cell-output cell-output-display" data-execution_count="20">
 <style type="text/css">
-#T_9314b th.col_heading.col1 {
+#T_23ec0 th.col_heading.col1 {
   text-align: right;
 }
-#T_9314b th.col_heading.col2 {
+#T_23ec0 th.col_heading.col2 {
   text-align: right;
 }
-#T_9314b th.col_heading.col3 {
+#T_23ec0 th.col_heading.col3 {
   text-align: right;
 }
-#T_9314b_row0_col1, #T_9314b_row0_col2, #T_9314b_row0_col3, #T_9314b_row1_col1, #T_9314b_row1_col2, #T_9314b_row1_col3, #T_9314b_row2_col1, #T_9314b_row2_col2, #T_9314b_row2_col3, #T_9314b_row3_col1, #T_9314b_row3_col2, #T_9314b_row3_col3, #T_9314b_row4_col1, #T_9314b_row4_col2, #T_9314b_row4_col3, #T_9314b_row5_col1, #T_9314b_row5_col2, #T_9314b_row5_col3, #T_9314b_row6_col1, #T_9314b_row6_col2, #T_9314b_row6_col3 {
+#T_23ec0_row0_col1, #T_23ec0_row0_col2, #T_23ec0_row0_col3, #T_23ec0_row1_col1, #T_23ec0_row1_col2, #T_23ec0_row1_col3, #T_23ec0_row2_col1, #T_23ec0_row2_col2, #T_23ec0_row2_col3, #T_23ec0_row3_col1, #T_23ec0_row3_col2, #T_23ec0_row3_col3, #T_23ec0_row4_col1, #T_23ec0_row4_col2, #T_23ec0_row4_col3, #T_23ec0_row5_col1, #T_23ec0_row5_col2, #T_23ec0_row5_col3, #T_23ec0_row6_col1, #T_23ec0_row6_col2, #T_23ec0_row6_col3 {
   text-align: right;
 }
 </style>
 
-<table id="T_9314b" class="caption-top table table-sm table-striped small">
+<table id="T_23ec0" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th id="T_9314b_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
-<th id="T_9314b_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">CCS</th>
-<th id="T_9314b_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">HPMS</th>
-<th id="T_9314b_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Model</th>
+<th id="T_23ec0_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_23ec0_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">CCS</th>
+<th id="T_23ec0_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">HPMS</th>
+<th id="T_23ec0_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Model</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td id="T_9314b_row0_col0" class="data row0 col0">Freeway</td>
-<td id="T_9314b_row0_col1" class="data row0 col1">12.4%</td>
-<td id="T_9314b_row0_col2" class="data row0 col2">8.9%</td>
-<td id="T_9314b_row0_col3" class="data row0 col3">8.8%</td>
+<td id="T_23ec0_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_23ec0_row0_col1" class="data row0 col1">12.4%</td>
+<td id="T_23ec0_row0_col2" class="data row0 col2">8.9%</td>
+<td id="T_23ec0_row0_col3" class="data row0 col3">8.8%</td>
 </tr>
 <tr class="even">
-<td id="T_9314b_row1_col0" class="data row1 col0">Expressway</td>
-<td id="T_9314b_row1_col1" class="data row1 col1">11.0%</td>
-<td id="T_9314b_row1_col2" class="data row1 col2">11.6%</td>
-<td id="T_9314b_row1_col3" class="data row1 col3">9.5%</td>
+<td id="T_23ec0_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_23ec0_row1_col1" class="data row1 col1">11.0%</td>
+<td id="T_23ec0_row1_col2" class="data row1 col2">11.6%</td>
+<td id="T_23ec0_row1_col3" class="data row1 col3">9.5%</td>
 </tr>
 <tr class="odd">
-<td id="T_9314b_row2_col0" class="data row2 col0">Principal Arterial</td>
-<td id="T_9314b_row2_col1" class="data row2 col1">11.5%</td>
-<td id="T_9314b_row2_col2" class="data row2 col2">10.3%</td>
-<td id="T_9314b_row2_col3" class="data row2 col3">10.5%</td>
+<td id="T_23ec0_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_23ec0_row2_col1" class="data row2 col1">11.5%</td>
+<td id="T_23ec0_row2_col2" class="data row2 col2">10.3%</td>
+<td id="T_23ec0_row2_col3" class="data row2 col3">10.5%</td>
 </tr>
 <tr class="even">
-<td id="T_9314b_row3_col0" class="data row3 col0">Minor Arterial</td>
-<td id="T_9314b_row3_col1" class="data row3 col1">10.2%</td>
-<td id="T_9314b_row3_col2" class="data row3 col2">3.6%</td>
-<td id="T_9314b_row3_col3" class="data row3 col3">10.2%</td>
+<td id="T_23ec0_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_23ec0_row3_col1" class="data row3 col1">10.2%</td>
+<td id="T_23ec0_row3_col2" class="data row3 col2">3.6%</td>
+<td id="T_23ec0_row3_col3" class="data row3 col3">10.2%</td>
 </tr>
 <tr class="odd">
-<td id="T_9314b_row4_col0" class="data row4 col0">Collector</td>
-<td id="T_9314b_row4_col1" class="data row4 col1">9.5%</td>
-<td id="T_9314b_row4_col2" class="data row4 col2">0.3%</td>
-<td id="T_9314b_row4_col3" class="data row4 col3">10.0%</td>
+<td id="T_23ec0_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_23ec0_row4_col1" class="data row4 col1">9.5%</td>
+<td id="T_23ec0_row4_col2" class="data row4 col2">0.3%</td>
+<td id="T_23ec0_row4_col3" class="data row4 col3">10.0%</td>
 </tr>
 <tr class="even">
-<td id="T_9314b_row5_col0" class="data row5 col0">Local</td>
-<td id="T_9314b_row5_col1" class="data row5 col1">—</td>
-<td id="T_9314b_row5_col2" class="data row5 col2">12.4%</td>
-<td id="T_9314b_row5_col3" class="data row5 col3">10.9%</td>
+<td id="T_23ec0_row5_col0" class="data row5 col0">Local</td>
+<td id="T_23ec0_row5_col1" class="data row5 col1">—</td>
+<td id="T_23ec0_row5_col2" class="data row5 col2">12.4%</td>
+<td id="T_23ec0_row5_col3" class="data row5 col3">10.9%</td>
 </tr>
 <tr class="odd">
-<td id="T_9314b_row6_col0" class="data row6 col0">All Roadways</td>
-<td id="T_9314b_row6_col1" class="data row6 col1">12.1%</td>
-<td id="T_9314b_row6_col2" class="data row6 col2">7.7%</td>
-<td id="T_9314b_row6_col3" class="data row6 col3">9.5%</td>
+<td id="T_23ec0_row6_col0" class="data row6 col0">All Roadways</td>
+<td id="T_23ec0_row6_col1" class="data row6 col1">12.1%</td>
+<td id="T_23ec0_row6_col2" class="data row6 col2">7.7%</td>
+<td id="T_23ec0_row6_col3" class="data row6 col3">9.5%</td>
 </tr>
 </tbody>
 </table>
@@ -647,71 +657,71 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-hv-comparison" class="cell" data-execution_count="21">
 <div id="hv-comparison" class="cell-output cell-output-display" data-execution_count="21">
 <style type="text/css">
-#T_20653 th.col_heading.col1 {
+#T_aced0 th.col_heading.col1 {
   text-align: right;
 }
-#T_20653 th.col_heading.col2 {
+#T_aced0 th.col_heading.col2 {
   text-align: right;
 }
-#T_20653 th.col_heading.col3 {
+#T_aced0 th.col_heading.col3 {
   text-align: right;
 }
-#T_20653_row0_col1, #T_20653_row0_col2, #T_20653_row0_col3, #T_20653_row1_col1, #T_20653_row1_col2, #T_20653_row1_col3, #T_20653_row2_col1, #T_20653_row2_col2, #T_20653_row2_col3, #T_20653_row3_col1, #T_20653_row3_col2, #T_20653_row3_col3, #T_20653_row4_col1, #T_20653_row4_col2, #T_20653_row4_col3, #T_20653_row5_col1, #T_20653_row5_col2, #T_20653_row5_col3, #T_20653_row6_col1, #T_20653_row6_col2, #T_20653_row6_col3 {
+#T_aced0_row0_col1, #T_aced0_row0_col2, #T_aced0_row0_col3, #T_aced0_row1_col1, #T_aced0_row1_col2, #T_aced0_row1_col3, #T_aced0_row2_col1, #T_aced0_row2_col2, #T_aced0_row2_col3, #T_aced0_row3_col1, #T_aced0_row3_col2, #T_aced0_row3_col3, #T_aced0_row4_col1, #T_aced0_row4_col2, #T_aced0_row4_col3, #T_aced0_row5_col1, #T_aced0_row5_col2, #T_aced0_row5_col3, #T_aced0_row6_col1, #T_aced0_row6_col2, #T_aced0_row6_col3 {
   text-align: right;
 }
 </style>
 
-<table id="T_20653" class="caption-top table table-sm table-striped small">
+<table id="T_aced0" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th id="T_20653_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
-<th id="T_20653_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">CCS</th>
-<th id="T_20653_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">HPMS</th>
-<th id="T_20653_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Model</th>
+<th id="T_aced0_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_aced0_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">CCS</th>
+<th id="T_aced0_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">HPMS</th>
+<th id="T_aced0_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Model</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td id="T_20653_row0_col0" class="data row0 col0">Freeway</td>
-<td id="T_20653_row0_col1" class="data row0 col1">6.5%</td>
-<td id="T_20653_row0_col2" class="data row0 col2">6.8%</td>
-<td id="T_20653_row0_col3" class="data row0 col3">8.4%</td>
+<td id="T_aced0_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_aced0_row0_col1" class="data row0 col1">6.5%</td>
+<td id="T_aced0_row0_col2" class="data row0 col2">6.8%</td>
+<td id="T_aced0_row0_col3" class="data row0 col3">8.4%</td>
 </tr>
 <tr class="even">
-<td id="T_20653_row1_col0" class="data row1 col0">Expressway</td>
-<td id="T_20653_row1_col1" class="data row1 col1">2.7%</td>
-<td id="T_20653_row1_col2" class="data row1 col2">7.8%</td>
-<td id="T_20653_row1_col3" class="data row1 col3">7.3%</td>
+<td id="T_aced0_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_aced0_row1_col1" class="data row1 col1">2.7%</td>
+<td id="T_aced0_row1_col2" class="data row1 col2">7.8%</td>
+<td id="T_aced0_row1_col3" class="data row1 col3">7.3%</td>
 </tr>
 <tr class="odd">
-<td id="T_20653_row2_col0" class="data row2 col0">Principal Arterial</td>
-<td id="T_20653_row2_col1" class="data row2 col1">2.0%</td>
-<td id="T_20653_row2_col2" class="data row2 col2">4.3%</td>
-<td id="T_20653_row2_col3" class="data row2 col3">4.1%</td>
+<td id="T_aced0_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_aced0_row2_col1" class="data row2 col1">2.0%</td>
+<td id="T_aced0_row2_col2" class="data row2 col2">4.3%</td>
+<td id="T_aced0_row2_col3" class="data row2 col3">4.1%</td>
 </tr>
 <tr class="even">
-<td id="T_20653_row3_col0" class="data row3 col0">Minor Arterial</td>
-<td id="T_20653_row3_col1" class="data row3 col1">1.2%</td>
-<td id="T_20653_row3_col2" class="data row3 col2">2.2%</td>
-<td id="T_20653_row3_col3" class="data row3 col3">3.4%</td>
+<td id="T_aced0_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_aced0_row3_col1" class="data row3 col1">1.2%</td>
+<td id="T_aced0_row3_col2" class="data row3 col2">2.2%</td>
+<td id="T_aced0_row3_col3" class="data row3 col3">3.4%</td>
 </tr>
 <tr class="odd">
-<td id="T_20653_row4_col0" class="data row4 col0">Collector</td>
-<td id="T_20653_row4_col1" class="data row4 col1">0.9%</td>
-<td id="T_20653_row4_col2" class="data row4 col2">0.2%</td>
-<td id="T_20653_row4_col3" class="data row4 col3">3.1%</td>
+<td id="T_aced0_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_aced0_row4_col1" class="data row4 col1">0.9%</td>
+<td id="T_aced0_row4_col2" class="data row4 col2">0.2%</td>
+<td id="T_aced0_row4_col3" class="data row4 col3">3.1%</td>
 </tr>
 <tr class="even">
-<td id="T_20653_row5_col0" class="data row5 col0">Local</td>
-<td id="T_20653_row5_col1" class="data row5 col1">—</td>
-<td id="T_20653_row5_col2" class="data row5 col2">4.2%</td>
-<td id="T_20653_row5_col3" class="data row5 col3">6.7%</td>
+<td id="T_aced0_row5_col0" class="data row5 col0">Local</td>
+<td id="T_aced0_row5_col1" class="data row5 col1">—</td>
+<td id="T_aced0_row5_col2" class="data row5 col2">4.2%</td>
+<td id="T_aced0_row5_col3" class="data row5 col3">6.7%</td>
 </tr>
 <tr class="odd">
-<td id="T_20653_row6_col0" class="data row6 col0">All Roadways</td>
-<td id="T_20653_row6_col1" class="data row6 col1">5.5%</td>
-<td id="T_20653_row6_col2" class="data row6 col2">5.0%</td>
-<td id="T_20653_row6_col3" class="data row6 col3">6.2%</td>
+<td id="T_aced0_row6_col0" class="data row6 col0">All Roadways</td>
+<td id="T_aced0_row6_col1" class="data row6 col1">5.5%</td>
+<td id="T_aced0_row6_col2" class="data row6 col2">5.0%</td>
+<td id="T_aced0_row6_col3" class="data row6 col3">6.2%</td>
 </tr>
 </tbody>
 </table>
@@ -723,71 +733,71 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-md-vmt-comparison" class="cell" data-execution_count="22">
 <div id="md-vmt-comparison" class="cell-output cell-output-display" data-execution_count="22">
 <style type="text/css">
-#T_7e867 th.col_heading.col1 {
+#T_28535 th.col_heading.col1 {
   text-align: right;
 }
-#T_7e867 th.col_heading.col2 {
+#T_28535 th.col_heading.col2 {
   text-align: right;
 }
-#T_7e867 th.col_heading.col3 {
+#T_28535 th.col_heading.col3 {
   text-align: right;
 }
-#T_7e867_row0_col1, #T_7e867_row0_col2, #T_7e867_row0_col3, #T_7e867_row1_col1, #T_7e867_row1_col2, #T_7e867_row1_col3, #T_7e867_row2_col1, #T_7e867_row2_col2, #T_7e867_row2_col3, #T_7e867_row3_col1, #T_7e867_row3_col2, #T_7e867_row3_col3, #T_7e867_row4_col1, #T_7e867_row4_col2, #T_7e867_row4_col3, #T_7e867_row5_col1, #T_7e867_row5_col2, #T_7e867_row5_col3, #T_7e867_row6_col1, #T_7e867_row6_col2, #T_7e867_row6_col3 {
+#T_28535_row0_col1, #T_28535_row0_col2, #T_28535_row0_col3, #T_28535_row1_col1, #T_28535_row1_col2, #T_28535_row1_col3, #T_28535_row2_col1, #T_28535_row2_col2, #T_28535_row2_col3, #T_28535_row3_col1, #T_28535_row3_col2, #T_28535_row3_col3, #T_28535_row4_col1, #T_28535_row4_col2, #T_28535_row4_col3, #T_28535_row5_col1, #T_28535_row5_col2, #T_28535_row5_col3, #T_28535_row6_col1, #T_28535_row6_col2, #T_28535_row6_col3 {
   text-align: right;
 }
 </style>
 
-<table id="T_7e867" class="caption-top table table-sm table-striped small">
+<table id="T_28535" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th id="T_7e867_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
-<th id="T_7e867_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">CCS Effective VMT</th>
-<th id="T_7e867_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">HPMS Effective VMT</th>
-<th id="T_7e867_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Model VMT</th>
+<th id="T_28535_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_28535_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">CCS Effective VMT</th>
+<th id="T_28535_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">HPMS Effective VMT</th>
+<th id="T_28535_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Model VMT</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td id="T_7e867_row0_col0" class="data row0 col0">Freeway</td>
-<td id="T_7e867_row0_col1" class="data row0 col1">3,156,520</td>
-<td id="T_7e867_row0_col2" class="data row0 col2">2,278,717</td>
-<td id="T_7e867_row0_col3" class="data row0 col3">2,244,866</td>
+<td id="T_28535_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_28535_row0_col1" class="data row0 col1">3,156,520</td>
+<td id="T_28535_row0_col2" class="data row0 col2">2,278,717</td>
+<td id="T_28535_row0_col3" class="data row0 col3">2,244,866</td>
 </tr>
 <tr class="even">
-<td id="T_7e867_row1_col0" class="data row1 col0">Expressway</td>
-<td id="T_7e867_row1_col1" class="data row1 col1">450,174</td>
-<td id="T_7e867_row1_col2" class="data row1 col2">476,406</td>
-<td id="T_7e867_row1_col3" class="data row1 col3">388,359</td>
+<td id="T_28535_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_28535_row1_col1" class="data row1 col1">450,174</td>
+<td id="T_28535_row1_col2" class="data row1 col2">476,406</td>
+<td id="T_28535_row1_col3" class="data row1 col3">388,359</td>
 </tr>
 <tr class="odd">
-<td id="T_7e867_row2_col0" class="data row2 col0">Principal Arterial</td>
-<td id="T_7e867_row2_col1" class="data row2 col1">1,297,188</td>
-<td id="T_7e867_row2_col2" class="data row2 col2">1,159,459</td>
-<td id="T_7e867_row2_col3" class="data row2 col3">1,188,568</td>
+<td id="T_28535_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_28535_row2_col1" class="data row2 col1">1,297,188</td>
+<td id="T_28535_row2_col2" class="data row2 col2">1,159,459</td>
+<td id="T_28535_row2_col3" class="data row2 col3">1,188,568</td>
 </tr>
 <tr class="even">
-<td id="T_7e867_row3_col0" class="data row3 col0">Minor Arterial</td>
-<td id="T_7e867_row3_col1" class="data row3 col1">784,707</td>
-<td id="T_7e867_row3_col2" class="data row3 col2">278,587</td>
-<td id="T_7e867_row3_col3" class="data row3 col3">780,231</td>
+<td id="T_28535_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_28535_row3_col1" class="data row3 col1">784,707</td>
+<td id="T_28535_row3_col2" class="data row3 col2">278,587</td>
+<td id="T_28535_row3_col3" class="data row3 col3">780,231</td>
 </tr>
 <tr class="odd">
-<td id="T_7e867_row4_col0" class="data row4 col0">Collector</td>
-<td id="T_7e867_row4_col1" class="data row4 col1">529,064</td>
-<td id="T_7e867_row4_col2" class="data row4 col2">17,295</td>
-<td id="T_7e867_row4_col3" class="data row4 col3">559,867</td>
+<td id="T_28535_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_28535_row4_col1" class="data row4 col1">529,064</td>
+<td id="T_28535_row4_col2" class="data row4 col2">17,295</td>
+<td id="T_28535_row4_col3" class="data row4 col3">559,867</td>
 </tr>
 <tr class="even">
-<td id="T_7e867_row5_col0" class="data row5 col0">Local</td>
-<td id="T_7e867_row5_col1" class="data row5 col1">—</td>
-<td id="T_7e867_row5_col2" class="data row5 col2">2,202</td>
-<td id="T_7e867_row5_col3" class="data row5 col3">1,937</td>
+<td id="T_28535_row5_col0" class="data row5 col0">Local</td>
+<td id="T_28535_row5_col1" class="data row5 col1">—</td>
+<td id="T_28535_row5_col2" class="data row5 col2">2,202</td>
+<td id="T_28535_row5_col3" class="data row5 col3">1,937</td>
 </tr>
 <tr class="odd">
-<td id="T_7e867_row6_col0" class="data row6 col0">All Roadways</td>
-<td id="T_7e867_row6_col1" class="data row6 col1">6,549,925</td>
-<td id="T_7e867_row6_col2" class="data row6 col2">4,184,175</td>
-<td id="T_7e867_row6_col3" class="data row6 col3">5,163,828</td>
+<td id="T_28535_row6_col0" class="data row6 col0">All Roadways</td>
+<td id="T_28535_row6_col1" class="data row6 col1">6,549,925</td>
+<td id="T_28535_row6_col2" class="data row6 col2">4,184,175</td>
+<td id="T_28535_row6_col3" class="data row6 col3">5,163,828</td>
 </tr>
 </tbody>
 </table>
@@ -799,71 +809,71 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-hv-vmt-comparison" class="cell" data-execution_count="23">
 <div id="hv-vmt-comparison" class="cell-output cell-output-display" data-execution_count="23">
 <style type="text/css">
-#T_edaf3 th.col_heading.col1 {
+#T_748fe th.col_heading.col1 {
   text-align: right;
 }
-#T_edaf3 th.col_heading.col2 {
+#T_748fe th.col_heading.col2 {
   text-align: right;
 }
-#T_edaf3 th.col_heading.col3 {
+#T_748fe th.col_heading.col3 {
   text-align: right;
 }
-#T_edaf3_row0_col1, #T_edaf3_row0_col2, #T_edaf3_row0_col3, #T_edaf3_row1_col1, #T_edaf3_row1_col2, #T_edaf3_row1_col3, #T_edaf3_row2_col1, #T_edaf3_row2_col2, #T_edaf3_row2_col3, #T_edaf3_row3_col1, #T_edaf3_row3_col2, #T_edaf3_row3_col3, #T_edaf3_row4_col1, #T_edaf3_row4_col2, #T_edaf3_row4_col3, #T_edaf3_row5_col1, #T_edaf3_row5_col2, #T_edaf3_row5_col3, #T_edaf3_row6_col1, #T_edaf3_row6_col2, #T_edaf3_row6_col3 {
+#T_748fe_row0_col1, #T_748fe_row0_col2, #T_748fe_row0_col3, #T_748fe_row1_col1, #T_748fe_row1_col2, #T_748fe_row1_col3, #T_748fe_row2_col1, #T_748fe_row2_col2, #T_748fe_row2_col3, #T_748fe_row3_col1, #T_748fe_row3_col2, #T_748fe_row3_col3, #T_748fe_row4_col1, #T_748fe_row4_col2, #T_748fe_row4_col3, #T_748fe_row5_col1, #T_748fe_row5_col2, #T_748fe_row5_col3, #T_748fe_row6_col1, #T_748fe_row6_col2, #T_748fe_row6_col3 {
   text-align: right;
 }
 </style>
 
-<table id="T_edaf3" class="caption-top table table-sm table-striped small">
+<table id="T_748fe" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th id="T_edaf3_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
-<th id="T_edaf3_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">CCS Effective VMT</th>
-<th id="T_edaf3_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">HPMS Effective VMT</th>
-<th id="T_edaf3_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Model VMT</th>
+<th id="T_748fe_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_748fe_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">CCS Effective VMT</th>
+<th id="T_748fe_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">HPMS Effective VMT</th>
+<th id="T_748fe_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">Model VMT</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td id="T_edaf3_row0_col0" class="data row0 col0">Freeway</td>
-<td id="T_edaf3_row0_col1" class="data row0 col1">1,661,334</td>
-<td id="T_edaf3_row0_col2" class="data row0 col2">1,745,596</td>
-<td id="T_edaf3_row0_col3" class="data row0 col3">2,136,560</td>
+<td id="T_748fe_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_748fe_row0_col1" class="data row0 col1">1,661,334</td>
+<td id="T_748fe_row0_col2" class="data row0 col2">1,745,596</td>
+<td id="T_748fe_row0_col3" class="data row0 col3">2,136,560</td>
 </tr>
 <tr class="even">
-<td id="T_edaf3_row1_col0" class="data row1 col0">Expressway</td>
-<td id="T_edaf3_row1_col1" class="data row1 col1">112,801</td>
-<td id="T_edaf3_row1_col2" class="data row1 col2">318,935</td>
-<td id="T_edaf3_row1_col3" class="data row1 col3">299,085</td>
+<td id="T_748fe_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_748fe_row1_col1" class="data row1 col1">112,801</td>
+<td id="T_748fe_row1_col2" class="data row1 col2">318,935</td>
+<td id="T_748fe_row1_col3" class="data row1 col3">299,085</td>
 </tr>
 <tr class="odd">
-<td id="T_edaf3_row2_col0" class="data row2 col0">Principal Arterial</td>
-<td id="T_edaf3_row2_col1" class="data row2 col1">228,351</td>
-<td id="T_edaf3_row2_col2" class="data row2 col2">481,440</td>
-<td id="T_edaf3_row2_col3" class="data row2 col3">468,476</td>
+<td id="T_748fe_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_748fe_row2_col1" class="data row2 col1">228,351</td>
+<td id="T_748fe_row2_col2" class="data row2 col2">481,440</td>
+<td id="T_748fe_row2_col3" class="data row2 col3">468,476</td>
 </tr>
 <tr class="even">
-<td id="T_edaf3_row3_col0" class="data row3 col0">Minor Arterial</td>
-<td id="T_edaf3_row3_col1" class="data row3 col1">92,971</td>
-<td id="T_edaf3_row3_col2" class="data row3 col2">169,830</td>
-<td id="T_edaf3_row3_col3" class="data row3 col3">261,107</td>
+<td id="T_748fe_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_748fe_row3_col1" class="data row3 col1">92,971</td>
+<td id="T_748fe_row3_col2" class="data row3 col2">169,830</td>
+<td id="T_748fe_row3_col3" class="data row3 col3">261,107</td>
 </tr>
 <tr class="odd">
-<td id="T_edaf3_row4_col0" class="data row4 col0">Collector</td>
-<td id="T_edaf3_row4_col1" class="data row4 col1">49,734</td>
-<td id="T_edaf3_row4_col2" class="data row4 col2">12,326</td>
-<td id="T_edaf3_row4_col3" class="data row4 col3">172,339</td>
+<td id="T_748fe_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_748fe_row4_col1" class="data row4 col1">49,734</td>
+<td id="T_748fe_row4_col2" class="data row4 col2">12,326</td>
+<td id="T_748fe_row4_col3" class="data row4 col3">172,339</td>
 </tr>
 <tr class="even">
-<td id="T_edaf3_row5_col0" class="data row5 col0">Local</td>
-<td id="T_edaf3_row5_col1" class="data row5 col1">—</td>
-<td id="T_edaf3_row5_col2" class="data row5 col2">745</td>
-<td id="T_edaf3_row5_col3" class="data row5 col3">1,190</td>
+<td id="T_748fe_row5_col0" class="data row5 col0">Local</td>
+<td id="T_748fe_row5_col1" class="data row5 col1">—</td>
+<td id="T_748fe_row5_col2" class="data row5 col2">745</td>
+<td id="T_748fe_row5_col3" class="data row5 col3">1,190</td>
 </tr>
 <tr class="odd">
-<td id="T_edaf3_row6_col0" class="data row6 col0">All Roadways</td>
-<td id="T_edaf3_row6_col1" class="data row6 col1">2,983,365</td>
-<td id="T_edaf3_row6_col2" class="data row6 col2">2,727,545</td>
-<td id="T_edaf3_row6_col3" class="data row6 col3">3,338,758</td>
+<td id="T_748fe_row6_col0" class="data row6 col0">All Roadways</td>
+<td id="T_748fe_row6_col1" class="data row6 col1">2,983,365</td>
+<td id="T_748fe_row6_col2" class="data row6 col2">2,727,545</td>
+<td id="T_748fe_row6_col3" class="data row6 col3">3,338,758</td>
 </tr>
 </tbody>
 </table>
@@ -880,155 +890,155 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-proposed-splits" class="cell" data-execution_count="24">
 <div id="proposed-splits" class="cell-output cell-output-display" data-execution_count="24">
 <style type="text/css">
-#T_b2e03 th.col_heading.col1 {
+#T_76da6 th.col_heading.col1 {
   text-align: right;
 }
-#T_b2e03 th.col_heading.col2 {
+#T_76da6 th.col_heading.col2 {
   text-align: right;
 }
-#T_b2e03 th.col_heading.col3 {
+#T_76da6 th.col_heading.col3 {
   text-align: right;
 }
-#T_b2e03 th.col_heading.col4 {
+#T_76da6 th.col_heading.col4 {
   text-align: right;
 }
-#T_b2e03 th.col_heading.col5 {
+#T_76da6 th.col_heading.col5 {
   text-align: right;
 }
-#T_b2e03 th.col_heading.col6 {
+#T_76da6 th.col_heading.col6 {
   text-align: right;
 }
-#T_b2e03 th.col_heading.col7 {
+#T_76da6 th.col_heading.col7 {
   text-align: right;
 }
-#T_b2e03 th.col_heading.col8 {
+#T_76da6 th.col_heading.col8 {
   text-align: right;
 }
-#T_b2e03 th.col_heading.col9 {
+#T_76da6 th.col_heading.col9 {
   text-align: right;
 }
-#T_b2e03 th.col_heading.col10 {
+#T_76da6 th.col_heading.col10 {
   text-align: right;
 }
-#T_b2e03 th.col_heading.col11 {
+#T_76da6 th.col_heading.col11 {
   text-align: right;
 }
-#T_b2e03 th.col_heading.col12 {
+#T_76da6 th.col_heading.col12 {
   text-align: right;
 }
-#T_b2e03_row0_col1, #T_b2e03_row0_col2, #T_b2e03_row0_col3, #T_b2e03_row0_col4, #T_b2e03_row0_col5, #T_b2e03_row0_col6, #T_b2e03_row0_col7, #T_b2e03_row0_col8, #T_b2e03_row0_col9, #T_b2e03_row0_col10, #T_b2e03_row0_col11, #T_b2e03_row0_col12, #T_b2e03_row1_col1, #T_b2e03_row1_col2, #T_b2e03_row1_col3, #T_b2e03_row1_col4, #T_b2e03_row1_col5, #T_b2e03_row1_col6, #T_b2e03_row1_col7, #T_b2e03_row1_col8, #T_b2e03_row1_col9, #T_b2e03_row1_col10, #T_b2e03_row1_col11, #T_b2e03_row1_col12, #T_b2e03_row2_col1, #T_b2e03_row2_col2, #T_b2e03_row2_col3, #T_b2e03_row2_col4, #T_b2e03_row2_col5, #T_b2e03_row2_col6, #T_b2e03_row2_col7, #T_b2e03_row2_col8, #T_b2e03_row2_col9, #T_b2e03_row2_col10, #T_b2e03_row2_col11, #T_b2e03_row2_col12, #T_b2e03_row3_col1, #T_b2e03_row3_col2, #T_b2e03_row3_col3, #T_b2e03_row3_col4, #T_b2e03_row3_col5, #T_b2e03_row3_col6, #T_b2e03_row3_col7, #T_b2e03_row3_col8, #T_b2e03_row3_col9, #T_b2e03_row3_col10, #T_b2e03_row3_col11, #T_b2e03_row3_col12, #T_b2e03_row4_col1, #T_b2e03_row4_col2, #T_b2e03_row4_col3, #T_b2e03_row4_col4, #T_b2e03_row4_col5, #T_b2e03_row4_col6, #T_b2e03_row4_col7, #T_b2e03_row4_col8, #T_b2e03_row4_col9, #T_b2e03_row4_col10, #T_b2e03_row4_col11, #T_b2e03_row4_col12, #T_b2e03_row5_col1, #T_b2e03_row5_col2, #T_b2e03_row5_col3, #T_b2e03_row5_col4, #T_b2e03_row5_col5, #T_b2e03_row5_col6, #T_b2e03_row5_col7, #T_b2e03_row5_col8, #T_b2e03_row5_col9, #T_b2e03_row5_col10, #T_b2e03_row5_col11, #T_b2e03_row5_col12 {
+#T_76da6_row0_col1, #T_76da6_row0_col2, #T_76da6_row0_col3, #T_76da6_row0_col4, #T_76da6_row0_col5, #T_76da6_row0_col6, #T_76da6_row0_col7, #T_76da6_row0_col8, #T_76da6_row0_col9, #T_76da6_row0_col10, #T_76da6_row0_col11, #T_76da6_row0_col12, #T_76da6_row1_col1, #T_76da6_row1_col2, #T_76da6_row1_col3, #T_76da6_row1_col4, #T_76da6_row1_col5, #T_76da6_row1_col6, #T_76da6_row1_col7, #T_76da6_row1_col8, #T_76da6_row1_col9, #T_76da6_row1_col10, #T_76da6_row1_col11, #T_76da6_row1_col12, #T_76da6_row2_col1, #T_76da6_row2_col2, #T_76da6_row2_col3, #T_76da6_row2_col4, #T_76da6_row2_col5, #T_76da6_row2_col6, #T_76da6_row2_col7, #T_76da6_row2_col8, #T_76da6_row2_col9, #T_76da6_row2_col10, #T_76da6_row2_col11, #T_76da6_row2_col12, #T_76da6_row3_col1, #T_76da6_row3_col2, #T_76da6_row3_col3, #T_76da6_row3_col4, #T_76da6_row3_col5, #T_76da6_row3_col6, #T_76da6_row3_col7, #T_76da6_row3_col8, #T_76da6_row3_col9, #T_76da6_row3_col10, #T_76da6_row3_col11, #T_76da6_row3_col12, #T_76da6_row4_col1, #T_76da6_row4_col2, #T_76da6_row4_col3, #T_76da6_row4_col4, #T_76da6_row4_col5, #T_76da6_row4_col6, #T_76da6_row4_col7, #T_76da6_row4_col8, #T_76da6_row4_col9, #T_76da6_row4_col10, #T_76da6_row4_col11, #T_76da6_row4_col12, #T_76da6_row5_col1, #T_76da6_row5_col2, #T_76da6_row5_col3, #T_76da6_row5_col4, #T_76da6_row5_col5, #T_76da6_row5_col6, #T_76da6_row5_col7, #T_76da6_row5_col8, #T_76da6_row5_col9, #T_76da6_row5_col10, #T_76da6_row5_col11, #T_76da6_row5_col12 {
   text-align: right;
 }
 </style>
 
-<table id="T_b2e03" class="caption-top table table-sm table-striped small">
+<table id="T_76da6" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th id="T_b2e03_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Length Bin</th>
-<th id="T_b2e03_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Current LT</th>
-<th id="T_b2e03_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">2003 LT</th>
-<th id="T_b2e03_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">2024 LT</th>
-<th id="T_b2e03_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">2025 LT</th>
-<th id="T_b2e03_level0_col5" class="col_heading level0 col5" data-quarto-table-cell-role="th">Current MD</th>
-<th id="T_b2e03_level0_col6" class="col_heading level0 col6" data-quarto-table-cell-role="th">2003 MD</th>
-<th id="T_b2e03_level0_col7" class="col_heading level0 col7" data-quarto-table-cell-role="th">2024 MD</th>
-<th id="T_b2e03_level0_col8" class="col_heading level0 col8" data-quarto-table-cell-role="th">2025 MD</th>
-<th id="T_b2e03_level0_col9" class="col_heading level0 col9" data-quarto-table-cell-role="th">Current HV</th>
-<th id="T_b2e03_level0_col10" class="col_heading level0 col10" data-quarto-table-cell-role="th">2003 HV</th>
-<th id="T_b2e03_level0_col11" class="col_heading level0 col11" data-quarto-table-cell-role="th">2024 HV</th>
-<th id="T_b2e03_level0_col12" class="col_heading level0 col12" data-quarto-table-cell-role="th">2025 HV</th>
+<th id="T_76da6_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Length Bin</th>
+<th id="T_76da6_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Current LT</th>
+<th id="T_76da6_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">2003 LT</th>
+<th id="T_76da6_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">2024 LT</th>
+<th id="T_76da6_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">2025 LT</th>
+<th id="T_76da6_level0_col5" class="col_heading level0 col5" data-quarto-table-cell-role="th">Current MD</th>
+<th id="T_76da6_level0_col6" class="col_heading level0 col6" data-quarto-table-cell-role="th">2003 MD</th>
+<th id="T_76da6_level0_col7" class="col_heading level0 col7" data-quarto-table-cell-role="th">2024 MD</th>
+<th id="T_76da6_level0_col8" class="col_heading level0 col8" data-quarto-table-cell-role="th">2025 MD</th>
+<th id="T_76da6_level0_col9" class="col_heading level0 col9" data-quarto-table-cell-role="th">Current HV</th>
+<th id="T_76da6_level0_col10" class="col_heading level0 col10" data-quarto-table-cell-role="th">2003 HV</th>
+<th id="T_76da6_level0_col11" class="col_heading level0 col11" data-quarto-table-cell-role="th">2024 HV</th>
+<th id="T_76da6_level0_col12" class="col_heading level0 col12" data-quarto-table-cell-role="th">2025 HV</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td id="T_b2e03_row0_col0" class="data row0 col0">L0-8</td>
-<td id="T_b2e03_row0_col1" class="data row0 col1">100%</td>
-<td id="T_b2e03_row0_col2" class="data row0 col2">100%</td>
-<td id="T_b2e03_row0_col3" class="data row0 col3">100%</td>
-<td id="T_b2e03_row0_col4" class="data row0 col4">100%</td>
-<td id="T_b2e03_row0_col5" class="data row0 col5">0%</td>
-<td id="T_b2e03_row0_col6" class="data row0 col6">0%</td>
-<td id="T_b2e03_row0_col7" class="data row0 col7">0%</td>
-<td id="T_b2e03_row0_col8" class="data row0 col8">0%</td>
-<td id="T_b2e03_row0_col9" class="data row0 col9">0%</td>
-<td id="T_b2e03_row0_col10" class="data row0 col10">0%</td>
-<td id="T_b2e03_row0_col11" class="data row0 col11">0%</td>
-<td id="T_b2e03_row0_col12" class="data row0 col12">0%</td>
+<td id="T_76da6_row0_col0" class="data row0 col0">L0-8</td>
+<td id="T_76da6_row0_col1" class="data row0 col1">100%</td>
+<td id="T_76da6_row0_col2" class="data row0 col2">100%</td>
+<td id="T_76da6_row0_col3" class="data row0 col3">100%</td>
+<td id="T_76da6_row0_col4" class="data row0 col4">100%</td>
+<td id="T_76da6_row0_col5" class="data row0 col5">0%</td>
+<td id="T_76da6_row0_col6" class="data row0 col6">0%</td>
+<td id="T_76da6_row0_col7" class="data row0 col7">0%</td>
+<td id="T_76da6_row0_col8" class="data row0 col8">0%</td>
+<td id="T_76da6_row0_col9" class="data row0 col9">0%</td>
+<td id="T_76da6_row0_col10" class="data row0 col10">0%</td>
+<td id="T_76da6_row0_col11" class="data row0 col11">0%</td>
+<td id="T_76da6_row0_col12" class="data row0 col12">0%</td>
 </tr>
 <tr class="even">
-<td id="T_b2e03_row1_col0" class="data row1 col0">L8-20</td>
-<td id="T_b2e03_row1_col1" class="data row1 col1">100%</td>
-<td id="T_b2e03_row1_col2" class="data row1 col2">100%</td>
-<td id="T_b2e03_row1_col3" class="data row1 col3">100%</td>
-<td id="T_b2e03_row1_col4" class="data row1 col4">99%</td>
-<td id="T_b2e03_row1_col5" class="data row1 col5">0%</td>
-<td id="T_b2e03_row1_col6" class="data row1 col6">0%</td>
-<td id="T_b2e03_row1_col7" class="data row1 col7">0%</td>
-<td id="T_b2e03_row1_col8" class="data row1 col8">1%</td>
-<td id="T_b2e03_row1_col9" class="data row1 col9">0%</td>
-<td id="T_b2e03_row1_col10" class="data row1 col10">0%</td>
-<td id="T_b2e03_row1_col11" class="data row1 col11">0%</td>
-<td id="T_b2e03_row1_col12" class="data row1 col12">0%</td>
+<td id="T_76da6_row1_col0" class="data row1 col0">L8-20</td>
+<td id="T_76da6_row1_col1" class="data row1 col1">100%</td>
+<td id="T_76da6_row1_col2" class="data row1 col2">100%</td>
+<td id="T_76da6_row1_col3" class="data row1 col3">100%</td>
+<td id="T_76da6_row1_col4" class="data row1 col4">99%</td>
+<td id="T_76da6_row1_col5" class="data row1 col5">0%</td>
+<td id="T_76da6_row1_col6" class="data row1 col6">0%</td>
+<td id="T_76da6_row1_col7" class="data row1 col7">0%</td>
+<td id="T_76da6_row1_col8" class="data row1 col8">1%</td>
+<td id="T_76da6_row1_col9" class="data row1 col9">0%</td>
+<td id="T_76da6_row1_col10" class="data row1 col10">0%</td>
+<td id="T_76da6_row1_col11" class="data row1 col11">0%</td>
+<td id="T_76da6_row1_col12" class="data row1 col12">0%</td>
 </tr>
 <tr class="odd">
-<td id="T_b2e03_row2_col0" class="data row2 col0">L20-30</td>
-<td id="T_b2e03_row2_col1" class="data row2 col1">50%</td>
-<td id="T_b2e03_row2_col2" class="data row2 col2">52%</td>
-<td id="T_b2e03_row2_col3" class="data row2 col3">94%</td>
-<td id="T_b2e03_row2_col4" class="data row2 col4">79%</td>
-<td id="T_b2e03_row2_col5" class="data row2 col5">50%</td>
-<td id="T_b2e03_row2_col6" class="data row2 col6">45%</td>
-<td id="T_b2e03_row2_col7" class="data row2 col7">6%</td>
-<td id="T_b2e03_row2_col8" class="data row2 col8">21%</td>
-<td id="T_b2e03_row2_col9" class="data row2 col9">0%</td>
-<td id="T_b2e03_row2_col10" class="data row2 col10">3%</td>
-<td id="T_b2e03_row2_col11" class="data row2 col11">0%</td>
-<td id="T_b2e03_row2_col12" class="data row2 col12">0%</td>
+<td id="T_76da6_row2_col0" class="data row2 col0">L20-30</td>
+<td id="T_76da6_row2_col1" class="data row2 col1">50%</td>
+<td id="T_76da6_row2_col2" class="data row2 col2">52%</td>
+<td id="T_76da6_row2_col3" class="data row2 col3">94%</td>
+<td id="T_76da6_row2_col4" class="data row2 col4">79%</td>
+<td id="T_76da6_row2_col5" class="data row2 col5">50%</td>
+<td id="T_76da6_row2_col6" class="data row2 col6">45%</td>
+<td id="T_76da6_row2_col7" class="data row2 col7">6%</td>
+<td id="T_76da6_row2_col8" class="data row2 col8">21%</td>
+<td id="T_76da6_row2_col9" class="data row2 col9">0%</td>
+<td id="T_76da6_row2_col10" class="data row2 col10">3%</td>
+<td id="T_76da6_row2_col11" class="data row2 col11">0%</td>
+<td id="T_76da6_row2_col12" class="data row2 col12">0%</td>
 </tr>
 <tr class="even">
-<td id="T_b2e03_row3_col0" class="data row3 col0">L30-50</td>
-<td id="T_b2e03_row3_col1" class="data row3 col1">30%</td>
-<td id="T_b2e03_row3_col2" class="data row3 col2">67%</td>
-<td id="T_b2e03_row3_col3" class="data row3 col3">78%</td>
-<td id="T_b2e03_row3_col4" class="data row3 col4">67%</td>
-<td id="T_b2e03_row3_col5" class="data row3 col5">50%</td>
-<td id="T_b2e03_row3_col6" class="data row3 col6">17%</td>
-<td id="T_b2e03_row3_col7" class="data row3 col7">19%</td>
-<td id="T_b2e03_row3_col8" class="data row3 col8">25%</td>
-<td id="T_b2e03_row3_col9" class="data row3 col9">20%</td>
-<td id="T_b2e03_row3_col10" class="data row3 col10">16%</td>
-<td id="T_b2e03_row3_col11" class="data row3 col11">3%</td>
-<td id="T_b2e03_row3_col12" class="data row3 col12">8%</td>
+<td id="T_76da6_row3_col0" class="data row3 col0">L30-50</td>
+<td id="T_76da6_row3_col1" class="data row3 col1">30%</td>
+<td id="T_76da6_row3_col2" class="data row3 col2">67%</td>
+<td id="T_76da6_row3_col3" class="data row3 col3">78%</td>
+<td id="T_76da6_row3_col4" class="data row3 col4">67%</td>
+<td id="T_76da6_row3_col5" class="data row3 col5">50%</td>
+<td id="T_76da6_row3_col6" class="data row3 col6">17%</td>
+<td id="T_76da6_row3_col7" class="data row3 col7">19%</td>
+<td id="T_76da6_row3_col8" class="data row3 col8">25%</td>
+<td id="T_76da6_row3_col9" class="data row3 col9">20%</td>
+<td id="T_76da6_row3_col10" class="data row3 col10">16%</td>
+<td id="T_76da6_row3_col11" class="data row3 col11">3%</td>
+<td id="T_76da6_row3_col12" class="data row3 col12">8%</td>
 </tr>
 <tr class="odd">
-<td id="T_b2e03_row4_col0" class="data row4 col0">L50-79</td>
-<td id="T_b2e03_row4_col1" class="data row4 col1">0%</td>
-<td id="T_b2e03_row4_col2" class="data row4 col2">0%</td>
-<td id="T_b2e03_row4_col3" class="data row4 col3">0%</td>
-<td id="T_b2e03_row4_col4" class="data row4 col4">2%</td>
-<td id="T_b2e03_row4_col5" class="data row4 col5">10%</td>
-<td id="T_b2e03_row4_col6" class="data row4 col6">0%</td>
-<td id="T_b2e03_row4_col7" class="data row4 col7">0%</td>
-<td id="T_b2e03_row4_col8" class="data row4 col8">2%</td>
-<td id="T_b2e03_row4_col9" class="data row4 col9">90%</td>
-<td id="T_b2e03_row4_col10" class="data row4 col10">100%</td>
-<td id="T_b2e03_row4_col11" class="data row4 col11">100%</td>
-<td id="T_b2e03_row4_col12" class="data row4 col12">96%</td>
+<td id="T_76da6_row4_col0" class="data row4 col0">L50-79</td>
+<td id="T_76da6_row4_col1" class="data row4 col1">0%</td>
+<td id="T_76da6_row4_col2" class="data row4 col2">0%</td>
+<td id="T_76da6_row4_col3" class="data row4 col3">0%</td>
+<td id="T_76da6_row4_col4" class="data row4 col4">2%</td>
+<td id="T_76da6_row4_col5" class="data row4 col5">10%</td>
+<td id="T_76da6_row4_col6" class="data row4 col6">0%</td>
+<td id="T_76da6_row4_col7" class="data row4 col7">0%</td>
+<td id="T_76da6_row4_col8" class="data row4 col8">2%</td>
+<td id="T_76da6_row4_col9" class="data row4 col9">90%</td>
+<td id="T_76da6_row4_col10" class="data row4 col10">100%</td>
+<td id="T_76da6_row4_col11" class="data row4 col11">100%</td>
+<td id="T_76da6_row4_col12" class="data row4 col12">96%</td>
 </tr>
 <tr class="even">
-<td id="T_b2e03_row5_col0" class="data row5 col0">L79-120</td>
-<td id="T_b2e03_row5_col1" class="data row5 col1">0%</td>
-<td id="T_b2e03_row5_col2" class="data row5 col2">0%</td>
-<td id="T_b2e03_row5_col3" class="data row5 col3">0%</td>
-<td id="T_b2e03_row5_col4" class="data row5 col4">1%</td>
-<td id="T_b2e03_row5_col5" class="data row5 col5">0%</td>
-<td id="T_b2e03_row5_col6" class="data row5 col6">0%</td>
-<td id="T_b2e03_row5_col7" class="data row5 col7">0%</td>
-<td id="T_b2e03_row5_col8" class="data row5 col8">0%</td>
-<td id="T_b2e03_row5_col9" class="data row5 col9">100%</td>
-<td id="T_b2e03_row5_col10" class="data row5 col10">100%</td>
-<td id="T_b2e03_row5_col11" class="data row5 col11">100%</td>
-<td id="T_b2e03_row5_col12" class="data row5 col12">99%</td>
+<td id="T_76da6_row5_col0" class="data row5 col0">L79-120</td>
+<td id="T_76da6_row5_col1" class="data row5 col1">0%</td>
+<td id="T_76da6_row5_col2" class="data row5 col2">0%</td>
+<td id="T_76da6_row5_col3" class="data row5 col3">0%</td>
+<td id="T_76da6_row5_col4" class="data row5 col4">1%</td>
+<td id="T_76da6_row5_col5" class="data row5 col5">0%</td>
+<td id="T_76da6_row5_col6" class="data row5 col6">0%</td>
+<td id="T_76da6_row5_col7" class="data row5 col7">0%</td>
+<td id="T_76da6_row5_col8" class="data row5 col8">0%</td>
+<td id="T_76da6_row5_col9" class="data row5 col9">100%</td>
+<td id="T_76da6_row5_col10" class="data row5 col10">100%</td>
+<td id="T_76da6_row5_col11" class="data row5 col11">100%</td>
+<td id="T_76da6_row5_col12" class="data row5 col12">99%</td>
 </tr>
 </tbody>
 </table>
@@ -1060,75 +1070,75 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-md-impact" class="cell" data-execution_count="29">
 <div id="md-impact" class="cell-output cell-output-display" data-execution_count="29">
 <style type="text/css">
-#T_8d372 th.col_heading.col1 {
+#T_46a3e th.col_heading.col1 {
   text-align: right;
 }
-#T_8d372 th.col_heading.col2 {
+#T_46a3e th.col_heading.col2 {
   text-align: right;
 }
-#T_8d372 th.col_heading.col3 {
+#T_46a3e th.col_heading.col3 {
   text-align: right;
 }
-#T_8d372 th.col_heading.col4 {
+#T_46a3e th.col_heading.col4 {
   text-align: right;
 }
-#T_8d372_row0_col1, #T_8d372_row0_col2, #T_8d372_row0_col3, #T_8d372_row0_col4, #T_8d372_row1_col1, #T_8d372_row1_col2, #T_8d372_row1_col3, #T_8d372_row1_col4, #T_8d372_row2_col1, #T_8d372_row2_col2, #T_8d372_row2_col3, #T_8d372_row2_col4, #T_8d372_row3_col1, #T_8d372_row3_col2, #T_8d372_row3_col3, #T_8d372_row3_col4, #T_8d372_row4_col1, #T_8d372_row4_col2, #T_8d372_row4_col3, #T_8d372_row4_col4, #T_8d372_row5_col1, #T_8d372_row5_col2, #T_8d372_row5_col3, #T_8d372_row5_col4 {
+#T_46a3e_row0_col1, #T_46a3e_row0_col2, #T_46a3e_row0_col3, #T_46a3e_row0_col4, #T_46a3e_row1_col1, #T_46a3e_row1_col2, #T_46a3e_row1_col3, #T_46a3e_row1_col4, #T_46a3e_row2_col1, #T_46a3e_row2_col2, #T_46a3e_row2_col3, #T_46a3e_row2_col4, #T_46a3e_row3_col1, #T_46a3e_row3_col2, #T_46a3e_row3_col3, #T_46a3e_row3_col4, #T_46a3e_row4_col1, #T_46a3e_row4_col2, #T_46a3e_row4_col3, #T_46a3e_row4_col4, #T_46a3e_row5_col1, #T_46a3e_row5_col2, #T_46a3e_row5_col3, #T_46a3e_row5_col4 {
   text-align: right;
 }
 </style>
 
-<table id="T_8d372" class="caption-top table table-sm table-striped small">
+<table id="T_46a3e" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th id="T_8d372_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
-<th id="T_8d372_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Current</th>
-<th id="T_8d372_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">2003 Data</th>
-<th id="T_8d372_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">2024 Data</th>
-<th id="T_8d372_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">2025 Data</th>
+<th id="T_46a3e_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_46a3e_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Current</th>
+<th id="T_46a3e_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">2003 Data</th>
+<th id="T_46a3e_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">2024 Data</th>
+<th id="T_46a3e_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">2025 Data</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td id="T_8d372_row0_col0" class="data row0 col0">Freeway</td>
-<td id="T_8d372_row0_col1" class="data row0 col1">12.4%</td>
-<td id="T_8d372_row0_col2" class="data row0 col2">9.5%</td>
-<td id="T_8d372_row0_col3" class="data row0 col3">2.1%</td>
-<td id="T_8d372_row0_col4" class="data row0 col4">6.1%</td>
+<td id="T_46a3e_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_46a3e_row0_col1" class="data row0 col1">12.4%</td>
+<td id="T_46a3e_row0_col2" class="data row0 col2">9.5%</td>
+<td id="T_46a3e_row0_col3" class="data row0 col3">2.1%</td>
+<td id="T_46a3e_row0_col4" class="data row0 col4">6.1%</td>
 </tr>
 <tr class="even">
-<td id="T_8d372_row1_col0" class="data row1 col0">Expressway</td>
-<td id="T_8d372_row1_col1" class="data row1 col1">11.0%</td>
-<td id="T_8d372_row1_col2" class="data row1 col2">8.6%</td>
-<td id="T_8d372_row1_col3" class="data row1 col3">1.9%</td>
-<td id="T_8d372_row1_col4" class="data row1 col4">5.6%</td>
+<td id="T_46a3e_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_46a3e_row1_col1" class="data row1 col1">11.0%</td>
+<td id="T_46a3e_row1_col2" class="data row1 col2">8.6%</td>
+<td id="T_46a3e_row1_col3" class="data row1 col3">1.9%</td>
+<td id="T_46a3e_row1_col4" class="data row1 col4">5.6%</td>
 </tr>
 <tr class="odd">
-<td id="T_8d372_row2_col0" class="data row2 col0">Principal Arterial</td>
-<td id="T_8d372_row2_col1" class="data row2 col1">11.5%</td>
-<td id="T_8d372_row2_col2" class="data row2 col2">9.2%</td>
-<td id="T_8d372_row2_col3" class="data row2 col3">1.9%</td>
-<td id="T_8d372_row2_col4" class="data row2 col4">5.8%</td>
+<td id="T_46a3e_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_46a3e_row2_col1" class="data row2 col1">11.5%</td>
+<td id="T_46a3e_row2_col2" class="data row2 col2">9.2%</td>
+<td id="T_46a3e_row2_col3" class="data row2 col3">1.9%</td>
+<td id="T_46a3e_row2_col4" class="data row2 col4">5.8%</td>
 </tr>
 <tr class="even">
-<td id="T_8d372_row3_col0" class="data row3 col0">Minor Arterial</td>
-<td id="T_8d372_row3_col1" class="data row3 col1">10.2%</td>
-<td id="T_8d372_row3_col2" class="data row3 col2">8.3%</td>
-<td id="T_8d372_row3_col3" class="data row3 col3">1.7%</td>
-<td id="T_8d372_row3_col4" class="data row3 col4">5.3%</td>
+<td id="T_46a3e_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_46a3e_row3_col1" class="data row3 col1">10.2%</td>
+<td id="T_46a3e_row3_col2" class="data row3 col2">8.3%</td>
+<td id="T_46a3e_row3_col3" class="data row3 col3">1.7%</td>
+<td id="T_46a3e_row3_col4" class="data row3 col4">5.3%</td>
 </tr>
 <tr class="odd">
-<td id="T_8d372_row4_col0" class="data row4 col0">Collector</td>
-<td id="T_8d372_row4_col1" class="data row4 col1">9.5%</td>
-<td id="T_8d372_row4_col2" class="data row4 col2">7.9%</td>
-<td id="T_8d372_row4_col3" class="data row4 col3">1.4%</td>
-<td id="T_8d372_row4_col4" class="data row4 col4">5.0%</td>
+<td id="T_46a3e_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_46a3e_row4_col1" class="data row4 col1">9.5%</td>
+<td id="T_46a3e_row4_col2" class="data row4 col2">7.9%</td>
+<td id="T_46a3e_row4_col3" class="data row4 col3">1.4%</td>
+<td id="T_46a3e_row4_col4" class="data row4 col4">5.0%</td>
 </tr>
 <tr class="even">
-<td id="T_8d372_row5_col0" class="data row5 col0">All Roadways</td>
-<td id="T_8d372_row5_col1" class="data row5 col1">12.1%</td>
-<td id="T_8d372_row5_col2" class="data row5 col2">9.3%</td>
-<td id="T_8d372_row5_col3" class="data row5 col3">2.0%</td>
-<td id="T_8d372_row5_col4" class="data row5 col4">6.0%</td>
+<td id="T_46a3e_row5_col0" class="data row5 col0">All Stations</td>
+<td id="T_46a3e_row5_col1" class="data row5 col1">12.1%</td>
+<td id="T_46a3e_row5_col2" class="data row5 col2">9.3%</td>
+<td id="T_46a3e_row5_col3" class="data row5 col3">2.0%</td>
+<td id="T_46a3e_row5_col4" class="data row5 col4">6.0%</td>
 </tr>
 </tbody>
 </table>
@@ -1150,75 +1160,75 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-hv-impact" class="cell" data-execution_count="31">
 <div id="hv-impact" class="cell-output cell-output-display" data-execution_count="31">
 <style type="text/css">
-#T_b79e7 th.col_heading.col1 {
+#T_9ec56 th.col_heading.col1 {
   text-align: right;
 }
-#T_b79e7 th.col_heading.col2 {
+#T_9ec56 th.col_heading.col2 {
   text-align: right;
 }
-#T_b79e7 th.col_heading.col3 {
+#T_9ec56 th.col_heading.col3 {
   text-align: right;
 }
-#T_b79e7 th.col_heading.col4 {
+#T_9ec56 th.col_heading.col4 {
   text-align: right;
 }
-#T_b79e7_row0_col1, #T_b79e7_row0_col2, #T_b79e7_row0_col3, #T_b79e7_row0_col4, #T_b79e7_row1_col1, #T_b79e7_row1_col2, #T_b79e7_row1_col3, #T_b79e7_row1_col4, #T_b79e7_row2_col1, #T_b79e7_row2_col2, #T_b79e7_row2_col3, #T_b79e7_row2_col4, #T_b79e7_row3_col1, #T_b79e7_row3_col2, #T_b79e7_row3_col3, #T_b79e7_row3_col4, #T_b79e7_row4_col1, #T_b79e7_row4_col2, #T_b79e7_row4_col3, #T_b79e7_row4_col4, #T_b79e7_row5_col1, #T_b79e7_row5_col2, #T_b79e7_row5_col3, #T_b79e7_row5_col4 {
+#T_9ec56_row0_col1, #T_9ec56_row0_col2, #T_9ec56_row0_col3, #T_9ec56_row0_col4, #T_9ec56_row1_col1, #T_9ec56_row1_col2, #T_9ec56_row1_col3, #T_9ec56_row1_col4, #T_9ec56_row2_col1, #T_9ec56_row2_col2, #T_9ec56_row2_col3, #T_9ec56_row2_col4, #T_9ec56_row3_col1, #T_9ec56_row3_col2, #T_9ec56_row3_col3, #T_9ec56_row3_col4, #T_9ec56_row4_col1, #T_9ec56_row4_col2, #T_9ec56_row4_col3, #T_9ec56_row4_col4, #T_9ec56_row5_col1, #T_9ec56_row5_col2, #T_9ec56_row5_col3, #T_9ec56_row5_col4 {
   text-align: right;
 }
 </style>
 
-<table id="T_b79e7" class="caption-top table table-sm table-striped small">
+<table id="T_9ec56" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th id="T_b79e7_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
-<th id="T_b79e7_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Current</th>
-<th id="T_b79e7_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">2003 Data</th>
-<th id="T_b79e7_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">2024 Data</th>
-<th id="T_b79e7_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">2025 Data</th>
+<th id="T_9ec56_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_9ec56_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Current</th>
+<th id="T_9ec56_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">2003 Data</th>
+<th id="T_9ec56_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">2024 Data</th>
+<th id="T_9ec56_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">2025 Data</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td id="T_b79e7_row0_col0" class="data row0 col0">Freeway</td>
-<td id="T_b79e7_row0_col1" class="data row0 col1">6.5%</td>
-<td id="T_b79e7_row0_col2" class="data row0 col2">7.4%</td>
-<td id="T_b79e7_row0_col3" class="data row0 col3">6.2%</td>
-<td id="T_b79e7_row0_col4" class="data row0 col4">6.2%</td>
+<td id="T_9ec56_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_9ec56_row0_col1" class="data row0 col1">6.5%</td>
+<td id="T_9ec56_row0_col2" class="data row0 col2">7.4%</td>
+<td id="T_9ec56_row0_col3" class="data row0 col3">6.2%</td>
+<td id="T_9ec56_row0_col4" class="data row0 col4">6.2%</td>
 </tr>
 <tr class="even">
-<td id="T_b79e7_row1_col0" class="data row1 col0">Expressway</td>
-<td id="T_b79e7_row1_col1" class="data row1 col1">2.7%</td>
-<td id="T_b79e7_row1_col2" class="data row1 col2">3.4%</td>
-<td id="T_b79e7_row1_col3" class="data row1 col3">2.3%</td>
-<td id="T_b79e7_row1_col4" class="data row1 col4">2.4%</td>
+<td id="T_9ec56_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_9ec56_row1_col1" class="data row1 col1">2.7%</td>
+<td id="T_9ec56_row1_col2" class="data row1 col2">3.4%</td>
+<td id="T_9ec56_row1_col3" class="data row1 col3">2.3%</td>
+<td id="T_9ec56_row1_col4" class="data row1 col4">2.4%</td>
 </tr>
 <tr class="odd">
-<td id="T_b79e7_row2_col0" class="data row2 col0">Principal Arterial</td>
-<td id="T_b79e7_row2_col1" class="data row2 col1">2.0%</td>
-<td id="T_b79e7_row2_col2" class="data row2 col2">2.6%</td>
-<td id="T_b79e7_row2_col3" class="data row2 col3">1.6%</td>
-<td id="T_b79e7_row2_col4" class="data row2 col4">1.7%</td>
+<td id="T_9ec56_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_9ec56_row2_col1" class="data row2 col1">2.0%</td>
+<td id="T_9ec56_row2_col2" class="data row2 col2">2.6%</td>
+<td id="T_9ec56_row2_col3" class="data row2 col3">1.6%</td>
+<td id="T_9ec56_row2_col4" class="data row2 col4">1.7%</td>
 </tr>
 <tr class="even">
-<td id="T_b79e7_row3_col0" class="data row3 col0">Minor Arterial</td>
-<td id="T_b79e7_row3_col1" class="data row3 col1">1.2%</td>
-<td id="T_b79e7_row3_col2" class="data row3 col2">1.7%</td>
-<td id="T_b79e7_row3_col3" class="data row3 col3">0.8%</td>
-<td id="T_b79e7_row3_col4" class="data row3 col4">0.9%</td>
+<td id="T_9ec56_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_9ec56_row3_col1" class="data row3 col1">1.2%</td>
+<td id="T_9ec56_row3_col2" class="data row3 col2">1.7%</td>
+<td id="T_9ec56_row3_col3" class="data row3 col3">0.8%</td>
+<td id="T_9ec56_row3_col4" class="data row3 col4">0.9%</td>
 </tr>
 <tr class="odd">
-<td id="T_b79e7_row4_col0" class="data row4 col0">Collector</td>
-<td id="T_b79e7_row4_col1" class="data row4 col1">0.9%</td>
-<td id="T_b79e7_row4_col2" class="data row4 col2">1.4%</td>
-<td id="T_b79e7_row4_col3" class="data row4 col3">0.6%</td>
-<td id="T_b79e7_row4_col4" class="data row4 col4">0.7%</td>
+<td id="T_9ec56_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_9ec56_row4_col1" class="data row4 col1">0.9%</td>
+<td id="T_9ec56_row4_col2" class="data row4 col2">1.4%</td>
+<td id="T_9ec56_row4_col3" class="data row4 col3">0.6%</td>
+<td id="T_9ec56_row4_col4" class="data row4 col4">0.7%</td>
 </tr>
 <tr class="even">
-<td id="T_b79e7_row5_col0" class="data row5 col0">All Roadways</td>
-<td id="T_b79e7_row5_col1" class="data row5 col1">5.5%</td>
-<td id="T_b79e7_row5_col2" class="data row5 col2">6.3%</td>
-<td id="T_b79e7_row5_col3" class="data row5 col3">5.1%</td>
-<td id="T_b79e7_row5_col4" class="data row5 col4">5.2%</td>
+<td id="T_9ec56_row5_col0" class="data row5 col0">All Stations</td>
+<td id="T_9ec56_row5_col1" class="data row5 col1">5.5%</td>
+<td id="T_9ec56_row5_col2" class="data row5 col2">6.3%</td>
+<td id="T_9ec56_row5_col3" class="data row5 col3">5.1%</td>
+<td id="T_9ec56_row5_col4" class="data row5 col4">5.2%</td>
 </tr>
 </tbody>
 </table>
@@ -1234,7 +1244,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>The result is not a simple Medium-to-Heavy reshuffle. Region-wide (All Roadways), Medium Truck % runs <strong>12.1% (Current) → 9.3% (2003) → 2.0% (2024) → 6.0% (2025)</strong>, while Heavy Truck % runs <strong>5.5% (Current) → 6.3% (2003) → 5.1% (2024) → 5.2% (2025)</strong>. The 2003 column — contemporaneous with the current factors — lands close to Current on both, as expected. The bigger break shows up in 2024: Medium drops sharply while Heavy holds roughly steady, meaning total truck share (Medium + Heavy combined) falls overall rather than shifting between the two categories. That’s because <code>L20-30</code>, the single highest-volume length bin, swings from “half truck” (50% MD) under the current factors to “almost entirely light vehicle” (94–79% LT, only 6–21% MD, near-zero HV) under the newer data — so a large share of volume that used to count toward Medium Truck % now doesn’t count as a truck at all. The much smaller <code>L50-79</code> bin’s shift toward Heavy (10%→0% MD, 90%→100% HV) works in the <em>other</em> direction but isn’t large enough in volume to offset it. 2025 partially reverses the 2024 Medium drop (2.0% → 6.0%) while Heavy stays flat. The overall direction (lower combined truck share than Current/2003) is consistent across both 2024 and 2025 and is worth validating against the raw UDOT Statistics source data before treating it as a basis for changing the page’s methodology.</p>
+<p>The result is not a simple Medium-to-Heavy reshuffle. Region-wide (All Stations), Medium Truck % runs <strong>12.1% (Current) → 9.3% (2003) → 2.0% (2024) → 6.0% (2025)</strong>, while Heavy Truck % runs <strong>5.5% (Current) → 6.3% (2003) → 5.1% (2024) → 5.2% (2025)</strong>. The 2003 column — contemporaneous with the current factors — lands close to Current on both, as expected. The bigger break shows up in 2024: Medium drops sharply while Heavy holds roughly steady, meaning total truck share (Medium + Heavy combined) falls overall rather than shifting between the two categories. That’s because <code>L20-30</code>, the single highest-volume length bin, swings from “half truck” (50% MD) under the current factors to “almost entirely light vehicle” (94–79% LT, only 6–21% MD, near-zero HV) under the newer data — so a large share of volume that used to count toward Medium Truck % now doesn’t count as a truck at all. The much smaller <code>L50-79</code> bin’s shift toward Heavy (10%→0% MD, 90%→100% HV) works in the <em>other</em> direction but isn’t large enough in volume to offset it. 2025 partially reverses the 2024 Medium drop (2.0% → 6.0%) while Heavy stays flat. The overall direction (lower combined truck share than Current/2003) is consistent across both 2024 and 2025 and is worth validating against the raw UDOT Statistics source data before treating it as a basis for changing the page’s methodology.</p>
 </section>
 </section>
 <section id="ccs-derived-20252003-reclassification-ratio" class="level3">
@@ -1243,73 +1253,83 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-reclass-ratio" class="cell" data-execution_count="33">
 <div id="reclass-ratio" class="cell-output cell-output-display" data-execution_count="33">
 <style type="text/css">
-#T_7278e th.col_heading.col1 {
+#T_89a84 th.col_heading.col1 {
   text-align: right;
 }
-#T_7278e th.col_heading.col2 {
+#T_89a84 th.col_heading.col2 {
   text-align: right;
 }
-#T_7278e_row0_col1, #T_7278e_row0_col2, #T_7278e_row1_col1, #T_7278e_row1_col2, #T_7278e_row2_col1, #T_7278e_row2_col2, #T_7278e_row3_col1, #T_7278e_row3_col2, #T_7278e_row4_col1, #T_7278e_row4_col2, #T_7278e_row5_col1, #T_7278e_row5_col2, #T_7278e_row6_col1, #T_7278e_row6_col2 {
+#T_89a84_row0_col1, #T_89a84_row0_col2, #T_89a84_row1_col1, #T_89a84_row1_col2, #T_89a84_row2_col1, #T_89a84_row2_col2, #T_89a84_row3_col1, #T_89a84_row3_col2, #T_89a84_row4_col1, #T_89a84_row4_col2, #T_89a84_row5_col1, #T_89a84_row5_col2, #T_89a84_row6_col1, #T_89a84_row6_col2 {
   text-align: right;
 }
 </style>
 
-<table id="T_7278e" class="caption-top table table-sm table-striped small">
+<table id="T_89a84" class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th id="T_7278e_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
-<th id="T_7278e_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">MD Ratio (2025/2003)</th>
-<th id="T_7278e_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">HV Ratio (2025/2003)</th>
+<th id="T_89a84_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Functional Class</th>
+<th id="T_89a84_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">MD Ratio (2025/2003)</th>
+<th id="T_89a84_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">HV Ratio (2025/2003)</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td id="T_7278e_row0_col0" class="data row0 col0">Freeway</td>
-<td id="T_7278e_row0_col1" class="data row0 col1">0.64x</td>
-<td id="T_7278e_row0_col2" class="data row0 col2">0.84x</td>
+<td id="T_89a84_row0_col0" class="data row0 col0">Freeway</td>
+<td id="T_89a84_row0_col1" class="data row0 col1">0.64x</td>
+<td id="T_89a84_row0_col2" class="data row0 col2">0.84x</td>
 </tr>
 <tr class="even">
-<td id="T_7278e_row1_col0" class="data row1 col0">Expressway</td>
-<td id="T_7278e_row1_col1" class="data row1 col1">0.65x</td>
-<td id="T_7278e_row1_col2" class="data row1 col2">0.71x</td>
+<td id="T_89a84_row1_col0" class="data row1 col0">Expressway</td>
+<td id="T_89a84_row1_col1" class="data row1 col1">0.65x</td>
+<td id="T_89a84_row1_col2" class="data row1 col2">0.71x</td>
 </tr>
 <tr class="odd">
-<td id="T_7278e_row2_col0" class="data row2 col0">Principal Arterial</td>
-<td id="T_7278e_row2_col1" class="data row2 col1">0.63x</td>
-<td id="T_7278e_row2_col2" class="data row2 col2">0.63x</td>
+<td id="T_89a84_row2_col0" class="data row2 col0">Principal Arterial</td>
+<td id="T_89a84_row2_col1" class="data row2 col1">0.63x</td>
+<td id="T_89a84_row2_col2" class="data row2 col2">0.63x</td>
 </tr>
 <tr class="even">
-<td id="T_7278e_row3_col0" class="data row3 col0">Minor Arterial</td>
-<td id="T_7278e_row3_col1" class="data row3 col1">0.64x</td>
-<td id="T_7278e_row3_col2" class="data row3 col2">0.51x</td>
+<td id="T_89a84_row3_col0" class="data row3 col0">Minor Arterial</td>
+<td id="T_89a84_row3_col1" class="data row3 col1">0.64x</td>
+<td id="T_89a84_row3_col2" class="data row3 col2">0.51x</td>
 </tr>
 <tr class="odd">
-<td id="T_7278e_row4_col0" class="data row4 col0">Collector</td>
-<td id="T_7278e_row4_col1" class="data row4 col1">0.62x</td>
-<td id="T_7278e_row4_col2" class="data row4 col2">0.49x</td>
+<td id="T_89a84_row4_col0" class="data row4 col0">Collector</td>
+<td id="T_89a84_row4_col1" class="data row4 col1">0.62x</td>
+<td id="T_89a84_row4_col2" class="data row4 col2">0.49x</td>
 </tr>
 <tr class="even">
-<td id="T_7278e_row5_col0" class="data row5 col0">Local</td>
-<td id="T_7278e_row5_col1" class="data row5 col1">—</td>
-<td id="T_7278e_row5_col2" class="data row5 col2">—</td>
+<td id="T_89a84_row5_col0" class="data row5 col0">Local</td>
+<td id="T_89a84_row5_col1" class="data row5 col1">—</td>
+<td id="T_89a84_row5_col2" class="data row5 col2">—</td>
 </tr>
 <tr class="odd">
-<td id="T_7278e_row6_col0" class="data row6 col0">All Roadways</td>
-<td id="T_7278e_row6_col1" class="data row6 col1">0.64x</td>
-<td id="T_7278e_row6_col2" class="data row6 col2">0.82x</td>
+<td id="T_89a84_row6_col0" class="data row6 col0">All Stations</td>
+<td id="T_89a84_row6_col1" class="data row6 col1">0.64x</td>
+<td id="T_89a84_row6_col2" class="data row6 col2">0.82x</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 <p>A “—” means CCS had no matched stations for that functional class (e.g.&nbsp;Local), so no ratio could be computed.</p>
+<div id="cell-chart-reclass-ratio" class="cell" data-execution_count="34">
+<div class="cell-output cell-output-display" data-execution_count="34">
+<div id="chart-reclass-ratio" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="cv-observed-for-tdm_files/figure-html/chart-reclass-ratio-output-1.png" width="592" height="367" class="figure-img"></p>
+<figcaption>CCS-derived 2025/2003 reclassification ratio by functional class</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="county-level-hpms-vmt-with-proposed-adjustment" class="level3">
 <h3 class="anchored" data-anchor-id="county-level-hpms-vmt-with-proposed-adjustment">County-Level HPMS VMT with Proposed Adjustment</h3>
 <p>As a further cross-check, the same 2025/2003 ratio can be applied to actual 2023 HPMS VMT, broken out by county and facility type rather than region-wide. This uses a different, statewide HPMS source than the rest of this page: FHWA’s full HPMS extract for Utah (<code>data/HPMS_FULL_UT_2023.gpkg</code>, fetched by <code>scripts/fetch_hpms_full_ut_2023.py</code>), spatially joined to the model’s super-districts (<code>data/WFv1000_TAZ__DSUP.geojson</code> – whole counties for Davis/Salt Lake/Utah, the model-area slice of the county for Box Elder/Weber) by <code>scripts/build_hpms_vmt_by_county_facility.py</code>. Those two scripts are run manually (not on every <code>quarto render</code>, since the fetch hits an external API); the cell below just reads their cached output and applies the ratio already computed above.</p>
 <p>The map below shows exactly which areas each county’s VMT figures cover – note Box Elder and Weber are only their model-area slice, not the full county (see the note above).</p>
-<div id="cell-dsup-map" class="cell" data-execution_count="35">
-<div class="cell-output cell-output-display" data-execution_count="35">
+<div id="cell-dsup-map" class="cell" data-execution_count="36">
+<div class="cell-output cell-output-display" data-execution_count="36">
 <div id="dsup-map" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="cv-observed-for-tdm_files/figure-html/dsup-map-output-1.png" width="474" height="710" class="figure-img"></p>
@@ -1318,42 +1338,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="cell-county-hpms-adjustment" class="cell" data-execution_count="36">
+<div id="cell-county-hpms-adjustment" class="cell" data-execution_count="37">
 <div id="county-hpms-adjustment" class="cell-output cell-output-display">
 <script type="ojs-define">{"contents": [{"name": "county_adj_ojs", "value": {"County": ["Box Elder Super District", "Box Elder Super District", "Box Elder Super District", "Box Elder Super District", "Box Elder Super District", "Davis Super District", "Davis Super District", "Davis Super District", "Davis Super District", "Davis Super District", "Davis Super District", "Salt Lake Super District", "Salt Lake Super District", "Salt Lake Super District", "Salt Lake Super District", "Salt Lake Super District", "Salt Lake Super District", "Utah Super District", "Utah Super District", "Utah Super District", "Utah Super District", "Utah Super District", "Weber Super District", "Weber Super District", "Weber Super District", "Weber Super District", "Weber Super District"], "Functional Class": ["Freeway", "Principal Arterial", "Minor Arterial", "Collector", "Local", "Freeway", "Expressway", "Principal Arterial", "Minor Arterial", "Collector", "Local", "Freeway", "Expressway", "Principal Arterial", "Minor Arterial", "Collector", "Local", "Freeway", "Principal Arterial", "Minor Arterial", "Collector", "Local", "Freeway", "Principal Arterial", "Minor Arterial", "Collector", "Local"], "Total": [951412.111299998, 468572.2795000002, 81104.8449, 35568.7833, 5263.178, 4182251.0092000095, 486815.2455, 1359698.916699995, 827752.9022, 762161.4688, 29561.067, 11342593.074899994, 806890.9235999996, 7458543.574399997, 3374728.6139, 2657433.6133, 36389.4447, 6002607.20080001, 3608078.9900000026, 1363857.4069, 1120321.6058, 38983.5485, 1497565.2355999982, 1442881.0182000017, 618181.0357, 608745.8674, 11733.6741], "HPMS MD VMT": [116520.3487999998, 43339.4846, 5436.471, 210.123, 0.0, 302491.3659000008, 44738.9946, 111271.4201999996, 33548.6133, 3234.8201, 83.9886, 842482.3086999994, 90924.221, 804546.7248, 30268.4866, 3564.2127, 375.4363, 518571.0172000006, 375021.9031000004, 64923.1776, 15641.9409, 200.637, 142454.9748999998, 148759.2266000001, 48092.7465, 1479.2154, 720.7721], "MD Ratio (2025/2003)": [0.6410762313, 0.6262370789, 0.6389648068, 0.6240689117, null, 0.6410762313, 0.6477725663, 0.6262370789, 0.6389648068, 0.6240689117, null, 0.6410762313, 0.6477725663, 0.6262370789, 0.6389648068, 0.6240689117, null, 0.6410762313, 0.6262370789, 0.6389648068, 0.6240689117, null, 0.6410762313, 0.6262370789, 0.6389648068, 0.6240689117, null], "Adjusted MD VMT": [74698.4260830761, 27140.7922351824, 3473.7136419803, 131.1312319368, null, 193920.0248639315, 28980.6933460409, 69682.2891466011, 21436.3832143557, 2018.7506594083, null, 540095.383431656, 58898.2159766427, 503836.9907447694, 19340.4976913365, 2224.314340818, null, 332443.5533885039, 234852.6211056931, 41483.625629536, 9761.6490346096, null, 91324.4984444649, 93158.5435193898, 30729.5724740093, 923.1323448735, null], "HPMS HV VMT": [136651.0873999997, 44009.1292, 5373.779, 968.2695, 0.0, 283872.9850000008, 43932.1404, 52982.9381999999, 24305.9703, 2590.7493, 44.3888, 520266.2634999997, 38024.0795, 307564.2404, 6587.4051, 2578.0256, 99.1515, 435113.0999000006, 214136.0089000002, 41738.6857, 10508.114, 128.804, 170847.0541999997, 76723.7592, 48191.8045, 534.4146, 556.7926], "HV Ratio (2025/2003)": [0.8375387583, 0.6328405726, 0.5126830329, 0.4879156315, null, 0.8375387583, 0.7100503847, 0.6328405726, 0.5126830329, 0.4879156315, null, 0.8375387583, 0.7100503847, 0.6328405726, 0.5126830329, 0.4879156315, null, 0.8375387583, 0.6328405726, 0.5126830329, 0.4879156315, null, 0.8375387583, 0.6328405726, 0.5126830329, 0.4879156315, null], "Adjusted HV VMT": [114450.5820677933, 27850.762521723, 2755.045315851, 472.4338245146, null, 237754.6273852199, 31194.0331908627, 33529.7529475163, 12461.2585709664, 1264.0670806604, null, 435743.1603417376, 26999.0122761012, 194639.1300002029, 3377.2508256049, 1257.8589885404, null, 364424.0854308566, 135513.9544825048, 21398.7159739103, 5127.0730777489, null, 143091.0296419481, 48553.9077027014, 24707.1204919543, 260.7492370197, null]}}]}</script>
 </div>
 </div>
 <p>Toggle super districts on/off below; the table sums whichever ones are checked by facility type, with a Total row across all facility types. All are checked by default, giving the region-wide sum.</p>
 <div id="county-toggle-data" class="cell hidden">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="950" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 949;"><span id="cb1-950"><a href="#cb1-950" aria-hidden="true" tabindex="-1"></a>counties <span class="op">=</span> [<span class="op">...</span><span class="kw">new</span> <span class="bu">Set</span>(<span class="fu">transpose</span>(county_adj_ojs)<span class="op">.</span><span class="fu">map</span>((d) <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">County</span>))]</span>
-<span id="cb1-951"><a href="#cb1-951" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-952"><a href="#cb1-952" aria-hidden="true" tabindex="-1"></a>classOrder <span class="op">=</span> [<span class="st">"Freeway"</span><span class="op">,</span> <span class="st">"Expressway"</span><span class="op">,</span> <span class="st">"Principal Arterial"</span><span class="op">,</span> <span class="st">"Minor Arterial"</span><span class="op">,</span> <span class="st">"Collector"</span>]</span>
-<span id="cb1-953"><a href="#cb1-953" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-954"><a href="#cb1-954" aria-hidden="true" tabindex="-1"></a>filtered <span class="op">=</span> <span class="fu">transpose</span>(county_adj_ojs)<span class="op">.</span><span class="fu">filter</span>((d) <span class="kw">=&gt;</span> selectedCounties<span class="op">.</span><span class="fu">includes</span>(d<span class="op">.</span><span class="at">County</span>))</span>
-<span id="cb1-955"><a href="#cb1-955" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-956"><a href="#cb1-956" aria-hidden="true" tabindex="-1"></a>byClass <span class="op">=</span> classOrder<span class="op">.</span><span class="fu">map</span>((cls) <span class="kw">=&gt;</span> {</span>
-<span id="cb1-957"><a href="#cb1-957" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rows <span class="op">=</span> filtered<span class="op">.</span><span class="fu">filter</span>((d) <span class="kw">=&gt;</span> d[<span class="st">"Functional Class"</span>] <span class="op">===</span> cls)<span class="op">;</span></span>
-<span id="cb1-958"><a href="#cb1-958" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> {</span>
-<span id="cb1-959"><a href="#cb1-959" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Functional Class"</span><span class="op">:</span> cls<span class="op">,</span></span>
-<span id="cb1-960"><a href="#cb1-960" aria-hidden="true" tabindex="-1"></a>    <span class="dt">total</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(rows<span class="op">,</span> (d) <span class="kw">=&gt;</span> d[<span class="st">"Total"</span>])<span class="op">,</span></span>
-<span id="cb1-961"><a href="#cb1-961" aria-hidden="true" tabindex="-1"></a>    <span class="dt">hpmsMD</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(rows<span class="op">,</span> (d) <span class="kw">=&gt;</span> d[<span class="st">"HPMS MD VMT"</span>])<span class="op">,</span></span>
-<span id="cb1-962"><a href="#cb1-962" aria-hidden="true" tabindex="-1"></a>    <span class="dt">adjMD</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(rows<span class="op">,</span> (d) <span class="kw">=&gt;</span> d[<span class="st">"Adjusted MD VMT"</span>])<span class="op">,</span></span>
-<span id="cb1-963"><a href="#cb1-963" aria-hidden="true" tabindex="-1"></a>    <span class="dt">hpmsHV</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(rows<span class="op">,</span> (d) <span class="kw">=&gt;</span> d[<span class="st">"HPMS HV VMT"</span>])<span class="op">,</span></span>
-<span id="cb1-964"><a href="#cb1-964" aria-hidden="true" tabindex="-1"></a>    <span class="dt">adjHV</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(rows<span class="op">,</span> (d) <span class="kw">=&gt;</span> d[<span class="st">"Adjusted HV VMT"</span>])<span class="op">,</span></span>
-<span id="cb1-965"><a href="#cb1-965" aria-hidden="true" tabindex="-1"></a>  }<span class="op">;</span></span>
-<span id="cb1-966"><a href="#cb1-966" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb1-967"><a href="#cb1-967" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-968"><a href="#cb1-968" aria-hidden="true" tabindex="-1"></a>totalRow <span class="op">=</span> ({</span>
-<span id="cb1-969"><a href="#cb1-969" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Functional Class"</span><span class="op">:</span> <span class="st">"Total"</span><span class="op">,</span></span>
-<span id="cb1-970"><a href="#cb1-970" aria-hidden="true" tabindex="-1"></a>  <span class="dt">total</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(byClass<span class="op">,</span> (d) <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">total</span>)<span class="op">,</span></span>
-<span id="cb1-971"><a href="#cb1-971" aria-hidden="true" tabindex="-1"></a>  <span class="dt">hpmsMD</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(byClass<span class="op">,</span> (d) <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">hpmsMD</span>)<span class="op">,</span></span>
-<span id="cb1-972"><a href="#cb1-972" aria-hidden="true" tabindex="-1"></a>  <span class="dt">adjMD</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(byClass<span class="op">,</span> (d) <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">adjMD</span>)<span class="op">,</span></span>
-<span id="cb1-973"><a href="#cb1-973" aria-hidden="true" tabindex="-1"></a>  <span class="dt">hpmsHV</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(byClass<span class="op">,</span> (d) <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">hpmsHV</span>)<span class="op">,</span></span>
-<span id="cb1-974"><a href="#cb1-974" aria-hidden="true" tabindex="-1"></a>  <span class="dt">adjHV</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(byClass<span class="op">,</span> (d) <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">adjHV</span>)<span class="op">,</span></span>
-<span id="cb1-975"><a href="#cb1-975" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb1-976"><a href="#cb1-976" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-977"><a href="#cb1-977" aria-hidden="true" tabindex="-1"></a>fmt <span class="op">=</span> d3<span class="op">.</span><span class="fu">format</span>(<span class="st">",.0f"</span>)</span>
-<span id="cb1-978"><a href="#cb1-978" aria-hidden="true" tabindex="-1"></a>ratioFmt <span class="op">=</span> (num<span class="op">,</span> den) <span class="kw">=&gt;</span> (den <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">?</span> <span class="vs">`</span><span class="sc">${</span>(num <span class="op">/</span> den)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">x`</span> <span class="op">:</span> <span class="st">"—"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="994" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 993;"><span id="cb1-994"><a href="#cb1-994" aria-hidden="true" tabindex="-1"></a>counties <span class="op">=</span> [<span class="op">...</span><span class="kw">new</span> <span class="bu">Set</span>(<span class="fu">transpose</span>(county_adj_ojs)<span class="op">.</span><span class="fu">map</span>((d) <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">County</span>))]</span>
+<span id="cb1-995"><a href="#cb1-995" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-996"><a href="#cb1-996" aria-hidden="true" tabindex="-1"></a>classOrder <span class="op">=</span> [<span class="st">"Freeway"</span><span class="op">,</span> <span class="st">"Expressway"</span><span class="op">,</span> <span class="st">"Principal Arterial"</span><span class="op">,</span> <span class="st">"Minor Arterial"</span><span class="op">,</span> <span class="st">"Collector"</span>]</span>
+<span id="cb1-997"><a href="#cb1-997" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-998"><a href="#cb1-998" aria-hidden="true" tabindex="-1"></a>filtered <span class="op">=</span> <span class="fu">transpose</span>(county_adj_ojs)<span class="op">.</span><span class="fu">filter</span>((d) <span class="kw">=&gt;</span> selectedCounties<span class="op">.</span><span class="fu">includes</span>(d<span class="op">.</span><span class="at">County</span>))</span>
+<span id="cb1-999"><a href="#cb1-999" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-1000"><a href="#cb1-1000" aria-hidden="true" tabindex="-1"></a>byClass <span class="op">=</span> classOrder<span class="op">.</span><span class="fu">map</span>((cls) <span class="kw">=&gt;</span> {</span>
+<span id="cb1-1001"><a href="#cb1-1001" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> rows <span class="op">=</span> filtered<span class="op">.</span><span class="fu">filter</span>((d) <span class="kw">=&gt;</span> d[<span class="st">"Functional Class"</span>] <span class="op">===</span> cls)<span class="op">;</span></span>
+<span id="cb1-1002"><a href="#cb1-1002" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> {</span>
+<span id="cb1-1003"><a href="#cb1-1003" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Functional Class"</span><span class="op">:</span> cls<span class="op">,</span></span>
+<span id="cb1-1004"><a href="#cb1-1004" aria-hidden="true" tabindex="-1"></a>    <span class="dt">total</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(rows<span class="op">,</span> (d) <span class="kw">=&gt;</span> d[<span class="st">"Total"</span>])<span class="op">,</span></span>
+<span id="cb1-1005"><a href="#cb1-1005" aria-hidden="true" tabindex="-1"></a>    <span class="dt">hpmsMD</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(rows<span class="op">,</span> (d) <span class="kw">=&gt;</span> d[<span class="st">"HPMS MD VMT"</span>])<span class="op">,</span></span>
+<span id="cb1-1006"><a href="#cb1-1006" aria-hidden="true" tabindex="-1"></a>    <span class="dt">adjMD</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(rows<span class="op">,</span> (d) <span class="kw">=&gt;</span> d[<span class="st">"Adjusted MD VMT"</span>])<span class="op">,</span></span>
+<span id="cb1-1007"><a href="#cb1-1007" aria-hidden="true" tabindex="-1"></a>    <span class="dt">hpmsHV</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(rows<span class="op">,</span> (d) <span class="kw">=&gt;</span> d[<span class="st">"HPMS HV VMT"</span>])<span class="op">,</span></span>
+<span id="cb1-1008"><a href="#cb1-1008" aria-hidden="true" tabindex="-1"></a>    <span class="dt">adjHV</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(rows<span class="op">,</span> (d) <span class="kw">=&gt;</span> d[<span class="st">"Adjusted HV VMT"</span>])<span class="op">,</span></span>
+<span id="cb1-1009"><a href="#cb1-1009" aria-hidden="true" tabindex="-1"></a>  }<span class="op">;</span></span>
+<span id="cb1-1010"><a href="#cb1-1010" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-1011"><a href="#cb1-1011" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-1012"><a href="#cb1-1012" aria-hidden="true" tabindex="-1"></a>totalRow <span class="op">=</span> ({</span>
+<span id="cb1-1013"><a href="#cb1-1013" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Functional Class"</span><span class="op">:</span> <span class="st">"Total"</span><span class="op">,</span></span>
+<span id="cb1-1014"><a href="#cb1-1014" aria-hidden="true" tabindex="-1"></a>  <span class="dt">total</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(byClass<span class="op">,</span> (d) <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">total</span>)<span class="op">,</span></span>
+<span id="cb1-1015"><a href="#cb1-1015" aria-hidden="true" tabindex="-1"></a>  <span class="dt">hpmsMD</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(byClass<span class="op">,</span> (d) <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">hpmsMD</span>)<span class="op">,</span></span>
+<span id="cb1-1016"><a href="#cb1-1016" aria-hidden="true" tabindex="-1"></a>  <span class="dt">adjMD</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(byClass<span class="op">,</span> (d) <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">adjMD</span>)<span class="op">,</span></span>
+<span id="cb1-1017"><a href="#cb1-1017" aria-hidden="true" tabindex="-1"></a>  <span class="dt">hpmsHV</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(byClass<span class="op">,</span> (d) <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">hpmsHV</span>)<span class="op">,</span></span>
+<span id="cb1-1018"><a href="#cb1-1018" aria-hidden="true" tabindex="-1"></a>  <span class="dt">adjHV</span><span class="op">:</span> d3<span class="op">.</span><span class="fu">sum</span>(byClass<span class="op">,</span> (d) <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">adjHV</span>)<span class="op">,</span></span>
+<span id="cb1-1019"><a href="#cb1-1019" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-1020"><a href="#cb1-1020" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-1021"><a href="#cb1-1021" aria-hidden="true" tabindex="-1"></a>fmt <span class="op">=</span> d3<span class="op">.</span><span class="fu">format</span>(<span class="st">",.0f"</span>)</span>
+<span id="cb1-1022"><a href="#cb1-1022" aria-hidden="true" tabindex="-1"></a>ratioFmt <span class="op">=</span> (num<span class="op">,</span> den) <span class="kw">=&gt;</span> (den <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">?</span> <span class="vs">`</span><span class="sc">${</span>(num <span class="op">/</span> den)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>)<span class="sc">}</span><span class="vs">x`</span> <span class="op">:</span> <span class="st">"—"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display hidden">
 <div id="county-toggle-data-1">
 <div id="ojs-cell-1-1" data-nodetype="declaration">
@@ -1405,7 +1425,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="982" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 981;"><span id="cb2-982"><a href="#cb2-982" aria-hidden="true" tabindex="-1"></a>viewof selectedCounties <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">checkbox</span>(counties<span class="op">,</span> { <span class="dt">value</span><span class="op">:</span> counties<span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Super District:"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="1026" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 1025;"><span id="cb2-1026"><a href="#cb2-1026" aria-hidden="true" tabindex="-1"></a>viewof selectedCounties <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">checkbox</span>(counties<span class="op">,</span> { <span class="dt">value</span><span class="op">:</span> counties<span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Super District:"</span> })</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="county-toggle-input" class="cell-output cell-output-display">
 <div id="ojs-cell-2" data-nodetype="declaration">
 
@@ -1413,30 +1433,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="987" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 986;"><span id="cb3-987"><a href="#cb3-987" aria-hidden="true" tabindex="-1"></a>htl<span class="op">.</span><span class="fu">html</span><span class="vs">`&lt;table class="table table-sm table-striped small caption-top"&gt;</span></span>
-<span id="cb3-988"><a href="#cb3-988" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;thead&gt;&lt;tr&gt;</span></span>
-<span id="cb3-989"><a href="#cb3-989" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th&gt;Facility Type&lt;/th&gt;</span></span>
-<span id="cb3-990"><a href="#cb3-990" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;HPMS MD VMT&lt;/th&gt;</span></span>
-<span id="cb3-991"><a href="#cb3-991" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;MD Ratio (2025/2003)&lt;/th&gt;</span></span>
-<span id="cb3-992"><a href="#cb3-992" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;Adjusted MD VMT&lt;/th&gt;</span></span>
-<span id="cb3-993"><a href="#cb3-993" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;HPMS HV VMT&lt;/th&gt;</span></span>
-<span id="cb3-994"><a href="#cb3-994" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;HV Ratio (2025/2003)&lt;/th&gt;</span></span>
-<span id="cb3-995"><a href="#cb3-995" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;Adjusted HV VMT&lt;/th&gt;</span></span>
-<span id="cb3-996"><a href="#cb3-996" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/tr&gt;&lt;/thead&gt;</span></span>
-<span id="cb3-997"><a href="#cb3-997" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;tbody&gt;</span></span>
-<span id="cb3-998"><a href="#cb3-998" aria-hidden="true" tabindex="-1"></a><span class="vs">    </span><span class="sc">${</span>[<span class="op">...</span>byClass<span class="op">,</span> totalRow]<span class="op">.</span><span class="fu">map</span>(</span>
-<span id="cb3-999"><a href="#cb3-999" aria-hidden="true" tabindex="-1"></a>      (d) <span class="kw">=&gt;</span> htl<span class="op">.</span><span class="fu">html</span><span class="vs">`&lt;tr style=</span><span class="sc">${</span>d[<span class="st">"Functional Class"</span>] <span class="op">===</span> <span class="st">"Total"</span> <span class="op">?</span> <span class="st">"font-weight:bold;border-top:2px solid #52514e;"</span> <span class="op">:</span> <span class="st">""</span><span class="sc">}</span><span class="vs">&gt;</span></span>
-<span id="cb3-1000"><a href="#cb3-1000" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td&gt;</span><span class="sc">${</span>d[<span class="st">"Functional Class"</span>]<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
-<span id="cb3-1001"><a href="#cb3-1001" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">hpmsMD</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
-<span id="cb3-1002"><a href="#cb3-1002" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">ratioFmt</span>(d<span class="op">.</span><span class="at">adjMD</span><span class="op">,</span> d<span class="op">.</span><span class="at">hpmsMD</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
-<span id="cb3-1003"><a href="#cb3-1003" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">adjMD</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
-<span id="cb3-1004"><a href="#cb3-1004" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">hpmsHV</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
-<span id="cb3-1005"><a href="#cb3-1005" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">ratioFmt</span>(d<span class="op">.</span><span class="at">adjHV</span><span class="op">,</span> d<span class="op">.</span><span class="at">hpmsHV</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
-<span id="cb3-1006"><a href="#cb3-1006" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">adjHV</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
-<span id="cb3-1007"><a href="#cb3-1007" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;/tr&gt;`</span></span>
-<span id="cb3-1008"><a href="#cb3-1008" aria-hidden="true" tabindex="-1"></a>    )<span class="sc">}</span></span>
-<span id="cb3-1009"><a href="#cb3-1009" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/tbody&gt;</span></span>
-<span id="cb3-1010"><a href="#cb3-1010" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/table&gt;`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="1031" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 1030;"><span id="cb3-1031"><a href="#cb3-1031" aria-hidden="true" tabindex="-1"></a>htl<span class="op">.</span><span class="fu">html</span><span class="vs">`&lt;table class="table table-sm table-striped small caption-top"&gt;</span></span>
+<span id="cb3-1032"><a href="#cb3-1032" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;thead&gt;&lt;tr&gt;</span></span>
+<span id="cb3-1033"><a href="#cb3-1033" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th&gt;Facility Type&lt;/th&gt;</span></span>
+<span id="cb3-1034"><a href="#cb3-1034" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;HPMS MD VMT&lt;/th&gt;</span></span>
+<span id="cb3-1035"><a href="#cb3-1035" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;MD Ratio (2025/2003)&lt;/th&gt;</span></span>
+<span id="cb3-1036"><a href="#cb3-1036" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;Adjusted MD VMT&lt;/th&gt;</span></span>
+<span id="cb3-1037"><a href="#cb3-1037" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;HPMS HV VMT&lt;/th&gt;</span></span>
+<span id="cb3-1038"><a href="#cb3-1038" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;HV Ratio (2025/2003)&lt;/th&gt;</span></span>
+<span id="cb3-1039"><a href="#cb3-1039" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;Adjusted HV VMT&lt;/th&gt;</span></span>
+<span id="cb3-1040"><a href="#cb3-1040" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/tr&gt;&lt;/thead&gt;</span></span>
+<span id="cb3-1041"><a href="#cb3-1041" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;tbody&gt;</span></span>
+<span id="cb3-1042"><a href="#cb3-1042" aria-hidden="true" tabindex="-1"></a><span class="vs">    </span><span class="sc">${</span>[<span class="op">...</span>byClass<span class="op">,</span> totalRow]<span class="op">.</span><span class="fu">map</span>(</span>
+<span id="cb3-1043"><a href="#cb3-1043" aria-hidden="true" tabindex="-1"></a>      (d) <span class="kw">=&gt;</span> htl<span class="op">.</span><span class="fu">html</span><span class="vs">`&lt;tr style=</span><span class="sc">${</span>d[<span class="st">"Functional Class"</span>] <span class="op">===</span> <span class="st">"Total"</span> <span class="op">?</span> <span class="st">"font-weight:bold;border-top:2px solid #52514e;"</span> <span class="op">:</span> <span class="st">""</span><span class="sc">}</span><span class="vs">&gt;</span></span>
+<span id="cb3-1044"><a href="#cb3-1044" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td&gt;</span><span class="sc">${</span>d[<span class="st">"Functional Class"</span>]<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
+<span id="cb3-1045"><a href="#cb3-1045" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">hpmsMD</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
+<span id="cb3-1046"><a href="#cb3-1046" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">ratioFmt</span>(d<span class="op">.</span><span class="at">adjMD</span><span class="op">,</span> d<span class="op">.</span><span class="at">hpmsMD</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
+<span id="cb3-1047"><a href="#cb3-1047" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">adjMD</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
+<span id="cb3-1048"><a href="#cb3-1048" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">hpmsHV</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
+<span id="cb3-1049"><a href="#cb3-1049" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">ratioFmt</span>(d<span class="op">.</span><span class="at">adjHV</span><span class="op">,</span> d<span class="op">.</span><span class="at">hpmsHV</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
+<span id="cb3-1050"><a href="#cb3-1050" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">adjHV</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
+<span id="cb3-1051"><a href="#cb3-1051" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;/tr&gt;`</span></span>
+<span id="cb3-1052"><a href="#cb3-1052" aria-hidden="true" tabindex="-1"></a>    )<span class="sc">}</span></span>
+<span id="cb3-1053"><a href="#cb3-1053" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/tbody&gt;</span></span>
+<span id="cb3-1054"><a href="#cb3-1054" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/table&gt;`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="county-toggle-table" class="cell-output cell-output-display">
 <div id="ojs-cell-3" data-nodetype="expression">
 
@@ -1448,26 +1468,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="vmt-targets-adjusted">VMT Targets (Adjusted)</h3>
 <p>Combines the above into a single set of VMT targets by facility type – Total VMT, PC/LT VMT (the non-truck remainder, <code>Total − Adjusted MD − Adjusted HV</code>), and the two adjusted truck VMTs – for whichever counties are toggled above.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="1019" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 1018;"><span id="cb4-1019"><a href="#cb4-1019" aria-hidden="true" tabindex="-1"></a>htl<span class="op">.</span><span class="fu">html</span><span class="vs">`&lt;table class="table table-sm table-striped small caption-top"&gt;</span></span>
-<span id="cb4-1020"><a href="#cb4-1020" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;thead&gt;&lt;tr&gt;</span></span>
-<span id="cb4-1021"><a href="#cb4-1021" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th&gt;Facility Type&lt;/th&gt;</span></span>
-<span id="cb4-1022"><a href="#cb4-1022" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;Total VMT&lt;/th&gt;</span></span>
-<span id="cb4-1023"><a href="#cb4-1023" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;PC/LT VMT&lt;/th&gt;</span></span>
-<span id="cb4-1024"><a href="#cb4-1024" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;MD VMT (Adjusted)&lt;/th&gt;</span></span>
-<span id="cb4-1025"><a href="#cb4-1025" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;HV VMT (Adjusted)&lt;/th&gt;</span></span>
-<span id="cb4-1026"><a href="#cb4-1026" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/tr&gt;&lt;/thead&gt;</span></span>
-<span id="cb4-1027"><a href="#cb4-1027" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;tbody&gt;</span></span>
-<span id="cb4-1028"><a href="#cb4-1028" aria-hidden="true" tabindex="-1"></a><span class="vs">    </span><span class="sc">${</span>[<span class="op">...</span>byClass<span class="op">,</span> totalRow]<span class="op">.</span><span class="fu">map</span>(</span>
-<span id="cb4-1029"><a href="#cb4-1029" aria-hidden="true" tabindex="-1"></a>      (d) <span class="kw">=&gt;</span> htl<span class="op">.</span><span class="fu">html</span><span class="vs">`&lt;tr style=</span><span class="sc">${</span>d[<span class="st">"Functional Class"</span>] <span class="op">===</span> <span class="st">"Total"</span> <span class="op">?</span> <span class="st">"font-weight:bold;border-top:2px solid #52514e;"</span> <span class="op">:</span> <span class="st">""</span><span class="sc">}</span><span class="vs">&gt;</span></span>
-<span id="cb4-1030"><a href="#cb4-1030" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td&gt;</span><span class="sc">${</span>d[<span class="st">"Functional Class"</span>]<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
-<span id="cb4-1031"><a href="#cb4-1031" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">total</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
-<span id="cb4-1032"><a href="#cb4-1032" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">total</span> <span class="op">-</span> d<span class="op">.</span><span class="at">adjMD</span> <span class="op">-</span> d<span class="op">.</span><span class="at">adjHV</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
-<span id="cb4-1033"><a href="#cb4-1033" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">adjMD</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
-<span id="cb4-1034"><a href="#cb4-1034" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">adjHV</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
-<span id="cb4-1035"><a href="#cb4-1035" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;/tr&gt;`</span></span>
-<span id="cb4-1036"><a href="#cb4-1036" aria-hidden="true" tabindex="-1"></a>    )<span class="sc">}</span></span>
-<span id="cb4-1037"><a href="#cb4-1037" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/tbody&gt;</span></span>
-<span id="cb4-1038"><a href="#cb4-1038" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/table&gt;`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="1063" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 1062;"><span id="cb4-1063"><a href="#cb4-1063" aria-hidden="true" tabindex="-1"></a>htl<span class="op">.</span><span class="fu">html</span><span class="vs">`&lt;table class="table table-sm table-striped small caption-top"&gt;</span></span>
+<span id="cb4-1064"><a href="#cb4-1064" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;thead&gt;&lt;tr&gt;</span></span>
+<span id="cb4-1065"><a href="#cb4-1065" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th&gt;Facility Type&lt;/th&gt;</span></span>
+<span id="cb4-1066"><a href="#cb4-1066" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;Total VMT&lt;/th&gt;</span></span>
+<span id="cb4-1067"><a href="#cb4-1067" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;PC/LT VMT&lt;/th&gt;</span></span>
+<span id="cb4-1068"><a href="#cb4-1068" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;MD VMT (Adjusted)&lt;/th&gt;</span></span>
+<span id="cb4-1069"><a href="#cb4-1069" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;th style="text-align:right"&gt;HV VMT (Adjusted)&lt;/th&gt;</span></span>
+<span id="cb4-1070"><a href="#cb4-1070" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/tr&gt;&lt;/thead&gt;</span></span>
+<span id="cb4-1071"><a href="#cb4-1071" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;tbody&gt;</span></span>
+<span id="cb4-1072"><a href="#cb4-1072" aria-hidden="true" tabindex="-1"></a><span class="vs">    </span><span class="sc">${</span>[<span class="op">...</span>byClass<span class="op">,</span> totalRow]<span class="op">.</span><span class="fu">map</span>(</span>
+<span id="cb4-1073"><a href="#cb4-1073" aria-hidden="true" tabindex="-1"></a>      (d) <span class="kw">=&gt;</span> htl<span class="op">.</span><span class="fu">html</span><span class="vs">`&lt;tr style=</span><span class="sc">${</span>d[<span class="st">"Functional Class"</span>] <span class="op">===</span> <span class="st">"Total"</span> <span class="op">?</span> <span class="st">"font-weight:bold;border-top:2px solid #52514e;"</span> <span class="op">:</span> <span class="st">""</span><span class="sc">}</span><span class="vs">&gt;</span></span>
+<span id="cb4-1074"><a href="#cb4-1074" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td&gt;</span><span class="sc">${</span>d[<span class="st">"Functional Class"</span>]<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
+<span id="cb4-1075"><a href="#cb4-1075" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">total</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
+<span id="cb4-1076"><a href="#cb4-1076" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">total</span> <span class="op">-</span> d<span class="op">.</span><span class="at">adjMD</span> <span class="op">-</span> d<span class="op">.</span><span class="at">adjHV</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
+<span id="cb4-1077"><a href="#cb4-1077" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">adjMD</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
+<span id="cb4-1078"><a href="#cb4-1078" aria-hidden="true" tabindex="-1"></a><span class="vs">        &lt;td style="text-align:right"&gt;</span><span class="sc">${</span><span class="fu">fmt</span>(d<span class="op">.</span><span class="at">adjHV</span>)<span class="sc">}</span><span class="vs">&lt;/td&gt;</span></span>
+<span id="cb4-1079"><a href="#cb4-1079" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;/tr&gt;`</span></span>
+<span id="cb4-1080"><a href="#cb4-1080" aria-hidden="true" tabindex="-1"></a>    )<span class="sc">}</span></span>
+<span id="cb4-1081"><a href="#cb4-1081" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/tbody&gt;</span></span>
+<span id="cb4-1082"><a href="#cb4-1082" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/table&gt;`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="vmt-targets-table" class="cell-output cell-output-display">
 <div id="ojs-cell-4" data-nodetype="expression">
 
