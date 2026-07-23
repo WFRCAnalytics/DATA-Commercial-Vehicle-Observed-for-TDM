@@ -18,6 +18,15 @@ A fourth, external check against FHWA's statewide VM-4 data is discussed in [Reg
 
 **VMT comparison basis:** CCS and HPMS stations/segments don't cover the whole network the way the model does, so the Medium/Heavy Truck VMT tables below express all three sources as an **Effective VMT** — each source's own truck percentage for a functional class, applied to the *model's* full-network total VMT for that class. This puts CCS, HPMS, and Model on the same complete-network basis so they're directly comparable; the Model VMT column is simply the model's own actual VMT (it needs no extrapolation, since it already covers every segment). Note this means "Model VMT" here is the full network total and will differ from the Highway Assignment page's "2b. Total Daily VMT by Roadway Class" table, whose "Model" column is restricted to only the segments that also have valid HPMS data (via an inner join) — a narrower, HPMS-matched comparison basis.
 
+## Downloads
+
+CSV exports of the data behind the tables and charts below:
+
+- [2023 HPMS VMT by Super District and Functional Class](data_processed/HPMS_2023_VMT_by_SuperDistrict_FunctionalClass.csv) — from [County-Level HPMS VMT with Proposed Adjustment](#county-level-hpms-vmt-with-proposed-adjustment)
+- [VMT Targets by Super District and Facility Type](data_processed/VMT_Targets_by_SuperDistrict_FacilityType.csv) — from [VMT Targets (Adjusted)](#vmt-targets-adjusted)
+- [CCS-Derived 2025/2003 Reclassification Ratio](data_processed/CCS_Reclass_Ratio_2025_2003.csv) — from [CCS-Derived 2025/2003 Reclassification Ratio](#ccs-derived-20252003-reclassification-ratio)
+- [2025 Recommended LT/MD/HV Split Factors](data_processed/LT_MD_HV_Split_Factors_2025.csv) — from [Recomputed LT/MD/HV Split Factors](#recomputed-ltmdhv-split-factors)
+
 ```{python}
 # ==============================================================================
 # CONFIGURATION
@@ -45,16 +54,16 @@ FT_ORDER = ["Freeway", "Expressway", "Principal Arterial", "Minor Arterial", "Co
 ```{python}
 # | label: shared-helper
 
-def build_ftclass_table(df, id_col, id_label):
-    """Sum MD/HV/Total volume (or VMT) by FTCLASS, add an All Roadways total
-    row, and compute the resulting Medium/Heavy truck percentages."""
+def build_ftclass_table(df, id_col, id_label, total_label="All Roadways"):
+    """Sum MD/HV/Total volume (or VMT) by FTCLASS, add a total row (labeled
+    total_label), and compute the resulting Medium/Heavy truck percentages."""
     cols = ["MD", "HV", "Total"]
     grouped = df.groupby("FTCLASS")[cols].sum()
     grouped[id_label] = df.groupby("FTCLASS")[id_col].nunique()
 
     total = df[cols].sum()
     total[id_label] = df[id_col].nunique()
-    total.name = "All Roadways"
+    total.name = total_label
     grouped = pd.concat([grouped, total.to_frame().T])
     grouped.index.name = "FTCLASS"
 
@@ -62,7 +71,7 @@ def build_ftclass_table(df, id_col, id_label):
     grouped["Heavy Truck %"] = grouped["HV"] / grouped["Total"] * 100
 
     grouped = grouped.reset_index().rename(columns={"FTCLASS": "Functional Class"})
-    order = FT_ORDER + ["All Roadways"]
+    order = FT_ORDER + [total_label]
     grouped["Functional Class"] = pd.Categorical(
         grouped["Functional Class"], categories=order, ordered=True
     )
@@ -102,7 +111,7 @@ def build_comparison_table(metric_col):
     for label, table in [("CCS", ccs_table), ("HPMS", hpms_table), ("Model", model_table)]:
         frames.append(
             table[["Functional Class", metric_col]]
-            .assign(**{"Functional Class": lambda d: d["Functional Class"].astype(str)})
+            .assign(**{"Functional Class": lambda d: d["Functional Class"].astype(str).replace("All Stations", "All Roadways")})
             .rename(columns={metric_col: label})
         )
 
@@ -135,7 +144,7 @@ def build_vmt_table(rate_col, vmt_col):
     )
     ccs_rate = (
         ccs_table[["Functional Class", rate_col]]
-        .assign(**{"Functional Class": lambda d: d["Functional Class"].astype(str)})
+        .assign(**{"Functional Class": lambda d: d["Functional Class"].astype(str).replace("All Stations", "All Roadways")})
         .rename(columns={rate_col: "CCS Rate"})
     )
     hpms_rate = (
@@ -349,7 +358,7 @@ df_obs_daily["Total"] = df_obs_daily[["LT", "MD", "HV"]].sum(axis=1)
 ccs_wide = df_obs_daily.merge(df_bridge.drop_duplicates("SITE"), on="SITE", how="inner")
 ccs_wide = ccs_wide[ccs_wide["FTCLASS"].notna() & (ccs_wide["Total"] > 0)]
 
-ccs_table = build_ftclass_table(ccs_wide, id_col="SITE", id_label="Stations")
+ccs_table = build_ftclass_table(ccs_wide, id_col="SITE", id_label="Stations", total_label="All Stations")
 ```
 
 ```{python}
@@ -474,7 +483,7 @@ style_table(ccs_table, "Stations")
 
 #### CCS Truck Volume by Vehicle Length Class
 
-The table below shows the average daily (Tue/Wed/Thu) raw CCS count volume, split into Medium and Heavy truck volume using the Wavetronix/UDOT length-bin factors below, summed across all CCS stations. This is a region-wide cross-check on the Medium/Heavy split feeding the functional-class table above — the Total row's MD/HV volumes should match the "All Roadways" MD/HV totals used there.
+The table below shows the average daily (Tue/Wed/Thu) raw CCS count volume, split into Medium and Heavy truck volume using the Wavetronix/UDOT length-bin factors below, summed across all CCS stations. This is a region-wide cross-check on the Medium/Heavy split feeding the functional-class table above — the Total row's MD/HV volumes should match the "All Stations" MD/HV totals used there.
 
 | Wavetronix Class | Length Bin | LT | MD | HV |
 |---|---|---|---|---|
@@ -745,7 +754,7 @@ def compute_ccs_table(splits_df):
     wide = df_daily.merge(df_bridge.drop_duplicates("SITE"), on="SITE", how="inner")
     wide = wide[wide["FTCLASS"].notna() & (wide["Total"] > 0)]
 
-    return build_ftclass_table(wide, id_col="SITE", id_label="Stations")
+    return build_ftclass_table(wide, id_col="SITE", id_label="Stations", total_label="All Stations")
 
 
 ccs_table_2003 = compute_ccs_table(splits_2003)
@@ -770,7 +779,7 @@ def build_impact_table(rate_col):
     for f in frames[1:]:
         merged = merged.merge(f, on="Functional Class", how="outer")
 
-    order = FT_ORDER + ["All Roadways"]
+    order = FT_ORDER + ["All Stations"]
     merged["Functional Class"] = pd.Categorical(merged["Functional Class"], categories=order, ordered=True)
     return merged.sort_values("Functional Class").reset_index(drop=True)
 
@@ -835,7 +844,7 @@ style_impact(build_impact_table("Heavy Truck %"))
 plot_impact_chart(build_impact_table("Heavy Truck %"), "Heavy Truck % by Functional Class and Data Vintage")
 ```
 
-The result is not a simple Medium-to-Heavy reshuffle. Region-wide (All Roadways), Medium Truck % runs **12.1% (Current) → 9.3% (2003) → 2.0% (2024) → 6.0% (2025)**, while Heavy Truck % runs **5.5% (Current) → 6.3% (2003) → 5.1% (2024) → 5.2% (2025)**. The 2003 column — contemporaneous with the current factors — lands close to Current on both, as expected. The bigger break shows up in 2024: Medium drops sharply while Heavy holds roughly steady, meaning total truck share (Medium + Heavy combined) falls overall rather than shifting between the two categories. That's because `L20-30`, the single highest-volume length bin, swings from "half truck" (50% MD) under the current factors to "almost entirely light vehicle" (94–79% LT, only 6–21% MD, near-zero HV) under the newer data — so a large share of volume that used to count toward Medium Truck % now doesn't count as a truck at all. The much smaller `L50-79` bin's shift toward Heavy (10%→0% MD, 90%→100% HV) works in the *other* direction but isn't large enough in volume to offset it. 2025 partially reverses the 2024 Medium drop (2.0% → 6.0%) while Heavy stays flat. The overall direction (lower combined truck share than Current/2003) is consistent across both 2024 and 2025 and is worth validating against the raw UDOT Statistics source data before treating it as a basis for changing the page's methodology.
+The result is not a simple Medium-to-Heavy reshuffle. Region-wide (All Stations), Medium Truck % runs **12.1% (Current) → 9.3% (2003) → 2.0% (2024) → 6.0% (2025)**, while Heavy Truck % runs **5.5% (Current) → 6.3% (2003) → 5.1% (2024) → 5.2% (2025)**. The 2003 column — contemporaneous with the current factors — lands close to Current on both, as expected. The bigger break shows up in 2024: Medium drops sharply while Heavy holds roughly steady, meaning total truck share (Medium + Heavy combined) falls overall rather than shifting between the two categories. That's because `L20-30`, the single highest-volume length bin, swings from "half truck" (50% MD) under the current factors to "almost entirely light vehicle" (94–79% LT, only 6–21% MD, near-zero HV) under the newer data — so a large share of volume that used to count toward Medium Truck % now doesn't count as a truck at all. The much smaller `L50-79` bin's shift toward Heavy (10%→0% MD, 90%→100% HV) works in the *other* direction but isn't large enough in volume to offset it. 2025 partially reverses the 2024 Medium drop (2.0% → 6.0%) while Heavy stays flat. The overall direction (lower combined truck share than Current/2003) is consistent across both 2024 and 2025 and is worth validating against the raw UDOT Statistics source data before treating it as a basis for changing the page's methodology.
 
 ### CCS-Derived 2025/2003 Reclassification Ratio
 
@@ -854,7 +863,7 @@ reclass_ratio = pd.DataFrame(
     }
 ).reset_index()
 
-order = FT_ORDER + ["All Roadways"]
+order = FT_ORDER + ["All Stations"]
 reclass_ratio = reclass_ratio.set_index("Functional Class").reindex(order).reset_index()
 reclass_ratio["Functional Class"] = pd.Categorical(reclass_ratio["Functional Class"], categories=order, ordered=True)
 
@@ -866,6 +875,41 @@ right_align(styler)
 ```
 
 A "—" means CCS had no matched stations for that functional class (e.g. Local), so no ratio could be computed.
+
+```{python}
+# | label: chart-reclass-ratio
+# | fig-cap: "CCS-derived 2025/2003 reclassification ratio by functional class"
+
+RATIO_COLORS = {"MD Ratio (2025/2003)": CATEGORY_COLORS["MD"], "HV Ratio (2025/2003)": CATEGORY_COLORS["HV"]}
+
+ratio_chart_df = reclass_ratio.dropna(subset=list(RATIO_COLORS))
+classes = ratio_chart_df["Functional Class"].astype(str).tolist()
+x = np.arange(len(classes))
+bar_width = 0.35
+
+fig, ax = plt.subplots(figsize=(8, 5), dpi=75)
+fig.patch.set_facecolor("#fcfcfb")
+
+for i, (col, color) in enumerate(RATIO_COLORS.items()):
+    offset = (i - 0.5) * bar_width
+    ax.bar(x + offset, ratio_chart_df[col], width=bar_width * 0.9, color=color, label=col.split(" ")[0])
+
+ax.axhline(1.0, color="#52514e", linewidth=1, linestyle="--")
+ax.annotate(
+    "No change (2003 = 2025)", xy=(len(classes) - 1, 1.0), xytext=(0, 5),
+    textcoords="offset points", ha="right", fontsize=8, color="#52514e",
+)
+
+ax.set_xticks(x)
+ax.set_xticklabels(classes, rotation=20, ha="right", fontsize=9)
+ax.set_ylabel("Ratio (2025 / 2003)", fontsize=9, color="#52514e")
+ax.set_title("CCS-Derived 2025/2003 Reclassification Ratio", fontsize=12, color="#0b0b0b", pad=30)
+style_chart_axes(ax)
+ax.legend(frameon=False, fontsize=9, loc="upper center", ncol=2, bbox_to_anchor=(0.5, 1.14))
+plt.tight_layout()
+plt.close(fig)
+fig
+```
 
 ```{python}
 # | label: reclass-ratio-export
