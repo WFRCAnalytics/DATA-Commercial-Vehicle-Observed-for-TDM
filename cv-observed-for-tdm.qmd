@@ -23,6 +23,7 @@ A fourth, external check against FHWA's statewide VM-4 data is discussed in [Reg
 CSV exports of the data behind the tables and charts below:
 
 - [2023 HPMS VMT by Super District and Functional Class](data_processed/HPMS_2023_VMT_by_SuperDistrict_FunctionalClass.csv) — from [County-Level HPMS VMT with Proposed Adjustment](#county-level-hpms-vmt-with-proposed-adjustment)
+- [HPMS VMT Adjustment by Super District and Facility Type, with Totals](data_processed/HPMS_VMT_Adjustment_by_SuperDistrict_FacilityType.csv) — from [County-Level HPMS VMT with Proposed Adjustment](#county-level-hpms-vmt-with-proposed-adjustment)
 - [VMT Targets by Super District and Facility Type](data_processed/VMT_Targets_by_SuperDistrict_FacilityType.csv) — from [VMT Targets (Adjusted)](#vmt-targets-adjusted)
 - [CCS-Derived 2025/2003 Reclassification Ratio](data_processed/CCS_Reclass_Ratio_2025_2003.csv) — from [CCS-Derived 2025/2003 Reclassification Ratio](#ccs-derived-20252003-reclassification-ratio)
 - [2025 Recommended LT/MD/HV Split Factors](data_processed/LT_MD_HV_Split_Factors_2025.csv) — from [Recomputed LT/MD/HV Split Factors](#recomputed-ltmdhv-split-factors)
@@ -1054,6 +1055,34 @@ htl.html`<table class="table table-sm table-striped small caption-top">
   </tbody>
 </table>`
 ```
+
+```{python}
+# | label: county-adj-csv-export
+
+county_adj_export = county_adj[county_adj["Functional Class"] != "Local"].copy()
+county_adj_export["Functional Class"] = county_adj_export["Functional Class"].astype(str)
+
+county_totals = county_adj_export.groupby("County", sort=False)[
+    ["Total", "HPMS MD VMT", "Adjusted MD VMT", "HPMS HV VMT", "Adjusted HV VMT"]
+].sum().reset_index()
+county_totals["Functional Class"] = "Total"
+county_totals["MD Ratio (2025/2003)"] = county_totals["Adjusted MD VMT"] / county_totals["HPMS MD VMT"]
+county_totals["HV Ratio (2025/2003)"] = county_totals["Adjusted HV VMT"] / county_totals["HPMS HV VMT"]
+
+county_adj_export = pd.concat([county_adj_export, county_totals], ignore_index=True)[county_adj_export.columns]
+
+facility_order = [c for c in FT_ORDER if c != "Local"] + ["Total"]
+county_adj_export["Functional Class"] = pd.Categorical(
+    county_adj_export["Functional Class"], categories=facility_order, ordered=True
+)
+county_adj_export["County"] = county_adj_export["County"].str.replace(" Super District", "", regex=False)
+county_adj_export = county_adj_export.sort_values(["County", "Functional Class"]).reset_index(drop=True)
+county_adj_export = county_adj_export.rename(columns={"County": "Super District", "Functional Class": "Facility Type"})
+
+county_adj_export.to_csv("data_processed/HPMS_VMT_Adjustment_by_SuperDistrict_FacilityType.csv", index=False)
+```
+
+[Download HPMS VMT Adjustment by Super District and Facility Type, with Totals (CSV)](data_processed/HPMS_VMT_Adjustment_by_SuperDistrict_FacilityType.csv)
 
 ### VMT Targets (Adjusted)
 
