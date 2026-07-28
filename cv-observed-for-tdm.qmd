@@ -1059,23 +1059,40 @@ htl.html`<table class="table table-sm table-striped small caption-top">
 ```{python}
 # | label: county-adj-csv-export
 
+VMT_COLS = ["Total", "HPMS MD VMT", "Adjusted MD VMT", "HPMS HV VMT", "Adjusted HV VMT"]
+
+
+def with_ratios(df):
+    df = df.copy()
+    df["MD Ratio (2025/2003)"] = df["Adjusted MD VMT"] / df["HPMS MD VMT"]
+    df["HV Ratio (2025/2003)"] = df["Adjusted HV VMT"] / df["HPMS HV VMT"]
+    return df
+
+
 county_adj_export = county_adj[county_adj["Functional Class"] != "Local"].copy()
 county_adj_export["Functional Class"] = county_adj_export["Functional Class"].astype(str)
 
-county_totals = county_adj_export.groupby("County", sort=False)[
-    ["Total", "HPMS MD VMT", "Adjusted MD VMT", "HPMS HV VMT", "Adjusted HV VMT"]
-].sum().reset_index()
+county_totals = with_ratios(county_adj_export.groupby("County", sort=False)[VMT_COLS].sum().reset_index())
 county_totals["Functional Class"] = "Total"
-county_totals["MD Ratio (2025/2003)"] = county_totals["Adjusted MD VMT"] / county_totals["HPMS MD VMT"]
-county_totals["HV Ratio (2025/2003)"] = county_totals["Adjusted HV VMT"] / county_totals["HPMS HV VMT"]
 
-county_adj_export = pd.concat([county_adj_export, county_totals], ignore_index=True)[county_adj_export.columns]
+region_by_class = with_ratios(county_adj_export.groupby("Functional Class", sort=False)[VMT_COLS].sum().reset_index())
+region_by_class["County"] = "Region"
+
+region_total = with_ratios(county_adj_export[VMT_COLS].sum().to_frame().T)
+region_total["County"] = "Region"
+region_total["Functional Class"] = "Total"
+
+county_adj_export = pd.concat(
+    [county_adj_export, county_totals, region_by_class, region_total], ignore_index=True
+)[county_adj_export.columns]
 
 facility_order = [c for c in FT_ORDER if c != "Local"] + ["Total"]
 county_adj_export["Functional Class"] = pd.Categorical(
     county_adj_export["Functional Class"], categories=facility_order, ordered=True
 )
 county_adj_export["County"] = county_adj_export["County"].str.replace(" Super District", "", regex=False)
+county_order = sorted(county_adj_export.loc[county_adj_export["County"] != "Region", "County"].unique()) + ["Region"]
+county_adj_export["County"] = pd.Categorical(county_adj_export["County"], categories=county_order, ordered=True)
 county_adj_export = county_adj_export.sort_values(["County", "Functional Class"]).reset_index(drop=True)
 county_adj_export = county_adj_export.rename(columns={"County": "Super District", "Functional Class": "Facility Type"})
 
